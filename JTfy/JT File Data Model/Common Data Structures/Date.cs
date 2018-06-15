@@ -12,6 +12,11 @@ namespace JTfy
         public Int16 Minute { get { return data[4]; } }
         public Int16 Second { get { return data[5]; } }
 
+        public override string ToString()
+        {
+            return new DateTime(Year, Month, Day, Hour, Minute, Second).ToString();
+        }
+
         public Date(Stream stream)
         {
             data = new Int16[6];

@@ -4,23 +4,17 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 
-#if DEBUG
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
-#endif
 
 namespace JTfy
 {
     class Program
     {
-#if DEBUG
-        static Byte[] decompressedOriginalSegment;
-#endif
-
         static void Main(string[] args)
         {
-            Save();
+            //Save();
             //Load();
         }
 
@@ -28,22 +22,48 @@ namespace JTfy
         {
             var root = new JTNode()
             {
-                Name = "Richard"
+                Name = "Richard",
+                Attributes = new Dictionary<string, object>()
+                {
+                    {"prop11", DateTime.Now},
+                    {"prop22", 22},
+                    {"prop33", 22.22f},
+                    {"prop44", "asdASD"}
+                }
             };
 
             var childNode1 = new JTNode()
             {
-                Name = "Mab"
+                Name = "Mab",
+                Attributes = new Dictionary<string, object>()
+                {
+                    {"some  date", DateTime.Now}
+                }
             };
 
             var childNode2 = new JTNode()
             {
-                Name = "Asd"
+                Name = "Asd",
+                Attributes = new Dictionary<string, object>()
+                {
+                    {"prop1", DateTime.Now},
+                    {"prop2", 2},
+                    {"prop3", 2.2f},
+                    {"prop4", "asd"}
+                }
             };
 
             var instancedNode = new JTNode()
             {
                 Name = "Hoar",
+
+                Attributes = new Dictionary<string, object>()
+                {
+                    {"prop88", DateTime.Now},
+                    {"prop99", 201},
+                    {"prop1111", 42.2f},
+                    {"prop2222", "krm"}
+                },
 
                 GeometricSets = new GeometricSet[]
                 {
@@ -51,20 +71,22 @@ namespace JTfy
                     (
                         new int[][]
                         {
-                            new int[] { 0, 1, 2 }
+                            new int[] { 0, 1, 2, 3 }
                         },
 
                         new float[][]
                         {
                             new float[] { 0, 0, 0 },
                             new float[] { 100, 0, 0 },
-                            new float[] { 0, 0, 100 }
+                            new float[] { 0, 0, 100 },
+                            new float[] { 0, 100, 0 }
                         }
                     )
                     {
                         //Colour = Color.CornflowerBlue,
                         Normals = new float[][]
                         {
+                            new float[] { 0, -1, 0 },
                             new float[] { 0, -1, 0 },
                             new float[] { 0, -1, 0 },
                             new float[] { 0, -1, 0 }
@@ -109,8 +131,8 @@ namespace JTfy
 
             root.Children = new List<JTNode>
             {
-                childNode2,
-                childNode1,
+                //childNode2,
+                //childNode1,
                 instancedNode
             };
 
@@ -122,9 +144,9 @@ namespace JTfy
             // 8.1
             //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\DS_L405_040102_C01_18_FR_SUSP_LINKS___ARMS_20.jt");
             //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\DS_L405_040102_C01_18_FR_SUSP_LINKS___ARMS\W780052_S_INS_01_NUT_WSHR_M10_HC_PTP_FL10_2.jt");
-            Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\out_SAVE_VIA_SYSTEM.jt");
-            //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\plane.jt");
-            //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\transparent_nut.jt");
+            //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\out_SAVE_VIA_SYSTEM.jt");
+            //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\conrod.jt");
+            Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\test81.jt");
 
             // 9.5
             //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\DS_L405_040102_C01_18_FR_SUSP_LINKS___ARMS\W780052_S_INS_01_NUT_WSHR_M10_HC_PTP_FL10_2.jt");
@@ -148,10 +170,6 @@ namespace JTfy
 
             var fileHeader = new FileHeader(jtFileStream);
 
-#if DEBUG
-            var testVersion = Encoding.ASCII.GetString(fileHeader.Version);
-#endif
-
             // END File Header
 
             // TOC Segment
@@ -173,10 +191,6 @@ namespace JTfy
             for (int i = 0; i < tocEntriesCount; ++i)
             {
                 var tocEntry = tocSegment.TOCEntries[i];
-
-#if DEBUG
-                var segTypeFromSegAttributes = tocEntry.SegmentAttributes >> 24;
-#endif
 
                 jtFileStream.Position = tocEntry.SegmentOffset;
 
@@ -206,11 +220,6 @@ namespace JTfy
                             var decompressedData = CompressionUtils.Decompress(compressedData);
 
                             stream = new MemoryStream(decompressedData);
-
-#if DEBUG
-                            decompressedOriginalSegment = decompressedData;
-#endif
-
                         }
                     }
 
@@ -234,13 +243,41 @@ namespace JTfy
 
                         case 6:
                             {
-                                dataSegments[i] = new ShapeLODSegment(stream);
+                                var shapeLODSegment = new ShapeLODSegment(stream);
+
+                                dataSegments[i] = shapeLODSegment;
+
+                                //var repData = ((TriStripSetShapeLODElement)shapeLODSegment.ShapeLODElement).VertexBasedShapeCompressedRepData;
+
+                                /*var geometricSets = new List<GeometricSet>(repData.TriStrips.Length);
+
+                                for (int index = 0, count = repData.TriStrips.Length; index < count; ++index)
+                                {
+                                    geometricSets.Add(new GeometricSet(new int[][] { repData.TriStrips[index] }, repData.Positions)
+                                    {
+                                        Colour = Color.CornflowerBlue,
+                                        Normals = repData.Normals
+                                    });
+                                }*/
+
+                                /*new JTNode()
+                                {
+                                    Name = "TestPart",
+                                    GeometricSets = new GeometricSet[]
+                                    {
+                                        new GeometricSet(repData.TriStrips, repData.Positions)
+                                        {
+                                            Normals = repData.Normals
+                                        }
+                                    }
+                                }.Save(@"C:\Users\mtadara1\Desktop\TestPart.jt");*/
 
                                 break;
                             }
 
                         default:
                             {
+                                //break;
                                 throw new NotImplementedException(String.Format("Case not defined for Segment Type {0}", segmentType));
                             }
                     }

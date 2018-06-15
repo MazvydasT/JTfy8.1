@@ -149,10 +149,10 @@ namespace JTfy
 
                 switch (propertyValueTypeName)
                 {
-                    case "MbString":
+                    case "String":
                         {
                             PropertyValueTypes.Add(1);
-                            PropertyValues.Add((MbString)propertyValue);
+                            PropertyValues.Add(new MbString((string)propertyValue));
 
                             break;
                         }
@@ -160,7 +160,7 @@ namespace JTfy
                     case "Int32":
                         {
                             PropertyValueTypes.Add(2);
-                            PropertyValues.Add((Int32)propertyValue);
+                            PropertyValues.Add((int)propertyValue);
 
                             break;
                         }
@@ -168,22 +168,22 @@ namespace JTfy
                     case "Single":
                         {
                             PropertyValueTypes.Add(3);
-                            PropertyValues.Add((Single)propertyValue);
+                            PropertyValues.Add((float)propertyValue);
 
                             break;
                         }
 
-                    case "Date":
+                    case "DateTime":
                         {
                             PropertyValueTypes.Add(4);
-                            PropertyValues.Add((Date)propertyValue);
+                            PropertyValues.Add(new Date((DateTime)propertyValue));
 
                             break;
                         }
 
                     default:
                         {
-                            throw new Exception(String.Format("Property value name {0} is not recognised.", propertyValueTypeName));
+                            throw new Exception(String.Format("Property value name {0} is not supported.", propertyValueTypeName));
                         }
                 }
             }

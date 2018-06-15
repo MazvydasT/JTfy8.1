@@ -28,7 +28,7 @@ namespace JTfy
             }
         }
 
-        public RangeLODNodeElement(int objectId, int[] childNodeObjectIds, int[] attributeObjectIds = null) : base(objectId, childNodeObjectIds, attributeObjectIds) { }
+        public RangeLODNodeElement(int objectId) : base(objectId) { }
 
         public RangeLODNodeElement(Stream stream) : base(stream)
         {

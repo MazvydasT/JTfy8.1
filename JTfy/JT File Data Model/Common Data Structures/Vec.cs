@@ -77,6 +77,11 @@ namespace JTfy
             }
         }
 
+        public override string ToString()
+        {
+            return Value;
+        }
+
         public MbString(Stream stream) : base(stream) { }
         public MbString(UInt16[] data) : base(data) { }
         public MbString() : base(new ushort[0]) { }

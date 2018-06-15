@@ -10,7 +10,7 @@ namespace JTfy
         public override byte[] Bytes { get { return base.Bytes; } }
 
 
-        public TriStripSetShapeNodeElement(GeometricSet geometrySet, int objectId, int[] attributeObjectIds = null) : base(geometrySet, objectId, attributeObjectIds) { }
+        public TriStripSetShapeNodeElement(GeometricSet geometrySet, int objectId) : base(geometrySet, objectId) { }
 
         public TriStripSetShapeNodeElement(Stream stream) : base(stream) { }
     }

@@ -26,7 +26,7 @@ namespace JTfy
             }
         }
 
-        public PartNodeElement(int objectId, int[] childNodeObjectIds = null, int[] attributeObjectIds = null) : base(objectId, childNodeObjectIds, attributeObjectIds) { }
+        public PartNodeElement(int objectId) : base(objectId) { }
 
         public PartNodeElement(Stream stream)
             : base(stream)

@@ -20,9 +20,10 @@ namespace JTfy
                 {
                     var bytesList = new List<byte>(ByteCount);
 
-                    bytesList.AddRange(StreamUtils.ToBytes(StreamUtils.ReadInt32(guidStream)));
-                    bytesList.AddRange(StreamUtils.ToBytes(StreamUtils.ReadInt16(guidStream)));
-                    bytesList.AddRange(StreamUtils.ToBytes(StreamUtils.ReadInt16(guidStream)));
+                    bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 4, true));
+                    bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 2, true));
+                    bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 2, true));
+                    
                     bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 8, false));
 
                     return bytesList.ToArray();

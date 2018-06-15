@@ -169,6 +169,7 @@ namespace JTfy
         {
             using (var compressedDataStream = new MemoryStream())
             using (var zOutputStream = new zlib.ZOutputStream(compressedDataStream, zlib.zlibConst.Z_BEST_COMPRESSION))
+            //using (var zOutputStream = new zlib.ZOutputStream(compressedDataStream, 1))
             {
                 zOutputStream.Write(data, 0, data.Length);
                 zOutputStream.Flush();

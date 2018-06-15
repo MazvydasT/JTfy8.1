@@ -11,7 +11,27 @@ namespace JTfy
         public byte TextureCoordBinding { get; private set; }
         public byte ColourBinding { get; private set; }
         public QuantizationParameters QuantizationParameters { get; private set; }
-        public int[] PrimitiveListIndices { get; private set; }
+        public List<int> PrimitiveListIndices
+        {
+            get
+            {
+                var triStripsCount = TriStrips.Length;
+
+                var primitiveListIndices = new List<int>(triStripsCount + 1);
+
+                for (int i = 0; i < triStripsCount; ++i)
+                {
+                    var triStrip = TriStrips[i];
+
+                    primitiveListIndices.Add(triStrip[0]);
+
+                    if(i + 1 == triStripsCount)
+                        primitiveListIndices.Add(triStrip[triStrip.Length - 1] + 1);
+                }
+
+                return primitiveListIndices;
+            }
+        }
         //public LossyQuantizedRawVertexData LossyQuantizedRawVertexData { get; private set; }
         public LosslessCompressedRawVertexData LosslessCompressedRawVertexData { get; private set; }
 
@@ -20,17 +40,24 @@ namespace JTfy
         public int[][] TriStrips { get; private set; }
 
         private byte[] primitiveListIndicesInt32CompressedDataPacketBytes = null;
-
-        public override int ByteCount
+        private byte[] PrimitiveListIndicesInt32CompressedDataPacketBytes
         {
             get
             {
                 if (primitiveListIndicesInt32CompressedDataPacketBytes == null)
                 {
-                    primitiveListIndicesInt32CompressedDataPacketBytes = Int32CompressedDataPacket.Encode(PrimitiveListIndices);
+                    primitiveListIndicesInt32CompressedDataPacketBytes = Int32CompressedDataPacket.Encode(PrimitiveListIndices.ToArray(), Int32CompressedDataPacket.PredictorType.Stride1);
                 }
 
-                return 2 + 1 + 1 + 1 + QuantizationParameters.ByteCount + primitiveListIndicesInt32CompressedDataPacketBytes.Length + LosslessCompressedRawVertexData.ByteCount;
+                return primitiveListIndicesInt32CompressedDataPacketBytes;
+            }
+        }
+
+        public override int ByteCount
+        {
+            get
+            {
+                return 2 + 1 + 1 + 1 + QuantizationParameters.ByteCount + PrimitiveListIndicesInt32CompressedDataPacketBytes.Length + LosslessCompressedRawVertexData.ByteCount;
             }
         }
 
@@ -38,11 +65,6 @@ namespace JTfy
         {
             get
             {
-                if (primitiveListIndicesInt32CompressedDataPacketBytes == null)
-                {
-                    primitiveListIndicesInt32CompressedDataPacketBytes = Int32CompressedDataPacket.Encode(PrimitiveListIndices);
-                }
-
                 var bytesList = new List<byte>(ByteCount);
 
                 bytesList.AddRange(StreamUtils.ToBytes(VersionNumber));
@@ -50,7 +72,7 @@ namespace JTfy
                 bytesList.Add(TextureCoordBinding);
                 bytesList.Add(ColourBinding);
                 bytesList.AddRange(QuantizationParameters.Bytes);
-                bytesList.AddRange(primitiveListIndicesInt32CompressedDataPacketBytes);
+                bytesList.AddRange(PrimitiveListIndicesInt32CompressedDataPacketBytes);
                 bytesList.AddRange(LosslessCompressedRawVertexData.Bytes);
 
                 return bytesList.ToArray();
@@ -70,8 +92,7 @@ namespace JTfy
             // Next we need to make sure that first index of each tristrip is bigger by 1 than last index of previous tristrip
             // Next we need to extract first index of each tristrip also add last index of last tristrip + 1
 
-            PrimitiveListIndices = new int[triStrips.Length + 1];
-
+            var newTriStrips = new int[triStrips.Length][];
             var newVertexPositions = new List<float[]>(vertexPositions.Length);
             var newVertexNormals = vertexNormals == null ? null : new List<float[]>(vertexNormals.Length);
 
@@ -80,10 +101,13 @@ namespace JTfy
             for (int triStripIndex = 0, triStripCount = triStrips.Length; triStripIndex < triStripCount; ++triStripIndex)
             {
                 var triStrip = triStrips[triStripIndex];
+                var indicesCount = triStrip.Length;
 
-                for (int i = 0, c = triStrip.Length; i < c; ++i)
+                var newTriStrip = new int[indicesCount];
+
+                for (int i = 0; i < indicesCount; ++i)
                 {
-                    triStrip[i] = newVertexIndex++;
+                    newTriStrip[i] = newVertexIndex++;
 
                     var vertexIndex = triStrip[i];
 
@@ -91,15 +115,12 @@ namespace JTfy
                     if (vertexNormals != null) newVertexNormals.Add(vertexNormals[vertexIndex]);
                 }
 
-                PrimitiveListIndices[triStripIndex] = triStrip[0];
-
-                if(triStripIndex + 1 == triStripCount)
-                {
-                    PrimitiveListIndices[PrimitiveListIndices.Length - 1] = newVertexIndex;
-                }
+                newTriStrips[triStripIndex] = newTriStrip;
             }
 
-
+            TriStrips = newTriStrips;
+            Positions = newVertexPositions.ToArray();
+            Normals = newVertexNormals.ToArray();
 
             //Next build vertex data from positons and normals eg x y z, xn yn zn -> repeat
             //Next convert vertex data to byte array
@@ -134,7 +155,8 @@ namespace JTfy
             TextureCoordBinding = StreamUtils.ReadByte(stream);
             ColourBinding = StreamUtils.ReadByte(stream);
             QuantizationParameters = new QuantizationParameters(stream);
-            PrimitiveListIndices = Int32CompressedDataPacket.GetArrayI32(stream, Int32CompressedDataPacket.PredictorType.Stride1);
+            
+            var primitiveListIndices = Int32CompressedDataPacket.GetArrayI32(stream, Int32CompressedDataPacket.PredictorType.Stride1);
 
             MemoryStream vertexDataStream = null;
 
@@ -155,7 +177,7 @@ namespace JTfy
             var readColours = ColourBinding == 1;
 
             var vertexEntrySize = 3 + (readNormals ? 3 : 0) + (readTextureCoords ? 2 : 0) + (readColours ? 3 : 0);
-            var vertexEntryCount = ((int)vertexDataStream.Length / 4) / vertexEntrySize;
+            var vertexEntryCount = (vertexDataStream.Length / 4) / vertexEntrySize;
 
             var vertexPositions = new float[vertexEntryCount][];
             var vertexNormals = readNormals ? new float[vertexEntryCount][] : null;
@@ -165,36 +187,27 @@ namespace JTfy
             for(int i = 0; i < vertexEntryCount; ++i)
             {
                 if (readTextureCoords)
-                {
                     vertexTextureCoordinates[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
-                }
 
                 if (readColours)
-                {
                     vertexColours[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
-                }
 
                 if (readNormals)
-                {
                     vertexNormals[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
-                }
 
                 vertexPositions[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
             }
 
             Positions = vertexPositions;
             Normals = vertexNormals;
-            
-            var triStripCount = PrimitiveListIndices.Length - 1;
-            var triStrips = new int[triStripCount][];
 
-            //var triangleCount = PrimitiveListIndices[triStripCount] - (triStripCount * 2);
-            //var trianglesList = new List<Tuple<int, int, int>>(triangleCount);
+            var triStripCount = primitiveListIndices.Length - 1;
+            var triStrips = new int[triStripCount][];
 
             for (int triStripIndex = 0; triStripIndex < triStripCount; ++triStripIndex)
             {
-                var startIndex = PrimitiveListIndices[triStripIndex];
-                var endIndex = PrimitiveListIndices[triStripIndex + 1];
+                var startIndex = primitiveListIndices[triStripIndex];
+                var endIndex = primitiveListIndices[triStripIndex + 1];
                 
                 var indicesCount = endIndex - startIndex;
                 var indices = new int[indicesCount];
@@ -205,11 +218,6 @@ namespace JTfy
                 }
 
                 triStrips[triStripIndex] = indices;
-
-                /*for (var index = startIndex; index < endIndex - 2; ++index)
-                {
-                    trianglesList.Add(new Tuple<int, int, int>(index, index + 1, index + 2));
-                }*/
             }
 
             TriStrips = triStrips;

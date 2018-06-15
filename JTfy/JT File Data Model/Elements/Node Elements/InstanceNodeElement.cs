@@ -29,8 +29,8 @@ namespace JTfy
             }
         }
 
-        public InstanceNodeElement(int childNodeObjectID, int objectId, int[] attributeObjectIds = null)
-            : base(objectId, attributeObjectIds)
+        public InstanceNodeElement(int childNodeObjectID, int objectId)
+            : base(objectId)
         {
             ChildNodeObjectID = childNodeObjectID;
         }

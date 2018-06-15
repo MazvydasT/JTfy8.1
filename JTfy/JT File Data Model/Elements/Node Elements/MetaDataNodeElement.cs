@@ -23,7 +23,7 @@ namespace JTfy
             }
         }
 
-        public MetaDataNodeElement(int objectId, int[] childNodeObjectIds = null, int[] attributeObjectIds = null) : base(objectId, childNodeObjectIds, attributeObjectIds) { }
+        public MetaDataNodeElement(int objectId) : base(objectId) { }
 
         public MetaDataNodeElement(Stream stream):base(stream)
         {

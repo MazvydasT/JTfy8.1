@@ -32,7 +32,8 @@ namespace JTfy
             }
         }
 
-        public VertexShapeNodeElement(Stream stream) : base(stream)
+        public VertexShapeNodeElement(Stream stream)
+            : base(stream)
         {
             NormalBinding = StreamUtils.ReadInt32(stream);
             TextureBinding = StreamUtils.ReadInt32(stream);
@@ -40,12 +41,13 @@ namespace JTfy
             QuantizationParameters = new QuantizationParameters(stream);
         }
 
-        public VertexShapeNodeElement(GeometricSet geometricSet, int objectId, int[] attributeObjectIds=null):base(geometricSet, objectId, attributeObjectIds)
+        public VertexShapeNodeElement(GeometricSet geometricSet, int objectId)
+            : base(geometricSet, objectId)
         {
             NormalBinding = geometricSet.Normals == null ? 1 : 0;
             TextureBinding = 0;
             ColourBinding = 0;
-            QuantizationParameters = new QuantizationParameters(0,0,0,0);
+            QuantizationParameters = new QuantizationParameters(0, 0, 0, 0);
         }
     }
 }

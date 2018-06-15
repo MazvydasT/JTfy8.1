@@ -43,22 +43,31 @@ namespace JTfy
 
         private Dictionary<string, int> uniquePropertyIds = new Dictionary<string, int>();
         private Dictionary<string, int> uniqueAttributeIds = new Dictionary<string, int>();
+        private Dictionary<JTNode, SegmentHeader> uniqueMetaDataSegmentHeaders = new Dictionary<JTNode, SegmentHeader>();
 
         private Dictionary<Int32, NodePropertyTable> propertyTableContents = new Dictionary<Int32, NodePropertyTable>();
 
-        private Stack<BaseDataStructure> elements = new Stack<BaseDataStructure>();
+        private List<BaseDataStructure> elements = new List<BaseDataStructure>();
         private List<BasePropertyAtomElement> propertyAtomElements = new List<BasePropertyAtomElement>();
         
         private List<ShapeLODSegment> shapeLODSegments = new List<ShapeLODSegment>();
         private List<SegmentHeader> shapeLODSegmentHeaders = new List<SegmentHeader>();
 
-        public void Save(string path)
+        private List<Byte[]> compressedMetaDataSegments = new List<Byte[]>();
+        private List<LogicElementHeaderZLIB> metaDataSegmentHeadersZLIB = new List<LogicElementHeaderZLIB>();
+        private List<SegmentHeader> metaDataSegmentHeaders = new List<SegmentHeader>();
+
+        private bool monolithic;
+        private bool separateAttributeSegments;
+
+        public void Save(string path, bool monolithic = true, bool separateAttributeSegments = false)
         {
             uniqueNodes.Clear();
             instancedNodes.Clear();
 
             uniquePropertyIds.Clear();
             uniqueAttributeIds.Clear();
+            uniqueMetaDataSegmentHeaders.Clear();
 
             propertyTableContents.Clear();
             
@@ -67,6 +76,13 @@ namespace JTfy
 
             shapeLODSegments.Clear();
             shapeLODSegmentHeaders.Clear();
+
+            compressedMetaDataSegments.Clear();
+            metaDataSegmentHeadersZLIB.Clear();
+            metaDataSegmentHeaders.Clear();
+
+            this.monolithic = monolithic;
+            this.separateAttributeSegments = separateAttributeSegments;
 
             // File Header
 
@@ -80,7 +96,7 @@ namespace JTfy
 
             FindInstancedNodes(this);
 
-            CreateGraphElement(this);
+            CreateElement(this);
 
             // END Create all elements
 
@@ -140,6 +156,13 @@ namespace JTfy
                 tocEntries.Add(new TOCEntry(shapeLODSegmentHeader.SegmentID, -1, shapeLODSegmentHeader.SegmentLength, (UInt32)(shapeLODSegmentHeader.SegmentType << 24)));
             }
 
+            for (int i = 0, c = metaDataSegmentHeaders.Count; i < c; ++i)
+            {
+                var metaDataSegmentHeader = metaDataSegmentHeaders[i];
+
+                tocEntries.Add(new TOCEntry(metaDataSegmentHeader.SegmentID, -1, metaDataSegmentHeader.SegmentLength, (UInt32)(metaDataSegmentHeader.SegmentType << 24)));
+            }
+
             if (tocEntries.Count == 1) tocEntries.Add(lsgTOCEntry);
 
             var tocSegment = new TOCSegment(tocEntries.ToArray());
@@ -182,6 +205,17 @@ namespace JTfy
                     outputFileStream.Write(shapeLODSegmentHeader.Bytes, 0, shapeLODSegmentHeader.ByteCount);
                     outputFileStream.Write(shapeLODSegment.Bytes, 0, shapeLODSegment.ByteCount);
                 }
+
+                for (int i = 0, c = metaDataSegmentHeaders.Count; i < c; ++i)
+                {
+                    var metaDataSegmentHeader = metaDataSegmentHeaders[i];
+                    var metaDataSegmentHeaderZLIB = metaDataSegmentHeadersZLIB[i];
+                    var compressedMetaDataSegment = compressedMetaDataSegments[i];
+
+                    outputFileStream.Write(metaDataSegmentHeader.Bytes, 0, metaDataSegmentHeader.ByteCount);
+                    outputFileStream.Write(metaDataSegmentHeaderZLIB.Bytes, 0, metaDataSegmentHeaderZLIB.ByteCount);
+                    outputFileStream.Write(compressedMetaDataSegment, 0, compressedMetaDataSegment.Length);
+                }
             }
 
             // END Write to file
@@ -204,27 +238,36 @@ namespace JTfy
             }
         }
 
-        private BaseNodeElement CreateGraphElement(JTNode node)
+        private BaseNodeElement CreateElement(JTNode node)
         {
-            var nodeElementId = IdGenUtils.NextId;
-            BaseNodeElement nodeElement = null;
-
             // Process children and store their IDs
 
             var childNodes = node.Children;
             var childNodesCount = childNodes.Count;
-            var childNodeObjectIds = new int[childNodesCount];
+            var childNodeObjectIds = new List<int>(childNodesCount);
 
             for (int i = 0; i < childNodesCount; ++i)
             {
-                childNodeObjectIds[i] = CreateGraphElement(childNodes[i]).ObjectId;
+                childNodeObjectIds.Add(CreateElement(childNodes[i]).ObjectId);
             }
 
             // END Process children and store their IDs
 
-            // Process attributes
-            
-            var attributeObjectIdList = new List<int>();
+
+
+            // Create node
+
+            MetaDataNodeElement nodeElement = childNodesCount > 0 ?
+                new MetaDataNodeElement(IdGenUtils.NextId) :
+                new PartNodeElement(IdGenUtils.NextId);
+
+            nodeElement.ChildNodeObjectIds = childNodeObjectIds;
+
+            // END Create node
+
+
+
+            // Process transformatio matrix
 
             if (node.TransformationMatrix != null)
             {
@@ -240,22 +283,28 @@ namespace JTfy
                     uniqueAttributeIds[transformationMatrixAsString] = geometricTransformAttributeElementId;
                 }
 
-                elements.Push(new GeometricTransformAttributeElement(node.TransformationMatrix, geometricTransformAttributeElementId));
+                elements.Add(new GeometricTransformAttributeElement(node.TransformationMatrix, geometricTransformAttributeElementId));
 
-                attributeObjectIdList.Add(geometricTransformAttributeElementId);
+                nodeElement.AttributeObjectIds.Add(geometricTransformAttributeElementId);
             }
+
+            // END Process transformatio matrix
+
+
+
+            // Process Geometric Sets
 
             var geometricSetsCount = node.geometricSets.Length;
 
             if (geometricSetsCount > 0)
             {
-                var childNodeObjectIdList = new List<int>(childNodesCount + 1);
-                childNodeObjectIdList.AddRange(childNodeObjectIds);
-
                 var triStripSetShapeNodeElementIds = new int[geometricSetsCount];
 
                 float x = 0, y = 0, z = 0;
                 int count = 0;
+
+                var groupNodeElement = new GroupNodeElement(IdGenUtils.NextId);
+                elements.Add(groupNodeElement);
 
                 for (int i = 0; i < geometricSetsCount; ++i)
                 {
@@ -270,13 +319,17 @@ namespace JTfy
                     else
                     {
                         uniqueAttributeIds[materialAttributeElementAsString] = materialAttributeElementId;
-                        elements.Push(materialAttributeElement);
+                        elements.Add(materialAttributeElement);
                     }
 
-                    var triStripSetShapeNodeElementId = IdGenUtils.NextId;
-                    elements.Push(new TriStripSetShapeNodeElement(geometricSet, triStripSetShapeNodeElementId, new int[] { materialAttributeElementId }));
+                    var triStripSetShapeNodeElement = new TriStripSetShapeNodeElement(geometricSet, IdGenUtils.NextId)
+                    {
+                        AttributeObjectIds = new List<int>() { materialAttributeElementId }
+                    };
 
-                    triStripSetShapeNodeElementIds[i] = triStripSetShapeNodeElementId;
+                    elements.Add(triStripSetShapeNodeElement);
+
+                    groupNodeElement.ChildNodeObjectIds.Add(triStripSetShapeNodeElement.ObjectId);
 
                     x += geometricSet.Center.X;
                     y += geometricSet.Center.Y;
@@ -285,165 +338,184 @@ namespace JTfy
 
                     ProcessAttributes(new JTNode()
                     {
-                        GeometricSets = new GeometricSet[]
-                        {
-                            geometricSet
-                        }
-                    }, triStripSetShapeNodeElementId);
+                        GeometricSets = new GeometricSet[] { geometricSet }
+                    }, triStripSetShapeNodeElement.ObjectId);
                 }
 
-                var groupNodeElementId = IdGenUtils.NextId;
-                elements.Push(new GroupNodeElement(groupNodeElementId, triStripSetShapeNodeElementIds));
 
-                var rangeLODNodeElementId = IdGenUtils.NextId;
-                elements.Push(new RangeLODNodeElement(rangeLODNodeElementId, new int[] { groupNodeElementId })
+
+                var rangeLODNodeElement = new RangeLODNodeElement(IdGenUtils.NextId)
                 {
+                    ChildNodeObjectIds = new List<int>() { groupNodeElement.ObjectId },
+
                     Center = new CoordF32(x / count, y / count, z / count)
-                });
+                };
 
-                childNodeObjectIdList.Add(rangeLODNodeElementId);
+                elements.Add(rangeLODNodeElement);
 
-                childNodeObjectIds = childNodeObjectIdList.ToArray();
+                nodeElement.ChildNodeObjectIds.Add(rangeLODNodeElement.ObjectId);
 
                 node.GeometricSets = null;
-
-                nodeElement = new PartNodeElement(nodeElementId, childNodeObjectIds, attributeObjectIdList.ToArray());
             }
 
-            // END Process attributes
+            // END Process Geometric Sets
 
-            if (nodeElement == null)
+
+
+            // Process root element
+
+            if (node == this)
             {
-                if (node == this)
+                float area = 0;
+
+                int vertexCountMin = 0,
+                    vertexCountMax = 0,
+
+                    nodeCountMin = 0,
+                    nodeCountMax = 0,
+
+                    polygonCountMin = 0,
+                    polygonCountMax = 0;
+
+                float
+                    minX = 0, minY = 0, minZ = 0,
+                    maxX = 0, maxY = 0, maxZ = 0;
+
+                var triStripSetShapeNodeElementType = typeof(TriStripSetShapeNodeElement);
+
+                foreach (var element in elements)
                 {
-                    float area = 0;
+                    if (element.GetType() != triStripSetShapeNodeElementType) continue;
 
-                    int vertexCountMin = 0,
-                        vertexCountMax = 0,
+                    var triStripSetShapeNodeElement = (TriStripSetShapeNodeElement)element;
 
-                        nodeCountMin = 0,
-                        nodeCountMax = 0,
+                    area += triStripSetShapeNodeElement.Area;
 
-                        polygonCountMin = 0,
-                        polygonCountMax = 0;
+                    vertexCountMin += triStripSetShapeNodeElement.VertexCountRange.Min;
+                    vertexCountMax += triStripSetShapeNodeElement.VertexCountRange.Max;
 
-                    float
-                        minX = 0, minY = 0, minZ = 0,
-                        maxX = 0, maxY = 0, maxZ = 0;
+                    nodeCountMin += triStripSetShapeNodeElement.NodeCountRange.Min;
+                    nodeCountMax += triStripSetShapeNodeElement.NodeCountRange.Max;
 
-                    var triStripSetShapeNodeElementType = typeof(TriStripSetShapeNodeElement);
+                    polygonCountMin += triStripSetShapeNodeElement.PolygonCountRange.Min;
+                    polygonCountMax += triStripSetShapeNodeElement.PolygonCountRange.Max;
 
-                    foreach(var element in elements)
-                    {
-                        if(element.GetType() != triStripSetShapeNodeElementType) continue;
-                        
-                        var triStripSetShapeNodeElement = (TriStripSetShapeNodeElement)element;
+                    var untransformedBBox = triStripSetShapeNodeElement.UntransformedBBox;
+                    var minCorner = untransformedBBox.MinCorner;
+                    var maxCorner = untransformedBBox.MaxCorner;
 
-                            area += triStripSetShapeNodeElement.Area;
+                    if (minCorner.X < minX) minX = minCorner.X;
+                    if (minCorner.Y < minY) minY = minCorner.Y;
+                    if (minCorner.Z < minZ) minZ = minCorner.Z;
 
-                            vertexCountMin += triStripSetShapeNodeElement.VertexCountRange.Min;
-                            vertexCountMax += triStripSetShapeNodeElement.VertexCountRange.Max;
-
-                            nodeCountMin += triStripSetShapeNodeElement.NodeCountRange.Min;
-                            nodeCountMax += triStripSetShapeNodeElement.NodeCountRange.Max;
-
-                            polygonCountMin += triStripSetShapeNodeElement.PolygonCountRange.Min;
-                            polygonCountMax += triStripSetShapeNodeElement.PolygonCountRange.Max;
-
-                            var untransformedBBox = triStripSetShapeNodeElement.UntransformedBBox;
-                            var minCorner = untransformedBBox.MinCorner;
-                            var maxCorner = untransformedBBox.MaxCorner;
-
-                            if (minCorner.X < minX) minX = minCorner.X;
-                            if (minCorner.Y < minY) minY = minCorner.Y;
-                            if (minCorner.Z < minZ) minZ = minCorner.Z;
-
-                            if (maxCorner.X > maxX) maxX = maxCorner.X;
-                            if (maxCorner.Y > maxY) maxY = maxCorner.Y;
-                            if (maxCorner.Z > maxZ) maxZ = maxCorner.Z;
-                    }
-
-                    nodeElement = new PartitionNodeElement(nodeElementId, childNodeObjectIds, attributeObjectIdList.ToArray())
-                    {
-                        Area = area,
-                        VertexCountRange = new CountRange(vertexCountMin, vertexCountMax),
-                        NodeCountRange = new CountRange(nodeCountMin, nodeCountMax),
-                        PolygonCountRange = new CountRange(polygonCountMin, polygonCountMax),
-                        UntransformedBBox = new BBoxF32(minX, minY, minZ, maxX, maxY, maxZ)
-                    };
+                    if (maxCorner.X > maxX) maxX = maxCorner.X;
+                    if (maxCorner.Y > maxY) maxY = maxCorner.Y;
+                    if (maxCorner.Z > maxZ) maxZ = maxCorner.Z;
                 }
 
-                else
+                elements.Insert(0, new PartitionNodeElement(IdGenUtils.NextId)
                 {
-                    nodeElement = childNodesCount > 0 ?
-                        new GroupNodeElement(nodeElementId, childNodeObjectIds, attributeObjectIdList.ToArray()) :
-                        new MetaDataNodeElement(nodeElementId, null, attributeObjectIdList.ToArray());
-                }
+                    ChildNodeObjectIds = new List<int>() { nodeElement.ObjectId },
+
+                    Area = area,
+                    VertexCountRange = new CountRange(vertexCountMin, vertexCountMax),
+                    NodeCountRange = new CountRange(nodeCountMin, nodeCountMax),
+                    PolygonCountRange = new CountRange(polygonCountMin, polygonCountMax),
+                    UntransformedBBox = new BBoxF32(minX, minY, minZ, maxX, maxY, maxZ)
+                });
             }
+
+            // END Process root element
+
+
+            // Process instanced node
 
             if (instancedNodes.ContainsKey(node))
             {
-                var instancedNode = instancedNodes[node];
+                var instancedNodeElement = instancedNodes[node];
 
-                if (instancedNode == null)
+                if (instancedNodeElement == null)
                 {
-                    instancedNode = nodeElement;
-                    instancedNodes[node] = instancedNode;
+                    instancedNodeElement = nodeElement;
+                    instancedNodes[node] = instancedNodeElement;
 
-                    elements.Push(instancedNode);
+                    elements.Add(instancedNodeElement);
 
-                    //ProcessAttributes(node, instancedNode.ObjectId);
+                    ProcessAttributes(node, instancedNodeElement.ObjectId);
                 }
 
-                var instanceNodeElementId = IdGenUtils.NextId;
-                nodeElement = new InstanceNodeElement(instancedNode.ObjectId, instanceNodeElementId);
+                var instanceNodeElement = new InstanceNodeElement(instancedNodeElement.ObjectId, IdGenUtils.NextId);
 
-                ProcessAttributes(node, instanceNodeElementId);
+                ProcessAttributes(new JTNode() { Name = node.Name }, instanceNodeElement.ObjectId);
 
-                elements.Push(nodeElement);
+                elements.Add(instanceNodeElement);
+
+                return instanceNodeElement;
             }
 
-            else
-            {
-                elements.Push(nodeElement);
+            elements.Add(nodeElement);
 
-                ProcessAttributes(node, nodeElementId);
-            }
+            ProcessAttributes(node, nodeElement.ObjectId);
 
             return nodeElement;
         }
 
         private void ProcessAttributes(JTNode node, int nodeElementId)
         {
-            node.Attributes["JT_PROP_MEASUREMENT_UNITS"] = node.MeasurementUnit.ToString();
+            var attributes = new Dictionary<string, object>(node.Attributes.Count);
+
+            foreach (var attribute in node.Attributes)
+            {
+                var key = attribute.Key.Trim();
+                var value = attribute.Value;
+
+                while (key.EndsWith(":")) key = key.Substring(0, key.Length - 1);
+                while (key.Contains("::")) key = key.Replace("::", ":");
+
+                if (key.Length == 0) continue;
+
+                attributes[key + "::"] = value;
+            }
+
+            if (separateAttributeSegments)
+            {
+                var metaDataSegmentHeader = GetMetaDataSegmentHeader(new JTNode() { Attributes = attributes });
+
+                attributes.Clear();
+
+                if (metaDataSegmentHeader != null)
+                {
+                    attributes["JT_LLPROP_METADATA"] = metaDataSegmentHeader;
+                }
+            }
+
+            attributes["JT_PROP_MEASUREMENT_UNITS"] = node.MeasurementUnit.ToString();
 
             if (node.Name != null)
             {
-                node.Attributes["JT_PROP_NAME"] = String.Format("{0}.{1};0;0:", node.Name, node.children.Count > 0 ? "asm" : "part");
+                attributes["JT_PROP_NAME"] = String.Format("{0}.{1};0;0:", node.Name, node.children.Count > 0 ? "asm" : "part");
             }
 
             if (node.GeometricSets.Length > 0)
             {
-                node.Attributes["JT_LLPROP_SHAPEIMPL"] = node.GeometricSets;
+                attributes["JT_LLPROP_SHAPEIMPL"] = node.GeometricSets;
             }
 
-            var attributesCount = node.Attributes.Count;
+            var attributesCount = attributes.Count;
 
             var keys = new List<int>(attributesCount);
             var values = new List<int>(attributesCount);
 
-            foreach (var attribute in node.Attributes)
+            foreach (var attribute in attributes)
             {
                 var key = attribute.Key;
-
-                if (node.Name == null && key == "JT_PROP_NAME") continue;
-
+                
                 var value = attribute.Value;
                 var valueTypeName = value.GetType().Name;
 
-                if (valueTypeName != "String" && valueTypeName != "Int32" && valueTypeName != "Single" && valueTypeName != "DateTime" && valueTypeName != "GeometricSet[]")
+                if (valueTypeName != "String" && valueTypeName != "Int32" && valueTypeName != "Single" && valueTypeName != "DateTime" && valueTypeName != "GeometricSet[]" && valueTypeName != "SegmentHeader")
                 {
-                    throw new Exception(String.Format("Only String, Int32, Single, DateTime and GeometricSet[] value types are allowed. Current value is {0}.", valueTypeName));
+                    throw new Exception(String.Format("Only String, Int32, Single, DateTime, GeometricSet[] and SegmentHeader value types are allowed. Current value is {0}.", valueTypeName));
                 }
 
                 var keyLookupKey = String.Format("{0}-{1}", key.GetType().Name, key);
@@ -491,6 +563,13 @@ namespace JTfy
                             propertyAtomElements.Add(new LateLoadedPropertyAtomElement(shapeLODSegmentHeader.SegmentID, shapeLODSegmentHeader.SegmentType, valueId));
 
                             break;
+
+                        case "SegmentHeader":
+                            var segmentHeader = (SegmentHeader)value;
+
+                            propertyAtomElements.Add(new LateLoadedPropertyAtomElement(segmentHeader.SegmentID, segmentHeader.SegmentType, valueId));
+
+                            break;
                     }
                 }
 
@@ -498,6 +577,31 @@ namespace JTfy
             }
 
             propertyTableContents.Add(nodeElementId, new NodePropertyTable(keys, values));
+        }
+
+        private SegmentHeader GetMetaDataSegmentHeader(JTNode node)
+        {
+            if (uniqueMetaDataSegmentHeaders.ContainsKey(node)) return uniqueMetaDataSegmentHeaders[node];
+
+            var attributes = node.Attributes;
+            
+            if (attributes.Count == 0) return null;
+
+            var keys = new List<string>(attributes.Keys);
+            var values = new List<object>(attributes.Values);
+
+            var metaDataSegment = new MetaDataSegment(new PropertyProxyMetaDataElement(keys, values));
+            var compressedMetaDataSegment = CompressionUtils.Compress(metaDataSegment.Bytes);
+            var metaDataSegmentHeaderZLIB = new LogicElementHeaderZLIB(2, compressedMetaDataSegment.Length + 1, 2); // CompressionAlgorithm field (of type Byte) is included in CompressedDataLength
+            var metaDataSegmentHeader = new SegmentHeader(GUID.NewGUID(), 4, SegmentHeader.Size + metaDataSegmentHeaderZLIB.ByteCount + compressedMetaDataSegment.Length);
+
+            uniqueMetaDataSegmentHeaders[node] = metaDataSegmentHeader;
+
+            compressedMetaDataSegments.Add(compressedMetaDataSegment);
+            metaDataSegmentHeadersZLIB.Add(metaDataSegmentHeaderZLIB);
+            metaDataSegmentHeaders.Add(metaDataSegmentHeader);
+
+            return metaDataSegmentHeader;
         }
     }
 }

@@ -30,6 +30,11 @@ namespace JTfy
             }
         }
 
+        public override string ToString()
+        {
+            return Date.ToString();
+        }
+
         public DatePropertyAtomElement(DateTime dateTime, int objectId) : this(new Date(dateTime), objectId) { }
 
         public DatePropertyAtomElement(Date date, int objectId)

@@ -6,8 +6,10 @@ namespace JTfy
 {
     public class GroupNodeElement : BaseNodeElement
     {
-        public int ChildCount { get; protected set; }
-        public int[] ChildNodeObjectIds { get; protected set; }
+        public int ChildCount { get { return ChildNodeObjectIds.Count; } }
+
+        private List<int> childNodeObjectIds = new List<int>();
+        public List<int> ChildNodeObjectIds { get { return childNodeObjectIds; } set { childNodeObjectIds = value == null ? new List<int>() : value; } }
 
         public override int ByteCount { get { return base.ByteCount + 4 + ChildCount * 4; } }
 
@@ -32,22 +34,15 @@ namespace JTfy
         public GroupNodeElement(Stream stream)
             : base(stream)
         {
-            ChildCount = StreamUtils.ReadInt32(stream);
-            ChildNodeObjectIds = new int[ChildCount];
+            var childCount = StreamUtils.ReadInt32(stream);
+            ChildNodeObjectIds = new List<int>(childCount);
 
-            for (int i = 0; i < ChildCount; ++i)
+            for (int i = 0; i < childCount; ++i)
             {
-                ChildNodeObjectIds[i] = StreamUtils.ReadInt32(stream);
+                ChildNodeObjectIds.Add(StreamUtils.ReadInt32(stream));
             }
         }
 
-        public GroupNodeElement(int objectId, int[] childNodeObjectIds, int[] attributeObjectIds = null)
-            : base(objectId, attributeObjectIds)
-        {
-            if (childNodeObjectIds == null) childNodeObjectIds = new int[0];
-
-            ChildCount = childNodeObjectIds.Length;
-            ChildNodeObjectIds = childNodeObjectIds;
-        }
+        public GroupNodeElement(int objectId) : base(objectId) { }
     }
 }

@@ -29,6 +29,11 @@ namespace JTfy
             }
         }
 
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+
         public StringPropertyAtomElement(string value, int objectId) : this(new MbString(value), objectId) { }
 
         public StringPropertyAtomElement(MbString value, int objectId):base(objectId)

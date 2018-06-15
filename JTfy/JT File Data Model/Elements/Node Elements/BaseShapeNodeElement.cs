@@ -8,11 +8,11 @@ namespace JTfy
     {
         private BBoxF32 transformedBBox = new BBoxF32();
         public BBoxF32 TransformedBBox { get { return transformedBBox; } set { transformedBBox = value == null ? new BBoxF32() : value; } }
-        
+
         public BBoxF32 UntransformedBBox { get; private set; }
-        
+
         public float Area { get; set; }
-        
+
         public CountRange VertexCountRange { get; private set; }
 
         private CountRange nodeCountRange = new CountRange();
@@ -20,12 +20,12 @@ namespace JTfy
 
         private CountRange polygonCountRange = new CountRange();
         public CountRange PolygonCountRange { get { return polygonCountRange; } set { polygonCountRange = value; } }
-        
+
         public int Size { get; set; }
 
         public float CompressionLevel { get; private set; }
 
-        
+
         public override int ByteCount
         {
             get
@@ -55,8 +55,8 @@ namespace JTfy
             }
         }
 
-        public BaseShapeNodeElement(GeometricSet geometricSet, int objectId, int[] attributeObjectIds = null)
-            : base(objectId, attributeObjectIds)
+        public BaseShapeNodeElement(GeometricSet geometricSet, int objectId)
+            : base(objectId)
         {
             TransformedBBox = new BBoxF32();
             UntransformedBBox = geometricSet.UntransformedBoundingBox;
@@ -68,8 +68,8 @@ namespace JTfy
             CompressionLevel = 0;
         }
 
-        public BaseShapeNodeElement(BBoxF32 untransformedBBox, CountRange vertexCountRange, int objectId, int[] attributeObjectIds = null)
-            : base(objectId, attributeObjectIds)
+        public BaseShapeNodeElement(BBoxF32 untransformedBBox, CountRange vertexCountRange, int objectId)
+            : base(objectId)
         {
             UntransformedBBox = untransformedBBox;
             VertexCountRange = vertexCountRange;

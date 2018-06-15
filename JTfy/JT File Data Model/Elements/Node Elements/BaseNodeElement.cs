@@ -8,8 +8,11 @@ namespace JTfy
     {
         public int ObjectId { get; protected set; }
         public uint NodeFlags { get; protected set; }
-        public int AttributeCount { get; protected set; }
-        public int[] AttributeObjectIds { get; protected set; }
+
+        public int AttributeCount { get { return AttributeObjectIds.Count; } }
+
+        private List<int> attributeObjectIds = new List<int>();
+        public List<int> AttributeObjectIds { get { return attributeObjectIds; } set { attributeObjectIds = value == null ? new List<int>() : value; } }
 
         public override int ByteCount { get { return 4 + 4 + 4 + AttributeCount * 4; } }
 
@@ -32,28 +35,23 @@ namespace JTfy
             }
         }
 
-        public BaseNodeElement(int objectId) : this(objectId, null) { }
-
-        public BaseNodeElement(int objectId, int[] attributeObjectIds)
+        public BaseNodeElement(int objectId)
         {
-            if (attributeObjectIds == null) attributeObjectIds = new int[0];
-
             ObjectId = objectId;
             NodeFlags = 0;
-            AttributeCount = attributeObjectIds.Length;
-            AttributeObjectIds = attributeObjectIds;
         }
 
         public BaseNodeElement(Stream stream)
         {
             ObjectId = StreamUtils.ReadInt32(stream);
             NodeFlags = StreamUtils.ReadUInt32(stream);
-            AttributeCount = StreamUtils.ReadInt32(stream);
-            AttributeObjectIds = new int[AttributeCount];
+            
+            var attributeCount = StreamUtils.ReadInt32(stream);
+            AttributeObjectIds = new List<int>(attributeCount);
 
-            for (int i = 0; i < AttributeCount; ++i)
+            for (int i = 0; i < attributeCount; ++i)
             {
-                AttributeObjectIds[i] = StreamUtils.ReadInt32(stream);
+                AttributeObjectIds.Add(StreamUtils.ReadInt32(stream));
             }
         }
     }

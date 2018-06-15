@@ -28,6 +28,11 @@ namespace JTfy
             }
         }
 
+        public override string ToString()
+        {
+            return String.Format("{0}|{1}|{2}", SegmentID, SegmentType, SegmentLength);
+        }
+
         public SegmentHeader(GUID segmentID, int segmentType, int segmentLength)
         {
             SegmentID = segmentID;

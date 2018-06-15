@@ -65,11 +65,7 @@ namespace JTfy
             }
         }
 
-        public PartitionNodeElement(int objectId) : this(objectId, null) { }
-
-        public PartitionNodeElement(int objectId, int[] childNodeObjectIds) : this(objectId, childNodeObjectIds, null) { }
-
-        public PartitionNodeElement(int objectId, int[] childNodeObjectIds, int[] attributeObjectIds) : base(objectId, childNodeObjectIds, attributeObjectIds) { }
+        public PartitionNodeElement(int objectId) : base(objectId) { }
 
         public PartitionNodeElement(Stream stream)
             : base(stream)

@@ -2,19 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 
-#if DEBUG
 using System.Diagnostics;
-#endif
 
 namespace JTfy
 {
     public class ShapeLODSegment : BaseDataStructure
     {
-#if DEBUG
-        private ElementHeader shapeLODElementElementHeader;
-#endif
-
-        public BaseDataStructure ShapeLODElement { get; protected set; }
+        public BaseDataStructure ShapeLODElement { get; private set; }
 
         public override int ByteCount
         {
@@ -44,21 +38,15 @@ namespace JTfy
         public ShapeLODSegment(Stream stream)
         {
             var elementHeader = new ElementHeader(stream);
-
-#if DEBUG
-            shapeLODElementElementHeader = elementHeader;
-#endif
-
+            
             var objectTypeIdAsString = elementHeader.ObjectTypeID.ToString();
 
             if (ConstUtils.ObjectTypeIdToType.ContainsKey(objectTypeIdAsString))
                 ShapeLODElement = (BaseDataStructure)Activator.CreateInstance(ConstUtils.ObjectTypeIdToType[objectTypeIdAsString].Item1, new object[] { stream });
             else
                 throw new NotImplementedException(String.Format("Case not defined for Shape LOD Element Object Type {0}", objectTypeIdAsString));
-
-#if DEBUG
+            
             Debug.Assert(stream.Length == stream.Position, "End of stream not reached at the end of ShapeLODSegment");
-#endif
             
             stream.Dispose();
         }
