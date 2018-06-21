@@ -18,6 +18,9 @@ namespace JTfy
         private Color colour = RandomGenUtils.NextColour();
         public Color Colour { get { return colour; } set { colour = value; } }
 
+        private int id = IdGenUtils.NextId;
+        public int ID { get { return id; } set { id = value; } }
+
         public int TriangleCount
         {
             get
@@ -122,7 +125,7 @@ namespace JTfy
 
         public override string ToString()
         {
-            var stringList = new List<string>(Positions.Length * (Normals == null ? 1 : 2) + TriStrips.Length);
+            /*var stringList = new List<string>(Positions.Length * (Normals == null ? 1 : 2) + TriStrips.Length);
 
             for (int i = 0, c = Positions.Length; i < c; ++i)
             {
@@ -139,7 +142,9 @@ namespace JTfy
                 stringList.Add(String.Join(",", TriStrips[i]));
             }
 
-            return String.Join("|", stringList) + Colour.ToString();
+            return String.Join("|", stringList) + Colour.ToString();*/
+
+            return ID.ToString();
         }
     }
 }

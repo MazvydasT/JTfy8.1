@@ -82,7 +82,11 @@
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
     <Reference Include="zlib.net">
       <HintPath>..\packages\zlib.net.1.0.4.0\lib\zlib.net.dll</HintPath>
     </Reference>
@@ -143,6 +147,7 @@
     <Compile Include="JT File Data Model\Elements\Shape LOD Elements\TriStripSetShapeLODElement.cs" />
     <Compile Include="JT File Data Model\Elements\Node Elements\TriStripSetShapeNodeElement.cs" />
     <Compile Include="JT File Data Model\Common Data Structures\UniformQuantizerData.cs" />
+    <Compile Include="ThreeDXMLReader.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="JT File Data Model\Common Data Structures\Vec.cs" />
     <Compile Include="JT File Data Model\Elements\Shape LOD Elements\VertexBasedShapeCompressedRepData.cs" />
@@ -153,7 +158,6 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

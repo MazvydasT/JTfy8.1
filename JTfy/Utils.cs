@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Windows.Media.Media3D;
 
@@ -27,10 +28,25 @@ namespace JTfy
 
             return buffer;
         }
-
+        
+        private static Dictionary<Type, byte> typeSizesInBytes = new Dictionary<Type, byte>()
+        {
+        	{typeof(Byte),1},
+        	
+        	{typeof(UInt16),2},
+        	{typeof(Int16),2},
+        	
+        	{typeof(UInt32),4},
+        	{typeof(Int32),4},
+        	{typeof(Single),4},
+        	
+        	{typeof(UInt64),8},
+        	{typeof(Int64),8},
+        	{typeof(Double),8}
+        };
         public static byte GetSizeInBytes(Type type)
         {
-            var typeName = type.Name;
+            /*var typeName = type.Name;
 
             switch (typeName)
             {
@@ -53,12 +69,18 @@ namespace JTfy
 
                 default:
                     throw new Exception(String.Format("Only Byte, UInt16, UInt32, UInt64, Int16, Int32, Int64, Single and Double types are allowed. Current type is {0}.", typeName));
-            }
+            }*/
+            
+            byte returnValue;
+            
+            if(typeSizesInBytes.TryGetValue(type, out returnValue)) return returnValue;
+            
+            throw new Exception(String.Format("Only Byte, UInt16, UInt32, UInt64, Int16, Int32, Int64, Single and Double types are allowed. Current type is {0}.", type.Name));
         }
 
         public static T Read<T>(Stream stream)
         {
-            var numberOfBytesToRead = GetSizeInBytes(typeof(T));
+        	var numberOfBytesToRead = GetSizeInBytes(typeof(T));
 
             var resultArray = new T[1];
 
@@ -82,7 +104,7 @@ namespace JTfy
 
         public static Byte[] ToBytes<T>(T value)
         {
-            var numberOfBytesToRead = GetSizeInBytes(typeof(T));
+        	var numberOfBytesToRead = GetSizeInBytes(typeof(T));
 
             Byte[] bytes = new Byte[numberOfBytesToRead];
 
@@ -92,7 +114,24 @@ namespace JTfy
 
             return bytes;
         }
-
+        
+        private static byte[] CheckEndianness(byte[] bytes)
+        {
+        	if (DataIsLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(bytes);
+        	return bytes;
+        }
+        public static byte[] ToBytes(byte value){return new byte[]{value};}
+        
+        public static byte[] ToBytes(ushort value){return CheckEndianness(BitConverter.GetBytes(value));}
+        public static byte[] ToBytes(short value){return CheckEndianness(BitConverter.GetBytes(value));}
+        
+        public static byte[] ToBytes(uint value){return CheckEndianness(BitConverter.GetBytes(value));}
+        public static byte[] ToBytes(int value){return CheckEndianness(BitConverter.GetBytes(value));}
+        public static byte[] ToBytes(float value){return CheckEndianness(BitConverter.GetBytes(value));}
+        
+        public static byte[] ToBytes(ulong value){return CheckEndianness(BitConverter.GetBytes(value));}
+        public static byte[] ToBytes(long value){return CheckEndianness(BitConverter.GetBytes(value));}
+        public static byte[] ToBytes(double value){return CheckEndianness(BitConverter.GetBytes(value));}
     }
 
     public static class ConvUtils<U>
@@ -115,13 +154,19 @@ namespace JTfy
         public const string EndOfElementAsString = "{0xffffffff,0xffff,0xffff,{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff}}";
         public static readonly GUID EndOfElement = new GUID(EndOfElementAsString);
 
-        public static readonly float[] IndentityMatrix = new Single[]
+        public static float[] IndentityMatrix
         {
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-        };
+            get
+            {
+                return new Single[]
+                {
+                    1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1
+                };
+            }
+        }
 
         public static readonly Dictionary<string, Tuple<Type, byte>> ObjectTypeIdToType = new Dictionary<string, Tuple<Type, byte>>()
         {

@@ -20,6 +20,7 @@ namespace JTfy
             mils,
             miles
         }
+        private static Dictionary<MeasurementUnits, string> measurementUnitStrings = new Dictionary<MeasurementUnits, string>();
 
         private Dictionary<string, object> attributes = new Dictionary<string, object>();
         public Dictionary<string, object> Attributes { get { return attributes; } set { attributes = value == null ? new Dictionary<string, object>() : value; } }
@@ -29,13 +30,26 @@ namespace JTfy
 
         private MeasurementUnits measurementUnit = MeasurementUnits.millimeters;
         public MeasurementUnits MeasurementUnit { get { return measurementUnit; } set { measurementUnit = value; } }
+        public string MeasurementUnitAsString
+        {
+        	get
+        	{
+        		if(measurementUnitStrings.ContainsKey(measurementUnit)) return measurementUnitStrings[measurementUnit];
+        		
+        		var measurementUnitString = measurementUnitStrings.ToString();
+        		
+        		measurementUnitStrings[measurementUnit] = measurementUnitString;
+        		
+        		return measurementUnitString;
+        	}
+        }
 
         private string name = null;
         public string Name { get { return name; } set { name = value; } }
 
         private GeometricSet[] geometricSets = new GeometricSet[0];
         public GeometricSet[] GeometricSets { get { return geometricSets; } set { geometricSets = value == null ? new GeometricSet[0] : value; } }
-
+        
         public float[] TransformationMatrix { get; set; }
 
         private HashSet<JTNode> uniqueNodes = new HashSet<JTNode>();
@@ -59,6 +73,18 @@ namespace JTfy
 
         private bool monolithic;
         private bool separateAttributeSegments;
+
+        public JTNode() { }
+
+        public JTNode(JTNode node)
+        {
+            Attributes = node.Attributes;
+            Children = node.Children;
+            GeometricSets = node.GeometricSets;
+            MeasurementUnit = node.MeasurementUnit;
+            Name = node.Name;
+            TransformationMatrix = node.TransformationMatrix;
+        }
 
         public void Save(string path, bool monolithic = true, bool separateAttributeSegments = false)
         {
@@ -94,7 +120,7 @@ namespace JTfy
 
             // Create all elements
 
-            FindInstancedNodes(this);
+            //FindInstancedNodes(this);
 
             CreateElement(this);
 
@@ -226,6 +252,8 @@ namespace JTfy
             if (uniqueNodes.Contains(node))
             {
                 if (!instancedNodes.ContainsKey(node)) instancedNodes.Add(node, null);
+
+                //return;
             }
 
             else uniqueNodes.Add(node);
@@ -257,9 +285,11 @@ namespace JTfy
 
             // Create node
 
-            MetaDataNodeElement nodeElement = childNodesCount > 0 ?
+            /*MetaDataNodeElement nodeElement = childNodesCount > 0 ?
                 new MetaDataNodeElement(IdGenUtils.NextId) :
-                new PartNodeElement(IdGenUtils.NextId);
+                new PartNodeElement(IdGenUtils.NextId);*/
+
+            MetaDataNodeElement nodeElement = new MetaDataNodeElement(IdGenUtils.NextId);
 
             nodeElement.ChildNodeObjectIds = childNodeObjectIds;
 
@@ -281,9 +311,8 @@ namespace JTfy
                 {
                     geometricTransformAttributeElementId = IdGenUtils.NextId;
                     uniqueAttributeIds[transformationMatrixAsString] = geometricTransformAttributeElementId;
+                    elements.Add(new GeometricTransformAttributeElement(node.TransformationMatrix, geometricTransformAttributeElementId));
                 }
-
-                elements.Add(new GeometricTransformAttributeElement(node.TransformationMatrix, geometricTransformAttributeElementId));
 
                 nodeElement.AttributeObjectIds.Add(geometricTransformAttributeElementId);
             }
@@ -298,8 +327,6 @@ namespace JTfy
 
             if (geometricSetsCount > 0)
             {
-                var triStripSetShapeNodeElementIds = new int[geometricSetsCount];
-
                 float x = 0, y = 0, z = 0;
                 int count = 0;
 
@@ -355,7 +382,7 @@ namespace JTfy
 
                 nodeElement.ChildNodeObjectIds.Add(rangeLODNodeElement.ObjectId);
 
-                node.GeometricSets = null;
+                //node.GeometricSets = null;
             }
 
             // END Process Geometric Sets
@@ -413,7 +440,7 @@ namespace JTfy
                     if (maxCorner.Z > maxZ) maxZ = maxCorner.Z;
                 }
 
-                elements.Insert(0, new PartitionNodeElement(IdGenUtils.NextId)
+                var partitionNodeElement = new PartitionNodeElement(IdGenUtils.NextId)
                 {
                     ChildNodeObjectIds = new List<int>() { nodeElement.ObjectId },
 
@@ -422,7 +449,11 @@ namespace JTfy
                     NodeCountRange = new CountRange(nodeCountMin, nodeCountMax),
                     PolygonCountRange = new CountRange(polygonCountMin, polygonCountMax),
                     UntransformedBBox = new BBoxF32(minX, minY, minZ, maxX, maxY, maxZ)
-                });
+                };
+
+                elements.Insert(0, partitionNodeElement);
+
+                //ProcessAttributes(node, partitionNodeElement.ObjectId);
             }
 
             // END Process root element
@@ -489,11 +520,11 @@ namespace JTfy
                 }
             }
 
-            attributes["JT_PROP_MEASUREMENT_UNITS"] = node.MeasurementUnit.ToString();
+            attributes["JT_PROP_MEASUREMENT_UNITS"] = node.MeasurementUnitAsString;
 
             if (node.Name != null)
             {
-                attributes["JT_PROP_NAME"] = String.Format("{0}.{1};0;0:", node.Name, node.children.Count > 0 ? "asm" : "part");
+                attributes["JT_PROP_NAME"] = node.Name + "." + (node.children.Count > 0 ? "asm" : "part") + ";0;0:";
             }
 
             if (node.GeometricSets.Length > 0)
@@ -533,8 +564,8 @@ namespace JTfy
 
                 keys.Add(keyId);
 
-                var valueAsString = valueTypeName == "GeometricSet[]" ? ((GeometricSet[])value)[0].ToString() : value.ToString();
-                var valueLookupKey = String.Format("{0}-{1}", valueTypeName, valueAsString);
+                var valueAsString = valueTypeName != "GeometricSet[]" ? value.ToString() : ((GeometricSet[])(value))[0].ToString();
+                var valueLookupKey = valueTypeName + "-" + valueAsString;
 
                 int valueId;
 

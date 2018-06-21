@@ -16,6 +16,29 @@ namespace JTfy
         {
             //Save();
             //Load();
+            //Read3DXML();
+
+            var sourcePath = args[0];
+            var destinationPath = Path.Combine(Path.GetDirectoryName(sourcePath), Path.GetFileNameWithoutExtension(sourcePath) + ".jt");
+
+            ThreeDXMLReader.Read(sourcePath).Save(destinationPath);
+        }
+
+        static void Read3DXML()
+        {
+            //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\Pedal\F-HPLA-2D094-BA-UEC1-060602-000.3DXML").Save(@"C:\Users\mtadara1\Desktop\out_SAVE_from_3dxml.jt");
+            ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\fender2\L8B2-16E004-A-DMU-01.3DXML").Save(@"C:\Users\mtadara1\Desktop\fender_from_3dxml.jt");
+            //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\body3\F-L8B2-00000-DA-UEB2-013501-000.3DXML").Save(@"C:\Users\mtadara1\Desktop\body_from_3dxml.jt");
+
+            //var threeDRepContent = new StreamReader(@"C:\Users\mtadara1\Desktop\3DXML_Files\Pedal\F-HPLA-2D094-BA-UEC1-060602-000\CPLA-2D094-A-INS-04_2_b83470b6_274_5a853c46_15e3a.xml").ReadToEnd();
+            //var threeDRepContent = new StreamReader(@"C:\Users\mtadara1\Desktop\3DXML_Files\Pedal\F-HPLA-2D094-BA-UEC1-060602-000\Representation1408425_2_b83470b6_274_5a853c46_15e63.xml").ReadToEnd();
+            //var threeDRepContent = new StreamReader(@"C:\Users\mtadara1\Desktop\3DXML_Files\3dxml_fender\ExportFile\Representation123_2_b83470b6_2060_5a784c11_34db8.xml").ReadToEnd();
+
+            /*new JTNode()
+            {
+                Name = "Test",
+                GeometricSets = ThreeDXMLReader.GetGeometricSets(threeDRepContent)
+            }.Save(@"C:\Users\mtadara1\Desktop\out_SAVE_from_3dxml_part_file.jt");*/
         }
 
         static void Save()
@@ -145,8 +168,8 @@ namespace JTfy
             //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\DS_L405_040102_C01_18_FR_SUSP_LINKS___ARMS_20.jt");
             //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\DS_L405_040102_C01_18_FR_SUSP_LINKS___ARMS\W780052_S_INS_01_NUT_WSHR_M10_HC_PTP_FL10_2.jt");
             //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\out_SAVE_VIA_SYSTEM.jt");
-            //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\conrod.jt");
-            Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\test81.jt");
+            Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\out_SAVE_from_3dxml.jt");
+            //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\test81.jt");
 
             // 9.5
             //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\DS_L405_040102_C01_18_FR_SUSP_LINKS___ARMS\W780052_S_INS_01_NUT_WSHR_M10_HC_PTP_FL10_2.jt");
@@ -247,7 +270,7 @@ namespace JTfy
 
                                 dataSegments[i] = shapeLODSegment;
 
-                                //var repData = ((TriStripSetShapeLODElement)shapeLODSegment.ShapeLODElement).VertexBasedShapeCompressedRepData;
+                                var repData = ((TriStripSetShapeLODElement)shapeLODSegment.ShapeLODElement).VertexBasedShapeCompressedRepData;
 
                                 /*var geometricSets = new List<GeometricSet>(repData.TriStrips.Length);
 
