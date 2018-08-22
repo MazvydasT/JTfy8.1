@@ -46,31 +46,6 @@ namespace JTfy
         };
         public static byte GetSizeInBytes(Type type)
         {
-            /*var typeName = type.Name;
-
-            switch (typeName)
-            {
-                case "Byte":
-                    return 1;
-
-                case "UInt16":
-                case "Int16":
-                    return 2;
-
-                case "UInt32":
-                case "Int32":
-                case "Single":
-                    return 4;
-
-                case "UInt64":
-                case "Int64":
-                case "Double":
-                    return 8;
-
-                default:
-                    throw new Exception(String.Format("Only Byte, UInt16, UInt32, UInt64, Int16, Int32, Int64, Single and Double types are allowed. Current type is {0}.", typeName));
-            }*/
-            
             byte returnValue;
             
             if(typeSizesInBytes.TryGetValue(type, out returnValue)) return returnValue;
@@ -214,7 +189,7 @@ namespace JTfy
         {
             using (var compressedDataStream = new MemoryStream())
             using (var zOutputStream = new zlib.ZOutputStream(compressedDataStream, zlib.zlibConst.Z_BEST_COMPRESSION))
-            //using (var zOutputStream = new zlib.ZOutputStream(compressedDataStream, 1))
+            //using (var zOutputStream = new zlib.ZOutputStream(compressedDataStream, 9))
             {
                 zOutputStream.Write(data, 0, data.Length);
                 zOutputStream.Flush();

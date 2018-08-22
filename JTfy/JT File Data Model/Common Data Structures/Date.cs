@@ -14,7 +14,7 @@ namespace JTfy
 
         public override string ToString()
         {
-            return new DateTime(Year, Month, Day, Hour, Minute, Second).ToString();
+            return new DateTime(Year, Month + 1, Day, Hour, Minute, Second).ToString();
         }
 
         public Date(Stream stream)
@@ -40,6 +40,6 @@ namespace JTfy
             };
         }
 
-        public Date(DateTime date) : this((Int16)date.Year, (Int16)date.Month, (Int16)date.Day, (Int16)date.Hour, (Int16)date.Minute, (Int16)date.Second) { }
+        public Date(DateTime date) : this((Int16)date.Year, (Int16)(date.Month - 1), (Int16)date.Day, (Int16)date.Hour, (Int16)date.Minute, (Int16)date.Second) { }
     }
 }

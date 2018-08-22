@@ -9,7 +9,7 @@ namespace JTfy
         public int PartitionFlags { get; private set; }
 
         private MbString fileName = new MbString();
-        public MbString FileName { get { return fileName; } protected set { fileName = value; } }
+        public MbString FileName { get { return fileName; } set { fileName = value; } }
 
         private BBoxF32 transformedBBox = new BBoxF32();
         public BBoxF32 TransformedBBox { get { return transformedBBox; } set { transformedBBox = value; } }
@@ -63,6 +63,19 @@ namespace JTfy
 
                 return bytesList.ToArray();
             }
+        }
+
+        public PartitionNodeElement(int objectId, PartitionNodeElement element)
+            : this(objectId)
+        {
+            PartitionFlags = element.PartitionFlags;
+            FileName = element.FileName;
+            TransformedBBox = element.TransformedBBox;
+            Area = element.Area;
+            VertexCountRange = element.VertexCountRange;
+            NodeCountRange = element.NodeCountRange;
+            PolygonCountRange = element.PolygonCountRange;
+            UntransformedBBox = element.UntransformedBBox;
         }
 
         public PartitionNodeElement(int objectId) : base(objectId) { }

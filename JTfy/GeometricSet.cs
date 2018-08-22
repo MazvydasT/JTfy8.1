@@ -104,13 +104,23 @@ namespace JTfy
                     var y = position[1];
                     var z = position[2];
 
-                    if (x < minX) minX = x;
-                    if (y < minY) minY = y;
-                    if (z < minZ) minZ = z;
+                    if (i == 0)
+                    {
+                        minX = maxX = x;
+                        minY = maxY = y;
+                        minZ = maxZ = z;
+                    }
 
-                    if (x > maxX) maxX = x;
-                    if (y > maxY) maxY = y;
-                    if (z > maxZ) maxZ = z;
+                    else
+                    {
+                        if (x < minX) minX = x;
+                        if (y < minY) minY = y;
+                        if (z < minZ) minZ = z;
+
+                        if (x > maxX) maxX = x;
+                        if (y > maxY) maxY = y;
+                        if (z > maxZ) maxZ = z;
+                    }
                 }
 
                 return new BBoxF32(minX, minY, minZ, maxX, maxY, maxZ);

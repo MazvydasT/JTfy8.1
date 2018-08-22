@@ -11,8 +11,6 @@ namespace JTfy
 {
     public static class ThreeDXMLReader
     {
-        //static Regex SpaceRegExp = new Regex(@"\s+", RegexOptions.Compiled);
-
         public static JTNode Read(string path)
         {
             JTNode rootNode = null;
@@ -30,8 +28,18 @@ namespace JTfy
                     var entryName = entry.FullName;
                     var entryNameExt = Path.GetExtension(entryName).ToLower();
 
-                    if (entryNameExt == ".xml"/* || entryNameExt == ".3drep"*/) partEntries[entryName] = entry;
-                    else if (entryName.ToLower() == "product.3dxml") threeDXMLEntry = entry;
+                    if (entryName.ToLower() == "manifest.xml")
+                    {
+                        var xmlDoc = new XmlDocument();
+                        xmlDoc.Load(entry.Open());
+
+                        var rootElement = xmlDoc.SelectSingleNode("//*[local-name()='Root']");
+
+                        if (rootElement != null) threeDXMLEntry = archive.GetEntry(rootElement.InnerText);
+                    }
+
+                    else if (entryNameExt == ".xml") partEntries[entryName] = entry;
+                    //else if (entryName.ToLower() == "product.3dxml") threeDXMLEntry = entry;
                 }
 
                 if (threeDXMLEntry == null) throw new Exception(String.Format("{0} does not contain PRODUCT.3dxml file.", path));
@@ -133,13 +141,14 @@ namespace JTfy
 
         private static JTNode XMLElement2Node(XmlNode referenceElement, Dictionary<string, ZipArchiveEntry> partEntries)
         {
+            var referenceElementAttributes = referenceElement.Attributes;
+
             var node = new JTNode()
             {
-                Name = referenceElement.Attributes["name"].Value,
+                ID = int.Parse(referenceElementAttributes["id"].Value),
+                Name = referenceElementAttributes["name"].Value,
                 Attributes = ExtractAttributes(referenceElement.ChildNodes)
             };
-
-            if (node.Attributes.ContainsKey("V_description")) node.Name += String.Format(" - {0}", (node.Attributes["V_description"]));
 
             if (referenceElement.Name == "ReferenceRep")
             {
@@ -222,66 +231,109 @@ namespace JTfy
 
                     var triStrips = new List<int[]>();
 
-                    var stripsAttribute = faceElementAttributes["strips"];
-                    var stripStrings = stripsAttribute != null ? stripsAttribute.Value.Trim().Split(new char[] { ',' }) : new string[0];
-
-                    for (int stripIndex = 0, stripCount = stripStrings.Length; stripIndex < stripCount; ++stripIndex)
+                    for (int attributeIndex = 0, attributeCount = faceElementAttributes.Count; attributeIndex < attributeCount; ++attributeIndex)
                     {
-                        var stripIndexStrings = stripStrings[stripIndex].Trim().Split(new char[] { ' ' });
+                        var attribute = faceElementAttributes[attributeIndex];
 
-                        var stripIndexCount = stripIndexStrings.Length;
-
-                        if (stripIndexCount < 3) continue;
-
-                        var stripIndices = new int[stripIndexCount];
-
-                        for (int stripIndexIndex = 0; stripIndexIndex < stripIndexCount; ++stripIndexIndex)
+                        switch (attribute.Name)
                         {
-                            stripIndices[stripIndexIndex] = int.Parse(stripIndexStrings[stripIndexIndex]);
+                            case "strips":
+                                {
+
+                                    var stripsAttribute = attribute;
+                                    var stripStrings = stripsAttribute != null ? stripsAttribute.Value.Trim().Split(new char[] { ',' }) : new string[0];
+
+                                    for (int stripIndex = 0, stripCount = stripStrings.Length; stripIndex < stripCount; ++stripIndex)
+                                    {
+                                        var stripIndexStrings = stripStrings[stripIndex].Trim().Split(new char[] { ' ' });
+
+                                        var stripIndexCount = stripIndexStrings.Length;
+
+                                        if (stripIndexCount < 3) continue;
+
+                                        var stripIndices = new int[stripIndexCount];
+
+                                        for (int stripIndexIndex = 0; stripIndexIndex < stripIndexCount; ++stripIndexIndex)
+                                        {
+                                            stripIndices[stripIndexIndex] = int.Parse(stripIndexStrings[stripIndexIndex]);
+                                        }
+
+                                        triStrips.Add(stripIndices);
+                                    }
+
+                                    break;
+                                }
+
+                            case "fans":
+                                {
+
+                                    var fansAttribute = attribute;
+                                    var fanStrings = fansAttribute != null ? fansAttribute.Value.Trim().Split(new char[] { ',' }) : new string[0];
+
+                                    for (int fanIndex = 0, fanCount = fanStrings.Length; fanIndex < fanCount; ++fanIndex)
+                                    {
+                                        var fanIndexStrings = new List<string>(fanStrings[fanIndex].Trim().Split(new char[] { ' ' }));
+
+                                        var fanIndexCount = fanIndexStrings.Count;
+
+                                        if (fanIndexCount < 3) continue;
+
+                                        var firstFanIndex = int.Parse(fanIndexStrings[0]);
+                                        fanIndexStrings.RemoveAt(0);
+                                        --fanIndexCount;
+
+                                        var triStripIndices = new List<int>(5);
+
+                                        for (int fanIndexIndex = 0; fanIndexIndex < fanIndexCount; ++fanIndexIndex)
+                                        {
+                                            if (fanIndexIndex == 0 || fanIndexIndex % 3 == 0)
+                                            {
+                                                if (triStripIndices.Count > 0)
+                                                {
+                                                    triStripIndices.Add(int.Parse(fanIndexStrings[fanIndexIndex]));
+                                                    triStrips.Add(triStripIndices.ToArray());
+                                                }
+
+                                                triStripIndices.Clear();
+
+                                                if (fanIndexCount - fanIndexIndex < 2) break;
+
+                                                triStripIndices.Add(int.Parse(fanIndexStrings[fanIndexIndex]));
+                                                triStripIndices.Add(int.Parse(fanIndexStrings[fanIndexIndex + 1]));
+                                                triStripIndices.Add(firstFanIndex);
+
+                                                ++fanIndexIndex;
+                                            }
+
+                                            else triStripIndices.Add(int.Parse(fanIndexStrings[fanIndexIndex]));
+                                        }
+
+                                        if (triStripIndices.Count > 0) triStrips.Add(triStripIndices.ToArray());
+                                    }
+
+                                    break;
+                                }
+
+
+                            case "triangles":
+                                {
+
+                                    var trianglesAttribute = attribute;
+                                    var trianglesIndexStrings = trianglesAttribute != null ? trianglesAttribute.Value.Trim().Split(new char[] { ' ' }) : new string[0];
+
+                                    for (int triangleIndexIndex = 2, triangleIndexCount = trianglesIndexStrings.Length; triangleIndexIndex < triangleIndexCount; triangleIndexIndex += 3)
+                                    {
+                                        triStrips.Add(new int[]
+                                        {
+                                            int.Parse(trianglesIndexStrings[triangleIndexIndex - 2]),
+                                            int.Parse(trianglesIndexStrings[triangleIndexIndex - 1]),
+                                            int.Parse(trianglesIndexStrings[triangleIndexIndex])
+                                        });
+                                    }
+
+                                    break;
+                                }
                         }
-
-                        triStrips.Add(stripIndices);
-                    }
-
-
-
-                    var fansAttribute = faceElementAttributes["fans"];
-                    var fanStrings = fansAttribute != null ? fansAttribute.Value.Trim().Split(new char[] { ',' }) : new string[0];
-
-                    for (int fanIndex = 0, fanCount = fanStrings.Length; fanIndex < fanCount; ++fanIndex)
-                    {
-                        var fanIndexStrings = fanStrings[fanIndex].Trim().Split(new char[] { ' ' });
-
-                        var fanIndexCount = fanIndexStrings.Length;
-
-                        if (fanIndexCount < 3) continue;
-
-                        var firstFanIndex = int.Parse(fanIndexStrings[0]);
-
-                        for (int fanIndexIndex = 1; fanIndexIndex < fanIndexCount - 1; ++fanIndexIndex)
-                        {
-                            triStrips.Add(new int[]
-                            {
-                                firstFanIndex,
-                                int.Parse(fanIndexStrings[fanIndexIndex]),
-                                int.Parse(fanIndexStrings[fanIndexIndex + 1])
-                            });
-                        }
-                    }
-
-
-
-                    var trianglesAttribute = faceElementAttributes["triangles"];
-                    var trianglesIndexStrings = trianglesAttribute != null ? trianglesAttribute.Value.Trim().Split(new char[] { ' ' }) : new string[0];
-
-                    for (int triangleIndexIndex = 2, triangleIndexCount = trianglesIndexStrings.Length; triangleIndexIndex < triangleIndexCount; triangleIndexIndex += 3)
-                    {
-                        triStrips.Add(new int[]
-                        {
-                            int.Parse(trianglesIndexStrings[triangleIndexIndex - 2]),
-                            int.Parse(trianglesIndexStrings[triangleIndexIndex - 1]),
-                            int.Parse(trianglesIndexStrings[triangleIndexIndex])
-                        });
                     }
 
                     if (triStrips.Count == 0 || positions.Length == 0) continue;
@@ -306,6 +358,14 @@ namespace JTfy
                     geometricSets.Add(geometricSet);
                 }
             }
+
+            /*geometricSets.Sort((a, b) =>
+            {
+                var alphaA = a.Colour.A;
+                var alphaB = b.Colour.A;
+
+                return alphaA > alphaB ? -1 : (alphaA == alphaB ? 0 : 1);
+            });*/
             
             return geometricSets.Count == 0 ? null : geometricSets.ToArray();
         }

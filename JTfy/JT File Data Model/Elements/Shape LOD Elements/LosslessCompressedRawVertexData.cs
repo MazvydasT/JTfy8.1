@@ -72,8 +72,6 @@ namespace JTfy
         public LosslessCompressedRawVertexData(byte[] vertexData)
         {
             VertexData = vertexData;
-
-            //Debug.WriteLine(String.Join(",", CompressedVertexData));
         }
 
         public LosslessCompressedRawVertexData(Stream stream)
@@ -87,8 +85,6 @@ namespace JTfy
                 VertexData = StreamUtils.ReadBytes(stream, Math.Abs(compressedDataSize), false);
             else
                 VertexData = CompressedVertexData = new byte[0];
-
-            //Debug.WriteLine(String.Join(",", CompressedVertexData));
         }
     }
 }

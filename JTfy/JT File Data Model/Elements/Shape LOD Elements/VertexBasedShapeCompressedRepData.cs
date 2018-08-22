@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 
+using System.Diagnostics;
+
 namespace JTfy
 {
     public class VertexBasedShapeCompressedRepData : BaseDataStructure
@@ -92,11 +94,11 @@ namespace JTfy
             // Next we need to make sure that first index of each tristrip is bigger by 1 than last index of previous tristrip
             // Next we need to extract first index of each tristrip also add last index of last tristrip + 1
 
+            var newVertexIndex = 0;
+            
             var newTriStrips = new int[triStrips.Length][];
             var newVertexPositions = new List<float[]>(vertexPositions.Length);
             var newVertexNormals = vertexNormals == null ? null : new List<float[]>(vertexNormals.Length);
-
-            var newVertexIndex = 0;
 
             for (int triStripIndex = 0, triStripCount = triStrips.Length; triStripIndex < triStripCount; ++triStripIndex)
             {
@@ -119,8 +121,10 @@ namespace JTfy
             }
 
             TriStrips = newTriStrips;
+
+            TriStrips = newTriStrips;
             Positions = newVertexPositions.ToArray();
-            Normals = newVertexNormals.ToArray();
+            Normals = vertexNormals != null ? newVertexNormals.ToArray() : null;
 
             //Next build vertex data from positons and normals eg x y z, xn yn zn -> repeat
             //Next convert vertex data to byte array
@@ -131,14 +135,14 @@ namespace JTfy
             {
                 if (vertexNormals != null)
                 {
-                    var vertexNormal = newVertexNormals[i];
+                    var vertexNormal = Normals[i];
 
                     vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[0]));
                     vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[1]));
                     vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[2]));
                 }
 
-                var vertexPosition = newVertexPositions[i];
+                var vertexPosition = Positions[i];
 
                 vertexData.AddRange(StreamUtils.ToBytes(vertexPosition[0]));
                 vertexData.AddRange(StreamUtils.ToBytes(vertexPosition[1]));

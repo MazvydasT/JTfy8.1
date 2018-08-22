@@ -54,7 +54,7 @@ namespace JTfy
             }
         }
 
-        public override string ToString()
+        /*public override string ToString()
         {
             return String.Join("|", new object[]
             {
@@ -65,7 +65,7 @@ namespace JTfy
                 EmissionColour == null ? EmissionCommonRGBValue : (object)EmissionColour,
                 Shininess
             });
-        }
+        }*/
 
         public MaterialAttributeElement(Color diffuseColour, int objectId) : this(new RGBA(diffuseColour), new RGBA(diffuseColour), new RGBA(diffuseColour), new RGBA(), objectId) { }
 

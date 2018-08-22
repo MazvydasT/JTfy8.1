@@ -57,8 +57,6 @@ namespace JTfy
             var decodedSymbols = DecodeBytes(stream);
             var unpackedValues = PackUnpack(decodedSymbols, predictorType);
 
-            var test = Encode(unpackedValues, predictorType);
-
             return unpackedValues;
         }
 
