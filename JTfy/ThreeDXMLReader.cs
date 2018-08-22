@@ -33,13 +33,12 @@ namespace JTfy
                         var xmlDoc = new XmlDocument();
                         xmlDoc.Load(entry.Open());
 
-                        var rootElement = xmlDoc.SelectSingleNode("//*[local-name()='Root']");
+                        var rootElementText = xmlDoc.SelectSingleNode("//*[local-name()='Root']/text()");
 
-                        if (rootElement != null) threeDXMLEntry = archive.GetEntry(rootElement.InnerText);
+                        if (rootElementText != null) threeDXMLEntry = archive.GetEntry(rootElementText.Value);
                     }
 
                     else if (entryNameExt == ".xml") partEntries[entryName] = entry;
-                    //else if (entryName.ToLower() == "product.3dxml") threeDXMLEntry = entry;
                 }
 
                 if (threeDXMLEntry == null) throw new Exception(String.Format("{0} does not contain PRODUCT.3dxml file.", path));
