@@ -16,19 +16,19 @@ namespace JTfy
         {
             //Save();
             //Load();
-            //Read3DXML();
+            Read3DXML();
 
-            var sourcePath = args[0];
+            /*var sourcePath = args[0];
             var destinationPath = Path.Combine(Path.GetDirectoryName(sourcePath), Path.GetFileNameWithoutExtension(sourcePath) + ".jt");
 
-            ThreeDXMLReader.Read(sourcePath).Save(destinationPath);
+            ThreeDXMLReader.Read(sourcePath).Save(destinationPath, false);*/
         }
 
         static void Read3DXML()
         {
-            //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\Pedal\F-HPLA-2D094-BA-UEC1-060602-000.3DXML").Save(@"C:\Users\mtadara1\Desktop\out_SAVE_from_3dxml.jt");
+            ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\Assy Door Carrier Nov 2018.3dxml").Save(@"C:\Users\mtadara1\Desktop\Assy Door Carrier Nov 2018.jt", false);
             //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\fender2\L8B2-16E004-A-DMU-01.3DXML").Save(@"C:\Users\mtadara1\Desktop\fender_from_3dxml.jt");
-            ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\L663UNV1TF0041 --A WIP.3dxml").Save(@"C:\Users\mtadara1\Desktop\L663UNV1TF0041 --A WIP.jt");
+            //ThreeDXMLReader.Read(@"\\gal71836.fs3.util.jlrint.com\hq\Manufacturing\AME\VME\sys_root\VIRTUAL_SIMULATIONS\PROJECTS\L66321MY\UNV1\L66321MYUNV1TF0001\Product\NEW_STEERING COLUMN FOR L66321MYUNV1TF0001.3dxml").Save(@"C:\Users\mtadara1\Desktop\NEW_STEERING COLUMN FOR L66321MYUNV1TF0001.jt", false);
             //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\body3\F-L8B2-00000-DA-UEB2-013501-000.3DXML").Save(@"C:\Users\mtadara1\Desktop\F-L8B2-00000-DA-UEB2-013501-000.jt");
             //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\body3\F-L8B2-00000-DA-UEB2-013501-000.3DXML").Save(@"C:\Users\mtadara1\Desktop\body_from_3dxml.jt", false);
 
@@ -167,10 +167,10 @@ namespace JTfy
         static void Load()
         {
             // 8.1
-            //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\DS_L405_040102_C01_18_FR_SUSP_LINKS___ARMS_20.jt");
+            Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\DS_L405_040102_C01_18_FR_SUSP_LINKS___ARMS_20.jt");
             //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\DS_L405_040102_C01_18_FR_SUSP_LINKS___ARMS\W780052_S_INS_01_NUT_WSHR_M10_HC_PTP_FL10_2.jt");
             //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\L8B2-16015-A-INS-01_L663_FENDER_OUTER_RH.jt");
-            Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\test.jt");
+            //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\test.jt");
             //Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\test81.jt");
 
             // 9.5

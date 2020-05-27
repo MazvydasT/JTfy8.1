@@ -38,7 +38,7 @@ namespace JTfy
                         if (rootElementText != null) threeDXMLEntry = archive.GetEntry(rootElementText.Value);
                     }
 
-                    else if (entryNameExt == ".xml") partEntries[entryName] = entry;
+                    else if (entryNameExt == ".xml" || entryNameExt == ".3drep") partEntries[entryName] = entry;
                 }
 
                 if (threeDXMLEntry == null) throw new Exception(String.Format("{0} does not contain PRODUCT.3dxml file.", path));
