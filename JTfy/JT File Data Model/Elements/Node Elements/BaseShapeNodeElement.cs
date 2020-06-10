@@ -7,7 +7,7 @@ namespace JTfy
     public class BaseShapeNodeElement : BaseNodeElement
     {
         private BBoxF32 transformedBBox = new BBoxF32();
-        public BBoxF32 TransformedBBox { get { return transformedBBox; } set { transformedBBox = value == null ? new BBoxF32() : value; } }
+        public BBoxF32 TransformedBBox { get { return transformedBBox; } set { transformedBBox = value ?? new BBoxF32(); } }
 
         public BBoxF32 UntransformedBBox { get; private set; }
 

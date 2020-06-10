@@ -6,7 +6,7 @@ namespace JTfy
 {
     public class TriStripSetShapeLODElement : VertexShapeLODElement
     {
-        private Int16 versionNumber = 1;
+        private readonly Int16 versionNumber = 1;
         public VertexBasedShapeCompressedRepData VertexBasedShapeCompressedRepData { get; private set; }
 
         public override int ByteCount

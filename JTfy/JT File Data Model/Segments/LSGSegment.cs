@@ -11,8 +11,8 @@ namespace JTfy
     public class LSGSegment : BaseDataStructure
     {
 #if DEBUG
-        private List<ElementHeader> graphElementHeaders = new List<ElementHeader>();
-        private List<ElementHeader> propertyAtomElementHeaders = new List<ElementHeader>();
+        private readonly List<ElementHeader> graphElementHeaders = new List<ElementHeader>();
+        private readonly List<ElementHeader> propertyAtomElementHeaders = new List<ElementHeader>();
 #endif
 
         public List<BaseDataStructure> GraphElements { get; private set; }

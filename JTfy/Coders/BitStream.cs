@@ -11,7 +11,7 @@ namespace JTfy
         public long Length { get; private set; }
         public long Position { get; private set; }
 
-        private bool[] buffer = new bool[8];
+        private readonly bool[] buffer = new bool[8];
         private byte bufferPosition;
 
         private bool initialised = false;
@@ -23,7 +23,7 @@ namespace JTfy
             this.Position = stream.Position << 3; // same as stream.Position * 8 but faster
         }
 
-        private bool readBit()
+        private bool ReadBit()
         {
             if (!initialised)
             {
@@ -53,23 +53,23 @@ namespace JTfy
             return buffer[bufferPosition++];
         }
 
-        private bool[] readBits(int numberOfBitsToRead)
+        private bool[] ReadBits(int numberOfBitsToRead)
         {
             var bitStack = new Stack<bool>(numberOfBitsToRead);
 
             for (int i = 0; i < numberOfBitsToRead; ++i)
             {
-                bitStack.Push(readBit());
+                bitStack.Push(ReadBit());
             }
 
             return bitStack.ToArray();
         }
 
-        public Int32 readAsUnsignedInt(int numberOfBitsToRead)
+        public Int32 ReadAsUnsignedInt(int numberOfBitsToRead)
         {
             var bytes = new byte[4];
 
-            new BitArray(readBits(numberOfBitsToRead)).CopyTo(bytes, 0);
+            new BitArray(ReadBits(numberOfBitsToRead)).CopyTo(bytes, 0);
 
             var result = new Int32[1];
 
@@ -78,9 +78,9 @@ namespace JTfy
             return result[0];
         }
 
-        public Int32 readAsSignedInt(int numberOfBitsToRead)
+        public Int32 ReadAsSignedInt(int numberOfBitsToRead)
         {
-            var result = readAsUnsignedInt(numberOfBitsToRead);
+            var result = ReadAsUnsignedInt(numberOfBitsToRead);
 
             result <<= (32 - numberOfBitsToRead);
             result >>= (32 - numberOfBitsToRead);

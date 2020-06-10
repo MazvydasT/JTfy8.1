@@ -6,8 +6,8 @@ namespace JTfy
 {
     public class PartNodeElement : MetaDataNodeElement
     {
-        private Int16 versionNumber = 1;
-        private int reservedField = 0;
+        private readonly Int16 versionNumber = 1;
+        private readonly int reservedField = 0;
 
         public override int ByteCount { get { return base.ByteCount + 2 + 4; } }
 

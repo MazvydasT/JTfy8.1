@@ -28,10 +28,10 @@ namespace JTfy
 
         public Int32ProbabilityContextTableEntry(BitStream bitStream, Int32 numberOfSymbolBits, Int32 numberOfOccurrenceCountBits, Int32 numberOfAssociatedValueBits, Int32 numberOfNextContextBits, Int32 minimumValue)
         {
-            Symbol = bitStream.readAsUnsignedInt(numberOfSymbolBits) - 2;
-            OccurrenceCount = bitStream.readAsUnsignedInt(numberOfOccurrenceCountBits);
-            AssociatedValue = bitStream.readAsUnsignedInt(numberOfAssociatedValueBits) + minimumValue;
-            NextContext = numberOfNextContextBits != -1 ? bitStream.readAsUnsignedInt(numberOfNextContextBits) : 0;
+            Symbol = bitStream.ReadAsUnsignedInt(numberOfSymbolBits) - 2;
+            OccurrenceCount = bitStream.ReadAsUnsignedInt(numberOfOccurrenceCountBits);
+            AssociatedValue = bitStream.ReadAsUnsignedInt(numberOfAssociatedValueBits) + minimumValue;
+            NextContext = numberOfNextContextBits != -1 ? bitStream.ReadAsUnsignedInt(numberOfNextContextBits) : 0;
         }
     }
 }

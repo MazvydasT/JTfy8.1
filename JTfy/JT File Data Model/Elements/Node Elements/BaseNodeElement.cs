@@ -12,7 +12,7 @@ namespace JTfy
         public int AttributeCount { get { return AttributeObjectIds.Count; } }
 
         private List<int> attributeObjectIds = new List<int>();
-        public List<int> AttributeObjectIds { get { return attributeObjectIds; } set { attributeObjectIds = value == null ? new List<int>() : value; } }
+        public List<int> AttributeObjectIds { get { return attributeObjectIds; } set { attributeObjectIds = value ?? new List<int>(); } }
 
         public override int ByteCount { get { return 4 + 4 + 4 + AttributeCount * 4; } }
 

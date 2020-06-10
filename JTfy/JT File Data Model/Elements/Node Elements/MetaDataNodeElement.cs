@@ -6,7 +6,7 @@ namespace JTfy
 {
     public class MetaDataNodeElement : GroupNodeElement
     {
-        private Int16 versionNumber = 1;
+        private readonly Int16 versionNumber = 1;
 
         public override int ByteCount { get { return base.ByteCount + 2; } }
 

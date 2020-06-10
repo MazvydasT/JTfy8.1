@@ -7,10 +7,10 @@ namespace JTfy
     public class RangeLODNodeElement : LODNodeElement
     {
         private VecF32 rangeLimits = new VecF32();
-        public VecF32 RangeLimits { get { return rangeLimits; } set { rangeLimits = value == null ? new VecF32() : value; } }
+        public VecF32 RangeLimits { get { return rangeLimits; } set { rangeLimits = value ?? new VecF32(); } }
 
         private CoordF32 center = new CoordF32();
-        public CoordF32 Center { get { return center; } set { center = value == null ? new CoordF32() : value; } }
+        public CoordF32 Center { get { return center; } set { center = value ?? new CoordF32(); } }
 
         public override int ByteCount { get { return base.ByteCount + RangeLimits.ByteCount + Center.ByteCount; } }
 

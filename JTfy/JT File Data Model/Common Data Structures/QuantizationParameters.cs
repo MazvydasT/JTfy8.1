@@ -23,12 +23,13 @@ namespace JTfy
         {
             get
             {
-                var bytesList = new List<byte>(ByteCount);
-
-                bytesList.Add(BitsPerVertex);
-                bytesList.Add(NormalBitsFactor);
-                bytesList.Add(BitsPerTextureCoord);
-                bytesList.Add(BitsPerColor);
+                var bytesList = new List<byte>(ByteCount)
+                {
+                    BitsPerVertex,
+                    NormalBitsFactor,
+                    BitsPerTextureCoord,
+                    BitsPerColor
+                };
 
                 return bytesList.ToArray();
             }

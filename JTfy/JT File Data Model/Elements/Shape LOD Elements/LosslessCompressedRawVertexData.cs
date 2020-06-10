@@ -28,7 +28,7 @@ namespace JTfy
 
             set
             {
-                compressedVertexData = value == null ? new byte[0] : value;
+                compressedVertexData = value ?? (new byte[0]);
             }
         }
 
@@ -46,7 +46,7 @@ namespace JTfy
 
             set
             {
-                vertexData = value == null ? new byte[0] : value;
+                vertexData = value ?? (new byte[0]);
             }
         }
 

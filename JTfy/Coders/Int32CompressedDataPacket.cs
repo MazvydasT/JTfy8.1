@@ -152,9 +152,10 @@ namespace JTfy
             var valuesLength = values.Length;
             var byteCount = 1 + 4 + valuesLength * 4; // (byte)codecType + (int)integersToRead + (int[])values
 
-            var bytesList = new List<byte>(byteCount);
-
-            bytesList.Add((byte)CODECType.Null);
+            var bytesList = new List<byte>(byteCount)
+            {
+                (byte)CODECType.Null
+            };
             bytesList.AddRange(StreamUtils.ToBytes(valuesLength));
 
             for (int i = 0; i < valuesLength; ++i)

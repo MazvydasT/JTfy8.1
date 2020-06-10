@@ -43,7 +43,7 @@ namespace JTfy
 
                     var range = high - low + 1;
                     high = low + ((range * newSymbolRange[1]) / newSymbolRange[2] - 1);
-                    low = low + ((range * newSymbolRange[0]) / newSymbolRange[2]);
+                    low += ((range * newSymbolRange[0]) / newSymbolRange[2]);
 
                     while (true)
                     {
@@ -55,13 +55,13 @@ namespace JTfy
                         else if (((low & 0x4000) > 0) && ((high & 0x4000) == 0))
                         {
                             code ^= 0x4000;
-                            code = code & 0xffff;
+                            code &= 0xffff;
 
                             low &= 0x3fff;
-                            low = low & 0xffff;
+                            low &= 0xffff;
 
                             high |= 0x4000;
-                            high = high & 0xffff;
+                            high &= 0xffff;
                         }
 
                         else
@@ -83,7 +83,7 @@ namespace JTfy
                             GetNextCodeText(bitStream, out bitBuffer, out bits);
                         }
 
-                        code = code | ((bitBuffer >> 31) & 0x00000001);
+                        code |= ((bitBuffer >> 31) & 0x00000001);
                         bitBuffer <<= 1;
                         bits--;
                     }
@@ -110,9 +110,9 @@ namespace JTfy
         private static void GetNextCodeText(BitStream bitStream, out Int32 bitBuffer, out Int32 bits)
         {
             var nBits = (int)Math.Min(32, bitStream.Length - bitStream.Position);
-            var uCodeText = bitStream.readAsUnsignedInt(nBits);
+            var uCodeText = bitStream.ReadAsUnsignedInt(nBits);
 
-            if (nBits < 32) uCodeText = uCodeText << (32 - nBits);
+            if (nBits < 32) uCodeText <<= (32 - nBits);
 
             bitBuffer = uCodeText;
             bits = nBits;

@@ -9,7 +9,7 @@ namespace JTfy
         public int ChildCount { get { return ChildNodeObjectIds.Count; } }
 
         private List<int> childNodeObjectIds = new List<int>();
-        public List<int> ChildNodeObjectIds { get { return childNodeObjectIds; } set { childNodeObjectIds = value == null ? new List<int>() : value; } }
+        public List<int> ChildNodeObjectIds { get { return childNodeObjectIds; } set { childNodeObjectIds = value ?? new List<int>(); } }
 
         public override int ByteCount { get { return base.ByteCount + 4 + ChildCount * 4; } }
 

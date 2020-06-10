@@ -190,7 +190,7 @@ namespace JTfy
                 var positionStrings = repElement.SelectSingleNode("./ns:VertexBuffer/ns:Positions/text()", xmlNamespaceManager).Value.Trim().Split(new char[] { ',' });
 
                 var normalsElement = repElement.SelectSingleNode("./ns:VertexBuffer/ns:Normals/text()", xmlNamespaceManager);
-                var normalStrings = normalsElement == null ? null : normalsElement.Value.Trim().Split(new char[] { ',' });
+                var normalStrings = normalsElement?.Value.Trim().Split(new char[] { ',' });
                 
                 var positionsCount = positionStrings.Length;
 

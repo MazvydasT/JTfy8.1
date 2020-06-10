@@ -20,16 +20,16 @@ namespace JTfy
             Mils,
             Miles
         }
-        private static Dictionary<MeasurementUnits, string> measurementUnitStrings = new Dictionary<MeasurementUnits, string>();
+        private static readonly Dictionary<MeasurementUnits, string> measurementUnitStrings = new Dictionary<MeasurementUnits, string>();
 
         private int id = IdGenUtils.NextId;
         public int ID { get { return id; } set { id = value; } }
 
         private Dictionary<string, object> attributes = new Dictionary<string, object>();
-        public Dictionary<string, object> Attributes { get { return attributes; } set { attributes = value == null ? new Dictionary<string, object>() : value; } }
+        public Dictionary<string, object> Attributes { get { return attributes; } set { attributes = value ?? new Dictionary<string, object>(); } }
 
         private List<JTNode> children = new List<JTNode>();
-        public List<JTNode> Children { get { return children; } set { children = value == null ? new List<JTNode>() : value; } }
+        public List<JTNode> Children { get { return children; } set { children = value ?? new List<JTNode>(); } }
 
         private MeasurementUnits measurementUnit = MeasurementUnits.Millimeters;
         public MeasurementUnits MeasurementUnit { get { return measurementUnit; } set { measurementUnit = value; } }
@@ -51,27 +51,27 @@ namespace JTfy
         public string Name { get { return name; } set { name = value; } }
 
         private GeometricSet[] geometricSets = new GeometricSet[0];
-        public GeometricSet[] GeometricSets { get { return geometricSets; } set { geometricSets = value == null ? new GeometricSet[0] : value; } }
+        public GeometricSet[] GeometricSets { get { return geometricSets; } set { geometricSets = value ?? (new GeometricSet[0]); } }
         
         public float[] TransformationMatrix { get; set; }
 
-        private Dictionary<string, int> uniquePropertyIds = new Dictionary<string, int>();
-        private Dictionary<string, int> uniqueAttributeIds = new Dictionary<string, int>();
-        private Dictionary<JTNode, SegmentHeader> uniqueMetaDataSegmentHeaders = new Dictionary<JTNode, SegmentHeader>();
+        private readonly Dictionary<string, int> uniquePropertyIds = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> uniqueAttributeIds = new Dictionary<string, int>();
+        private readonly Dictionary<JTNode, SegmentHeader> uniqueMetaDataSegmentHeaders = new Dictionary<JTNode, SegmentHeader>();
 
-        private Dictionary<Int32, NodePropertyTable> propertyTableContents = new Dictionary<Int32, NodePropertyTable>();
+        private readonly Dictionary<Int32, NodePropertyTable> propertyTableContents = new Dictionary<Int32, NodePropertyTable>();
 
-        private List<BaseDataStructure> elements = new List<BaseDataStructure>();
-        private List<BasePropertyAtomElement> propertyAtomElements = new List<BasePropertyAtomElement>();
+        private readonly List<BaseDataStructure> elements = new List<BaseDataStructure>();
+        private readonly List<BasePropertyAtomElement> propertyAtomElements = new List<BasePropertyAtomElement>();
 
-        private Dictionary<int, PartitionNodeElement> savedFileIds = new Dictionary<int, PartitionNodeElement>();
+        private readonly Dictionary<int, PartitionNodeElement> savedFileIds = new Dictionary<int, PartitionNodeElement>();
         
-        private List<ShapeLODSegment> shapeLODSegments = new List<ShapeLODSegment>();
-        private List<SegmentHeader> shapeLODSegmentHeaders = new List<SegmentHeader>();
+        private readonly List<ShapeLODSegment> shapeLODSegments = new List<ShapeLODSegment>();
+        private readonly List<SegmentHeader> shapeLODSegmentHeaders = new List<SegmentHeader>();
 
-        private List<Byte[]> compressedMetaDataSegments = new List<Byte[]>();
-        private List<LogicElementHeaderZLIB> metaDataSegmentHeadersZLIB = new List<LogicElementHeaderZLIB>();
-        private List<SegmentHeader> metaDataSegmentHeaders = new List<SegmentHeader>();
+        private readonly List<Byte[]> compressedMetaDataSegments = new List<Byte[]>();
+        private readonly List<LogicElementHeaderZLIB> metaDataSegmentHeadersZLIB = new List<LogicElementHeaderZLIB>();
+        private readonly List<SegmentHeader> metaDataSegmentHeaders = new List<SegmentHeader>();
 
         private bool monolithic;
         private bool separateAttributeSegments;

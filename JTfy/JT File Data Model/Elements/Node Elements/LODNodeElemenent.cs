@@ -6,8 +6,8 @@ namespace JTfy
 {
     public class LODNodeElement : GroupNodeElement
     {
-        private VecF32 reservedField1 = new VecF32();
-        private int reservedField2 = 0;
+        private readonly VecF32 reservedField1 = new VecF32();
+        private readonly int reservedField2 = 0;
 
         public override int ByteCount { get { return base.ByteCount + reservedField1.ByteCount + 4; } }
 

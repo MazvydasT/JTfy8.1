@@ -16,34 +16,34 @@ namespace JTfy
         {
             //Save();
             //Load();
-            Read3DXML();
+            //Read3DXML();
 
-            /*var sourcePath = args[0];
+            var sourcePath = args[0];
             var destinationPath = Path.Combine(Path.GetDirectoryName(sourcePath), Path.GetFileNameWithoutExtension(sourcePath) + ".jt");
 
-            ThreeDXMLReader.Read(sourcePath).Save(destinationPath, false);*/
+            ThreeDXMLReader.Read(sourcePath).Save(destinationPath, false);
         }
 
-        static void Read3DXML()
+        //static void Read3DXML()
+        //{
+        //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\Assy Door Carrier Nov 2018.3dxml").Save(@"C:\Users\mtadara1\Desktop\Assy Door Carrier Nov 2018.jt", false);
+        //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\fender2\L8B2-16E004-A-DMU-01.3DXML").Save(@"C:\Users\mtadara1\Desktop\fender_from_3dxml.jt");
+        //ThreeDXMLReader.Read(@"\\gal71836.fs3.util.jlrint.com\hq\Manufacturing\AME\VME\sys_root\VIRTUAL_SIMULATIONS\PROJECTS\L66321MY\UNV1\L66321MYUNV1TF0001\Product\NEW_STEERING COLUMN FOR L66321MYUNV1TF0001.3dxml").Save(@"C:\Users\mtadara1\Desktop\NEW_STEERING COLUMN FOR L66321MYUNV1TF0001.jt", false);
+        //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\body3\F-L8B2-00000-DA-UEB2-013501-000.3DXML").Save(@"C:\Users\mtadara1\Desktop\F-L8B2-00000-DA-UEB2-013501-000.jt");
+        //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\body3\F-L8B2-00000-DA-UEB2-013501-000.3DXML").Save(@"C:\Users\mtadara1\Desktop\body_from_3dxml.jt", false);
+
+        //var threeDRepContent = new StreamReader(@"C:\Users\mtadara1\Desktop\3DXML_Files\Pedal\F-HPLA-2D094-BA-UEC1-060602-000\CPLA-2D094-A-INS-04_2_b83470b6_274_5a853c46_15e3a.xml").ReadToEnd();
+        //var threeDRepContent = new StreamReader(@"C:\Users\mtadara1\Desktop\3DXML_Files\Pedal\F-HPLA-2D094-BA-UEC1-060602-000\Representation1408425_2_b83470b6_274_5a853c46_15e63.xml").ReadToEnd();
+        //var threeDRepContent = new StreamReader(@"C:\Users\mtadara1\Desktop\3DXML_Files\3dxml_fender\ExportFile\Representation123_2_b83470b6_2060_5a784c11_34db8.xml").ReadToEnd();
+
+        /*new JTNode()
         {
-            ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\Assy Door Carrier Nov 2018.3dxml").Save(@"C:\Users\mtadara1\Desktop\Assy Door Carrier Nov 2018.jt", false);
-            //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\fender2\L8B2-16E004-A-DMU-01.3DXML").Save(@"C:\Users\mtadara1\Desktop\fender_from_3dxml.jt");
-            //ThreeDXMLReader.Read(@"\\gal71836.fs3.util.jlrint.com\hq\Manufacturing\AME\VME\sys_root\VIRTUAL_SIMULATIONS\PROJECTS\L66321MY\UNV1\L66321MYUNV1TF0001\Product\NEW_STEERING COLUMN FOR L66321MYUNV1TF0001.3dxml").Save(@"C:\Users\mtadara1\Desktop\NEW_STEERING COLUMN FOR L66321MYUNV1TF0001.jt", false);
-            //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\body3\F-L8B2-00000-DA-UEB2-013501-000.3DXML").Save(@"C:\Users\mtadara1\Desktop\F-L8B2-00000-DA-UEB2-013501-000.jt");
-            //ThreeDXMLReader.Read(@"C:\Users\mtadara1\Desktop\3DXML_Files\body3\F-L8B2-00000-DA-UEB2-013501-000.3DXML").Save(@"C:\Users\mtadara1\Desktop\body_from_3dxml.jt", false);
+            Name = "Test",
+            GeometricSets = ThreeDXMLReader.GetGeometricSets(threeDRepContent)
+        }.Save(@"C:\Users\mtadara1\Desktop\out_SAVE_from_3dxml_part_file.jt");*/
+        //}
 
-            //var threeDRepContent = new StreamReader(@"C:\Users\mtadara1\Desktop\3DXML_Files\Pedal\F-HPLA-2D094-BA-UEC1-060602-000\CPLA-2D094-A-INS-04_2_b83470b6_274_5a853c46_15e3a.xml").ReadToEnd();
-            //var threeDRepContent = new StreamReader(@"C:\Users\mtadara1\Desktop\3DXML_Files\Pedal\F-HPLA-2D094-BA-UEC1-060602-000\Representation1408425_2_b83470b6_274_5a853c46_15e63.xml").ReadToEnd();
-            //var threeDRepContent = new StreamReader(@"C:\Users\mtadara1\Desktop\3DXML_Files\3dxml_fender\ExportFile\Representation123_2_b83470b6_2060_5a784c11_34db8.xml").ReadToEnd();
-
-            /*new JTNode()
-            {
-                Name = "Test",
-                GeometricSets = ThreeDXMLReader.GetGeometricSets(threeDRepContent)
-            }.Save(@"C:\Users\mtadara1\Desktop\out_SAVE_from_3dxml_part_file.jt");*/
-        }
-
-        static void Save()
+        /*static void Save()
         {
             var root = new JTNode()
             {
@@ -96,7 +96,8 @@ namespace JTfy
                     (
                         new int[][]
                         {
-                            new int[] { 0, 1, 2/*, 3*/ }
+                            //new int[] { 0, 1, 2, 3 }
+                            new int[] { 0, 1, 2 }
                         },
 
                         new float[][]
@@ -162,9 +163,9 @@ namespace JTfy
             };
 
             root.Save(@"C:\Users\mtadara1\Desktop\out_SAVE_VIA_SYSTEM.jt");
-        }
+        }*/
 
-        static void Load()
+        /*static void Load()
         {
             // 8.1
             Stream jtFileStream = File.OpenRead(@"C:\Users\mtadara1\Desktop\JTTest\81\DS_L405_040102_C01_18_FR_SUSP_LINKS___ARMS_20.jt");
@@ -295,7 +296,7 @@ namespace JTfy
 
             // END Data Segments
 
-#if DEBUG
+#if DEBUG*/
             /*foreach (var dataSegment in dataSegments)
             {
                 if (dataSegment.GetType() != typeof(LSGSegment)) continue;
@@ -364,7 +365,7 @@ namespace JTfy
                 Name = "Test",
                 GeometricSets = geometricSets.ToArray()
             }.Save(@"C:\Users\mtadara1\Desktop\test.jt");*/
-#endif
-        }
+/*#endif
+        }*/
     }
 }

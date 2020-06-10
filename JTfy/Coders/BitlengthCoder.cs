@@ -23,9 +23,9 @@ namespace JTfy
 
                 while (bitStream.Position != codeTextLength)
                 {
-                    if (bitStream.readAsUnsignedInt(1) != 0)
+                    if (bitStream.ReadAsUnsignedInt(1) != 0)
                     {
-                        var adjustmentBit = bitStream.readAsUnsignedInt(1);
+                        var adjustmentBit = bitStream.ReadAsUnsignedInt(1);
 
                         do
                         {
@@ -34,7 +34,7 @@ namespace JTfy
                             else
                                 bitFieldWidth -= 2;
                         }
-                        while (bitStream.readAsUnsignedInt(1) == adjustmentBit);
+                        while (bitStream.ReadAsUnsignedInt(1) == adjustmentBit);
                     }
 
                     int decodedSymbol;
@@ -46,7 +46,7 @@ namespace JTfy
 
                     else
                     {
-                        decodedSymbol = bitStream.readAsUnsignedInt(bitFieldWidth);
+                        decodedSymbol = bitStream.ReadAsUnsignedInt(bitFieldWidth);
                         decodedSymbol <<= (32 - bitFieldWidth);
                         decodedSymbol >>= (32 - bitFieldWidth);
                     }

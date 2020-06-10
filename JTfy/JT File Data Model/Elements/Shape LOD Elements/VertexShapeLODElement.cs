@@ -6,7 +6,7 @@ namespace JTfy
 {
     public class VertexShapeLODElement : BaseDataStructure
     {
-        private Int16 versionNumber = 1;
+        private readonly Int16 versionNumber = 1;
         public int BindingAttributes { get; private set; }
         public QuantizationParameters QuantizationParameters { get; private set; }
 

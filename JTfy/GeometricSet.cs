@@ -8,12 +8,12 @@ namespace JTfy
     public class GeometricSet
     {
         private float[][] positions = new float[0][];
-        public float[][] Positions { get { return positions; } private set { positions = value == null ? new float[0][] : value; } }
+        public float[][] Positions { get { return positions; } private set { positions = value ?? (new float[0][]); } }
         
         public float[][] Normals { get; set; }
 
         private int[][] triStrips = new int[0][];
-        public int[][] TriStrips { get { return triStrips; } private set { triStrips = value == null ? new int[0][] : value; } }
+        public int[][] TriStrips { get { return triStrips; } private set { triStrips = value ?? (new int[0][]); } }
 
         private Color colour = RandomGenUtils.NextColour();
         public Color Colour { get { return colour; } set { colour = value; } }

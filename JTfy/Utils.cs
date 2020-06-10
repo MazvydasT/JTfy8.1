@@ -29,7 +29,7 @@ namespace JTfy
             return buffer;
         }
         
-        private static Dictionary<Type, byte> typeSizesInBytes = new Dictionary<Type, byte>()
+        private static readonly Dictionary<Type, byte> typeSizesInBytes = new Dictionary<Type, byte>()
         {
         	{typeof(Byte),1},
         	
@@ -46,10 +46,8 @@ namespace JTfy
         };
         public static byte GetSizeInBytes(Type type)
         {
-            byte returnValue;
-            
-            if(typeSizesInBytes.TryGetValue(type, out returnValue)) return returnValue;
-            
+            if (typeSizesInBytes.TryGetValue(type, out byte returnValue)) return returnValue;
+
             throw new Exception(String.Format("Only Byte, UInt16, UInt32, UInt64, Int16, Int32, Int64, Single and Double types are allowed. Current type is {0}.", type.Name));
         }
 
@@ -224,7 +222,7 @@ namespace JTfy
 
     public static class RandomGenUtils
     {
-        private static RNGCryptoServiceProvider random = new RNGCryptoServiceProvider();
+        private static readonly RNGCryptoServiceProvider random = new RNGCryptoServiceProvider();
 
         public static double NextDouble(double min, double max)
         {
