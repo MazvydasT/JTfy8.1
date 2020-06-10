@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace JTfy
 {
-    public class Int32ProbabilityContexts:BaseDataStructure
+    public class Int32ProbabilityContexts : BaseDataStructure
     {
         //public Byte ProbabilityContextTableCount { get; protected set; } // For some reason this value is not present in JT file and only 1 ProbabilityContextTable is read from the file.
         public Int32ProbabilityContextTableEntry[][] ProbabilityContextTableEntries { get; protected set; }

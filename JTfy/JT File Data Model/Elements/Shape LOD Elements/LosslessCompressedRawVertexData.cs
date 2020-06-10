@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 
-using System.Diagnostics;
-
 namespace JTfy
 {
     public class LosslessCompressedRawVertexData : BaseDataStructure
@@ -40,7 +38,7 @@ namespace JTfy
                 {
                     vertexData = CompressionUtils.Decompress(compressedVertexData);
                 }
-                
+
                 return vertexData;
             }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 
@@ -75,9 +74,9 @@ namespace JTfy
             for (int i = 0, c = instanceElements.Count; i < c; ++i)
             {
                 var instanceElement = instanceElements[i];
-                
+
                 var childNodes = instanceElement.ChildNodes;
-                
+
                 string aggregatedBy = null;
                 string instanceOf = null;
                 string relativeMatrix = null;
@@ -95,14 +94,14 @@ namespace JTfy
                 }
 
                 if (aggregatedBy == null || instanceOf == null || !nodes.ContainsKey(aggregatedBy) || !nodes.ContainsKey(instanceOf)) continue;
-                
+
                 float[] transformationMatrix = null;
 
                 if (relativeMatrix != null && relativeMatrix != "1 0 0 0 1 0 0 0 1 0 0 0")
                 {
                     transformationMatrix = ConstUtils.IndentityMatrix;
 
-                    var relativeMatrixValues = relativeMatrix.Trim().Split(new char[]{' '});
+                    var relativeMatrixValues = relativeMatrix.Trim().Split(new char[] { ' ' });
 
                     var offset = 0;
 
@@ -117,7 +116,7 @@ namespace JTfy
                 }
 
                 var tempNode = XMLElement2Node(instanceElement, partEntries);
-                
+
                 var nodeInstance = new JTNode(nodes[instanceOf])
                 {
                     Name = tempNode.Name,
@@ -164,7 +163,7 @@ namespace JTfy
 
             return node;
         }
-        
+
         public static GeometricSet[] GetGeometricSets(Stream stream)
         {
             var xmlDocument = new XmlDocument();
@@ -191,7 +190,7 @@ namespace JTfy
 
                 var normalsElement = repElement.SelectSingleNode("./ns:VertexBuffer/ns:Normals/text()", xmlNamespaceManager);
                 var normalStrings = normalsElement?.Value.Trim().Split(new char[] { ',' });
-                
+
                 var positionsCount = positionStrings.Length;
 
                 var positions = new float[positionsCount][];
@@ -199,7 +198,7 @@ namespace JTfy
 
                 for (int positionIndex = 0; positionIndex < positionsCount; ++positionIndex)
                 {
-                    var positionComponents = positionStrings[positionIndex].Trim().Split(new char[] {' '});
+                    var positionComponents = positionStrings[positionIndex].Trim().Split(new char[] { ' ' });
 
                     positions[positionIndex] = new float[]
                     {
@@ -210,7 +209,7 @@ namespace JTfy
 
                     if (normals != null)
                     {
-                    	var normalComponents = normalStrings[positionIndex].Trim().Split(new char[]{' '});
+                        var normalComponents = normalStrings[positionIndex].Trim().Split(new char[] { ' ' });
 
                         normals[positionIndex] = new float[]
                         {
@@ -336,7 +335,7 @@ namespace JTfy
                     }
 
                     if (triStrips.Count == 0 || positions.Length == 0) continue;
-                    
+
                     var geometricSet = new GeometricSet(triStrips.ToArray(), positions)
                     {
                         Normals = normals
@@ -365,7 +364,7 @@ namespace JTfy
 
                 return alphaA > alphaB ? -1 : (alphaA == alphaB ? 0 : 1);
             });*/
-            
+
             return geometricSets.Count == 0 ? null : geometricSets.ToArray();
         }
 
@@ -388,7 +387,7 @@ namespace JTfy
                 if (childNodes[0].NodeType == XmlNodeType.Text)
                 {
                     var value = HttpUtility.HtmlDecode(attributeNode.InnerText);
-                    
+
                     // possibly perform value conversion from string to int, float, date?
 
                     attributes[attributeNode.Name] = value;
@@ -398,7 +397,7 @@ namespace JTfy
                 {
                     var childAttributes = ExtractAttributes(childNodes);
 
-                    foreach(var childAttribute in childAttributes)
+                    foreach (var childAttribute in childAttributes)
                     {
                         attributes[childAttribute.Key] = childAttribute.Value;
                     }

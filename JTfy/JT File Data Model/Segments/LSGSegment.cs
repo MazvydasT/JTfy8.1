@@ -26,7 +26,7 @@ namespace JTfy
                 var elementHeaderByteCount = ElementHeader.Size;
 
                 var size = 0;
-                
+
                 for (int i = 0, c = GraphElements.Count; i < c; ++i)
                 {
                     size += elementHeaderByteCount + GraphElements[i].ByteCount;
@@ -42,7 +42,7 @@ namespace JTfy
                 size += 4 + GUID.Size; // int length + GUID object type id
 
                 size += PropertyTable.ByteCount;
-                
+
                 return size;
             }
         }
@@ -97,7 +97,7 @@ namespace JTfy
             while (true)
             {
                 var elementHeader = new ElementHeader(stream);
-                
+
                 var objectTypeIdAsString = elementHeader.ObjectTypeID.ToString();
 
                 if (objectTypeIdAsString == ConstUtils.EndOfElementAsString) goto StartOfPropertyAtoms;
@@ -118,7 +118,7 @@ namespace JTfy
             while (true)
             {
                 var elementHeader = new ElementHeader(stream);
-                
+
                 var objectTypeIdAsString = elementHeader.ObjectTypeID.ToString();
 
                 if (objectTypeIdAsString == ConstUtils.EndOfElementAsString) goto StartOfPropertyTable;
@@ -138,7 +138,7 @@ namespace JTfy
             PropertyTable = new PropertyTable(stream);
 
 #if DEBUG
-        Debug.Assert(stream.Length == stream.Position, "End of stream not reached at the end of MetaDataSegment");
+            Debug.Assert(stream.Length == stream.Position, "End of stream not reached at the end of MetaDataSegment");
 #endif
 
             stream.Dispose();

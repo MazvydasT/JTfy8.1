@@ -40,7 +40,7 @@ namespace JTfy
             ElementLength = StreamUtils.ReadInt32(stream);
             ObjectTypeID = new GUID(stream);
 
-            if(ObjectTypeID.ToString() != ConstUtils.EndOfElementAsString)
+            if (ObjectTypeID.ToString() != ConstUtils.EndOfElementAsString)
             {
                 ObjectBaseType = StreamUtils.ReadByte(stream);
             }

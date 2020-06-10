@@ -3,7 +3,7 @@ using System.IO;
 
 namespace JTfy
 {
-    public class Date:DataArray<Int16>
+    public class Date : DataArray<Int16>
     {
         public Int16 Year { get { return data[0]; } }
         public Int16 Month { get { return data[1]; } }

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Text;
-
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.IO;
 
 namespace JTfy
 {
@@ -297,75 +289,75 @@ namespace JTfy
             // END Data Segments
 
 #if DEBUG*/
-            /*foreach (var dataSegment in dataSegments)
+        /*foreach (var dataSegment in dataSegments)
+        {
+            if (dataSegment.GetType() != typeof(LSGSegment)) continue;
+
+            Debug.WriteLine("");
+
+            foreach (var graphElement in ((LSGSegment)dataSegment).GraphElements)
             {
-                if (dataSegment.GetType() != typeof(LSGSegment)) continue;
+                if (!graphElement.GetType().IsSubclassOf(typeof(BaseNodeElement))) continue;
 
                 Debug.WriteLine("");
+                Debug.WriteLine(graphElement.GetType().Name);
+                Debug.WriteLine("");
 
-                foreach (var graphElement in ((LSGSegment)dataSegment).GraphElements)
+                if(true)
                 {
-                    if (!graphElement.GetType().IsSubclassOf(typeof(BaseNodeElement))) continue;
-
-                    Debug.WriteLine("");
-                    Debug.WriteLine(graphElement.GetType().Name);
-                    Debug.WriteLine("");
-
-                    if(true)
+                    foreach (var attributeId in ((BaseNodeElement)graphElement).AttributeObjectIds)
                     {
-                        foreach (var attributeId in ((BaseNodeElement)graphElement).AttributeObjectIds)
-                        {
-                            Debug.WriteLine("\t" + ((LSGSegment)dataSegment).GraphElements.Where(el => (el.GetType().IsSubclassOf(typeof(BaseAttributeElement)) ? ((BaseAttributeElement)el).ObjectId : ((BaseNodeElement)el).ObjectId) == attributeId).First().GetType().Name);
-                        }
-                    }
-
-                    if (false)
-                    {
-                        var propertyTable = ((LSGSegment)dataSegment).PropertyTable;
-
-                        var propertiesTableIndex = Array.IndexOf(propertyTable.NodeObjectIDs, graphElement.GetType().IsSubclassOf(typeof(BaseAttributeElement)) ? ((BaseAttributeElement)graphElement).ObjectId : ((BaseNodeElement)graphElement).ObjectId);
-
-                        if (propertiesTableIndex == -1) continue;
-
-                        var propertiesTable = propertyTable.NodePropertyTables[propertiesTableIndex];
-
-                        for (int i = 0, c = propertiesTable.KeyPropertyAtomObjectIDs.Count; i < c; ++i)
-                        {
-                            Debug.WriteLine(String.Format("\t{0}\t{1}",
-                                ((LSGSegment)dataSegment).PropertyAtomElements.Where(propEl => propEl.ObjectID == propertiesTable.KeyPropertyAtomObjectIDs[i]).First(),
-                                ((LSGSegment)dataSegment).PropertyAtomElements.Where(propEl => propEl.ObjectID == propertiesTable.ValuePropertyAtomObjectIDs[i]).First()
-                            ));
-                        }
+                        Debug.WriteLine("\t" + ((LSGSegment)dataSegment).GraphElements.Where(el => (el.GetType().IsSubclassOf(typeof(BaseAttributeElement)) ? ((BaseAttributeElement)el).ObjectId : ((BaseNodeElement)el).ObjectId) == attributeId).First().GetType().Name);
                     }
                 }
 
-                Debug.WriteLine("");
-            }*/
+                if (false)
+                {
+                    var propertyTable = ((LSGSegment)dataSegment).PropertyTable;
 
-            /*var geometricSets = new List<GeometricSet>();
+                    var propertiesTableIndex = Array.IndexOf(propertyTable.NodeObjectIDs, graphElement.GetType().IsSubclassOf(typeof(BaseAttributeElement)) ? ((BaseAttributeElement)graphElement).ObjectId : ((BaseNodeElement)graphElement).ObjectId);
 
-            foreach (var dataSegment in dataSegments)
-            {
-                if (dataSegment.GetType() != typeof(ShapeLODSegment)) continue;
+                    if (propertiesTableIndex == -1) continue;
 
-                var vertexBasedShapeCompressedRepData = ((TriStripSetShapeLODElement)((ShapeLODSegment)dataSegment).ShapeLODElement).VertexBasedShapeCompressedRepData;
+                    var propertiesTable = propertyTable.NodePropertyTables[propertiesTableIndex];
 
-                Debug.WriteLine("");
-                Debug.WriteLine("Read");
-                Debug.WriteLine(String.Join(",", vertexBasedShapeCompressedRepData.LosslessCompressedRawVertexData.VertexData));
-                Debug.WriteLine(String.Join(",", vertexBasedShapeCompressedRepData.PrimitiveListIndices));
-                Debug.WriteLine(String.Join(",", vertexBasedShapeCompressedRepData.LosslessCompressedRawVertexData.CompressedVertexData));
-                Debug.WriteLine("");
-
-                geometricSets.Add(new GeometricSet(vertexBasedShapeCompressedRepData.TriStrips, vertexBasedShapeCompressedRepData.Positions) { Normals = vertexBasedShapeCompressedRepData.Normals });
+                    for (int i = 0, c = propertiesTable.KeyPropertyAtomObjectIDs.Count; i < c; ++i)
+                    {
+                        Debug.WriteLine(String.Format("\t{0}\t{1}",
+                            ((LSGSegment)dataSegment).PropertyAtomElements.Where(propEl => propEl.ObjectID == propertiesTable.KeyPropertyAtomObjectIDs[i]).First(),
+                            ((LSGSegment)dataSegment).PropertyAtomElements.Where(propEl => propEl.ObjectID == propertiesTable.ValuePropertyAtomObjectIDs[i]).First()
+                        ));
+                    }
+                }
             }
 
-            new JTNode()
-            {
-                Name = "Test",
-                GeometricSets = geometricSets.ToArray()
-            }.Save(@"C:\Users\mtadara1\Desktop\test.jt");*/
-/*#endif
+            Debug.WriteLine("");
         }*/
+
+        /*var geometricSets = new List<GeometricSet>();
+
+        foreach (var dataSegment in dataSegments)
+        {
+            if (dataSegment.GetType() != typeof(ShapeLODSegment)) continue;
+
+            var vertexBasedShapeCompressedRepData = ((TriStripSetShapeLODElement)((ShapeLODSegment)dataSegment).ShapeLODElement).VertexBasedShapeCompressedRepData;
+
+            Debug.WriteLine("");
+            Debug.WriteLine("Read");
+            Debug.WriteLine(String.Join(",", vertexBasedShapeCompressedRepData.LosslessCompressedRawVertexData.VertexData));
+            Debug.WriteLine(String.Join(",", vertexBasedShapeCompressedRepData.PrimitiveListIndices));
+            Debug.WriteLine(String.Join(",", vertexBasedShapeCompressedRepData.LosslessCompressedRawVertexData.CompressedVertexData));
+            Debug.WriteLine("");
+
+            geometricSets.Add(new GeometricSet(vertexBasedShapeCompressedRepData.TriStrips, vertexBasedShapeCompressedRepData.Positions) { Normals = vertexBasedShapeCompressedRepData.Normals });
+        }
+
+        new JTNode()
+        {
+            Name = "Test",
+            GeometricSets = geometricSets.ToArray()
+        }.Save(@"C:\Users\mtadara1\Desktop\test.jt");*/
+        /*#endif
+                }*/
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace JTfy
@@ -45,7 +44,7 @@ namespace JTfy
         {
             ObjectId = StreamUtils.ReadInt32(stream);
             NodeFlags = StreamUtils.ReadUInt32(stream);
-            
+
             var attributeCount = StreamUtils.ReadInt32(stream);
             AttributeObjectIds = new List<int>(attributeCount);
 

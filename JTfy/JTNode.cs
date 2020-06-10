@@ -35,16 +35,16 @@ namespace JTfy
         public MeasurementUnits MeasurementUnit { get { return measurementUnit; } set { measurementUnit = value; } }
         public string MeasurementUnitAsString
         {
-        	get
-        	{
-        		if(measurementUnitStrings.ContainsKey(measurementUnit)) return measurementUnitStrings[measurementUnit];
+            get
+            {
+                if (measurementUnitStrings.ContainsKey(measurementUnit)) return measurementUnitStrings[measurementUnit];
 
                 var measurementUnitString = MeasurementUnit.ToString();
-        		
-        		measurementUnitStrings[measurementUnit] = measurementUnitString;
-        		
-        		return measurementUnitString;
-        	}
+
+                measurementUnitStrings[measurementUnit] = measurementUnitString;
+
+                return measurementUnitString;
+            }
         }
 
         private string name = null;
@@ -52,7 +52,7 @@ namespace JTfy
 
         private GeometricSet[] geometricSets = new GeometricSet[0];
         public GeometricSet[] GeometricSets { get { return geometricSets; } set { geometricSets = value ?? (new GeometricSet[0]); } }
-        
+
         public float[] TransformationMatrix { get; set; }
 
         private readonly Dictionary<string, int> uniquePropertyIds = new Dictionary<string, int>();
@@ -65,7 +65,7 @@ namespace JTfy
         private readonly List<BasePropertyAtomElement> propertyAtomElements = new List<BasePropertyAtomElement>();
 
         private readonly Dictionary<int, PartitionNodeElement> savedFileIds = new Dictionary<int, PartitionNodeElement>();
-        
+
         private readonly List<ShapeLODSegment> shapeLODSegments = new List<ShapeLODSegment>();
         private readonly List<SegmentHeader> shapeLODSegmentHeaders = new List<SegmentHeader>();
 
@@ -99,7 +99,7 @@ namespace JTfy
             uniqueMetaDataSegmentHeaders.Clear();
 
             propertyTableContents.Clear();
-            
+
             elements.Clear();
             propertyAtomElements.Clear();
 
@@ -283,11 +283,11 @@ namespace JTfy
                 }
 
                 var instanceElement = new InstanceNodeElement(partitionElement.ObjectId, IdGenUtils.NextId);
-                
+
                 elements.Add(instanceElement);
 
                 ProcessAttributes(new JTNode(node) { GeometricSets = null }, instanceElement.ObjectId);
-                
+
                 return instanceElement;
             }
 
@@ -429,7 +429,7 @@ namespace JTfy
                 var triStripSetShapeNodeElementType = typeof(TriStripSetShapeNodeElement);
                 var partitionNodeElementType = typeof(PartitionNodeElement);
 
-                for(int elementIndex = 0, elementCount = elements.Count; elementIndex < elementCount; ++elementIndex)
+                for (int elementIndex = 0, elementCount = elements.Count; elementIndex < elementCount; ++elementIndex)
                 {
                     var element = elements[elementIndex];
                     var elementType = element.GetType();
@@ -572,7 +572,7 @@ namespace JTfy
             foreach (var attribute in attributes)
             {
                 var key = attribute.Key;
-                
+
                 var value = attribute.Value;
                 var valueTypeName = value.GetType().Name;
 
@@ -647,7 +647,7 @@ namespace JTfy
             if (uniqueMetaDataSegmentHeaders.ContainsKey(node)) return uniqueMetaDataSegmentHeaders[node];
 
             var attributes = node.Attributes;
-            
+
             if (attributes.Count == 0) return null;
 
             var keys = new List<string>(attributes.Keys);

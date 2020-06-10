@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace JTfy
@@ -36,7 +35,7 @@ namespace JTfy
 
         public StringPropertyAtomElement(string value, int objectId) : this(new MbString(value), objectId) { }
 
-        public StringPropertyAtomElement(MbString value, int objectId):base(objectId)
+        public StringPropertyAtomElement(MbString value, int objectId) : base(objectId)
         {
             Value = value;
         }

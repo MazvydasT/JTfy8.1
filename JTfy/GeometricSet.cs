@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+﻿using System.Drawing;
 
 namespace JTfy
 {
@@ -9,7 +6,7 @@ namespace JTfy
     {
         private float[][] positions = new float[0][];
         public float[][] Positions { get { return positions; } private set { positions = value ?? (new float[0][]); } }
-        
+
         public float[][] Normals { get; set; }
 
         private int[][] triStrips = new int[0][];

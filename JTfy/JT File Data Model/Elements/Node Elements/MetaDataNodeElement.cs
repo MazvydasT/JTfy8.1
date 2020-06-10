@@ -25,7 +25,7 @@ namespace JTfy
 
         public MetaDataNodeElement(int objectId) : base(objectId) { }
 
-        public MetaDataNodeElement(Stream stream):base(stream)
+        public MetaDataNodeElement(Stream stream) : base(stream)
         {
             versionNumber = StreamUtils.ReadInt16(stream);
         }

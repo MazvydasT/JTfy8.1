@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 
-using System.Diagnostics;
-
 namespace JTfy
 {
     public class VertexBasedShapeCompressedRepData : BaseDataStructure
@@ -27,7 +25,7 @@ namespace JTfy
 
                     primitiveListIndices.Add(triStrip[0]);
 
-                    if(i + 1 == triStripsCount)
+                    if (i + 1 == triStripsCount)
                         primitiveListIndices.Add(triStrip[triStrip.Length - 1] + 1);
                 }
 
@@ -95,7 +93,7 @@ namespace JTfy
             // Next we need to extract first index of each tristrip also add last index of last tristrip + 1
 
             var newVertexIndex = 0;
-            
+
             var newTriStrips = new int[triStrips.Length][];
             var newVertexPositions = new List<float[]>(vertexPositions.Length);
             var newVertexNormals = vertexNormals == null ? null : new List<float[]>(vertexNormals.Length);
@@ -159,7 +157,7 @@ namespace JTfy
             TextureCoordBinding = StreamUtils.ReadByte(stream);
             ColourBinding = StreamUtils.ReadByte(stream);
             QuantizationParameters = new QuantizationParameters(stream);
-            
+
             var primitiveListIndices = Int32CompressedDataPacket.GetArrayI32(stream, Int32CompressedDataPacket.PredictorType.Stride1);
 
             MemoryStream vertexDataStream = null;
@@ -188,7 +186,7 @@ namespace JTfy
             var vertexColours = readColours ? new float[vertexEntryCount][] : null;
             var vertexTextureCoordinates = readTextureCoords ? new float[vertexEntryCount][] : null;
 
-            for(int i = 0; i < vertexEntryCount; ++i)
+            for (int i = 0; i < vertexEntryCount; ++i)
             {
                 if (readTextureCoords)
                     vertexTextureCoordinates[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
@@ -212,7 +210,7 @@ namespace JTfy
             {
                 var startIndex = primitiveListIndices[triStripIndex];
                 var endIndex = primitiveListIndices[triStripIndex + 1];
-                
+
                 var indicesCount = endIndex - startIndex;
                 var indices = new int[indicesCount];
 
