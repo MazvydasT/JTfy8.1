@@ -5,13 +5,13 @@ namespace JTfy
 {
     public class AccumulatedProbabilityCounts
     {
-        private Int32ProbabilityContexts int32ProbabilityContexts;
+        //private readonly Int32ProbabilityContexts int32ProbabilityContexts;
         public Int32[] SymbolCounts { get; private set; }
         public SortedDictionary<Int32, Int32>[] EntriesByAccumulatedCountPerContext { get; private set; }
 
         public AccumulatedProbabilityCounts(Int32ProbabilityContexts int32ProbabilityContexts)
         {
-            this.int32ProbabilityContexts = int32ProbabilityContexts;
+            //this.int32ProbabilityContexts = int32ProbabilityContexts;
             SymbolCounts = new Int32[int32ProbabilityContexts.ProbabilityContextTableEntries.Length];
             EntriesByAccumulatedCountPerContext = new SortedDictionary<int, int>[SymbolCounts.Length];
 

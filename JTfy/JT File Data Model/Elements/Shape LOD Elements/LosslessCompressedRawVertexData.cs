@@ -74,7 +74,7 @@ namespace JTfy
 
         public LosslessCompressedRawVertexData(Stream stream)
         {
-            var uncompressedDataSize = StreamUtils.ReadInt32(stream);
+            StreamUtils.ReadInt32(stream); //uncompressedDataSize
             var compressedDataSize = StreamUtils.ReadInt32(stream);
 
             if (compressedDataSize > 0)

@@ -85,11 +85,11 @@ namespace JTfy
             {
                 var codeTextLength = StreamUtils.ReadInt32(stream);
                 var valueElementCount = StreamUtils.ReadInt32(stream);
-                var symbolCount = valueElementCount;
+                //var symbolCount = valueElementCount;
 
                 if (int32ProbabilityContexts != null && int32ProbabilityContexts.ProbabilityContextTableEntries.Length > 1)
                 {
-                    symbolCount = StreamUtils.ReadInt32(stream);
+                    StreamUtils.ReadInt32(stream); //symbolCount
                 }
 
                 var wordsToRead = StreamUtils.ReadInt32(stream);

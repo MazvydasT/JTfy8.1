@@ -57,7 +57,7 @@ namespace JTfy
             return decodedSymbols.ToArray();
         }
 
-        private static Int32 GetBitFieldWidth(Int32 symbol)
+        /*private static Int32 GetBitFieldWidth(Int32 symbol)
         {
             if (symbol == 0) return 0;
 
@@ -68,6 +68,6 @@ namespace JTfy
             for (i = 1, bitFieldWidth = 0; i <= symbol && bitFieldWidth < 31; i += i, bitFieldWidth++) { }
 
             return bitFieldWidth;
-        }
+        }*/
     }
 }

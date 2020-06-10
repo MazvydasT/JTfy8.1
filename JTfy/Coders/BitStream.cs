@@ -7,7 +7,7 @@ namespace JTfy
 {
     public class BitStream
     {
-        private Stream stream;
+        private readonly Stream stream;
         public long Length { get; private set; }
         public long Position { get; private set; }
 

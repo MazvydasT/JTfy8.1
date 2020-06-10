@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace JTfy
 {
@@ -24,9 +23,9 @@ namespace JTfy
             }
         }
 
-        public Int32ProbabilityContexts(Stream stream)
+        /*public Int32ProbabilityContexts(Stream stream)
         {
-            /*var symbol2AssociatedValueMap = new Dictionary<int, int>();
+            var symbol2AssociatedValueMap = new Dictionary<int, int>();
 
             int probabilityContextTableCount = StreamUtils.ReadByte(stream);
 
@@ -44,7 +43,7 @@ namespace JTfy
                 int32ProbabilityContextTableEntries[i] = new List<Int32ProbabilityContextTableEntry>();
 
                 var probabilityContextTableEntryCount = bitStream.readAsSignedInt(32);
-            }*/
-        }
+            }
+        }*/
     }
 }

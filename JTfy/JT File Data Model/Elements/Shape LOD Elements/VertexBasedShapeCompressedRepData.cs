@@ -160,8 +160,7 @@ namespace JTfy
 
             var primitiveListIndices = Int32CompressedDataPacket.GetArrayI32(stream, Int32CompressedDataPacket.PredictorType.Stride1);
 
-            MemoryStream vertexDataStream = null;
-
+            MemoryStream vertexDataStream;
             if (QuantizationParameters.BitsPerVertex == 0)
             {
                 LosslessCompressedRawVertexData = new LosslessCompressedRawVertexData(stream);
