@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace JTfy
 {
@@ -10,7 +11,13 @@ namespace JTfy
             //Load();
             //Read3DXML();
 
+            //args = new[] { @"C:\Users\mtadara1\Desktop\New Folder (2)\L660 20MY VSM1 CPSCs 010000 and 150000.3dxml" };
+
+            if (args.Length == 0)
+                throw new ArgumentException("Input file argument no found");
+
             var sourcePath = args[0];
+
             var destinationPath = Path.Combine(Path.GetDirectoryName(sourcePath), Path.GetFileNameWithoutExtension(sourcePath) + ".jt");
 
             ThreeDXMLReader.Read(sourcePath).Save(destinationPath, false);

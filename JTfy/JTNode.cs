@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace JTfy
 {
@@ -22,8 +23,7 @@ namespace JTfy
         }
         private static readonly Dictionary<MeasurementUnits, string> measurementUnitStrings = new Dictionary<MeasurementUnits, string>();
 
-        private int id = IdGenUtils.NextId;
-        public int ID { get { return id; } set { id = value; } }
+        public int ID { get; set; } = IdGenUtils.NextId;
 
         private Dictionary<string, object> attributes = new Dictionary<string, object>();
         public Dictionary<string, object> Attributes { get { return attributes; } set { attributes = value ?? new Dictionary<string, object>(); } }
@@ -31,24 +31,24 @@ namespace JTfy
         private List<JTNode> children = new List<JTNode>();
         public List<JTNode> Children { get { return children; } set { children = value ?? new List<JTNode>(); } }
 
-        private MeasurementUnits measurementUnit = MeasurementUnits.Millimeters;
-        public MeasurementUnits MeasurementUnit { get { return measurementUnit; } set { measurementUnit = value; } }
+        public MeasurementUnits MeasurementUnit { get; set; } = MeasurementUnits.Millimeters;
         public string MeasurementUnitAsString
         {
             get
             {
-                if (measurementUnitStrings.ContainsKey(measurementUnit)) return measurementUnitStrings[measurementUnit];
+                if (measurementUnitStrings.ContainsKey(MeasurementUnit)) return measurementUnitStrings[MeasurementUnit];
 
                 var measurementUnitString = MeasurementUnit.ToString();
 
-                measurementUnitStrings[measurementUnit] = measurementUnitString;
+                measurementUnitStrings[MeasurementUnit] = measurementUnitString;
 
                 return measurementUnitString;
             }
         }
 
-        private string name = null;
-        public string Name { get { return name; } set { name = value; } }
+        public string Number { get; set; } = null;
+
+        public string Name { get; set; } = null;
 
         private GeometricSet[] geometricSets = new GeometricSet[0];
         public GeometricSet[] GeometricSets { get { return geometricSets; } set { geometricSets = value ?? (new GeometricSet[0]); } }
@@ -86,6 +86,7 @@ namespace JTfy
             Children = node.Children;
             GeometricSets = node.GeometricSets;
             MeasurementUnit = node.MeasurementUnit;
+            Number = node.Number;
             Name = node.Name;
             TransformationMatrix = node.TransformationMatrix;
         }
@@ -266,7 +267,7 @@ namespace JTfy
 
                 else
                 {
-                    var partFileName = String.Join("_", node.Name.Split(Path.GetInvalidFileNameChars())) + "_" + node.ID + ".jt";
+                    var partFileName = String.Join("_", node.Number.Split(Path.GetInvalidFileNameChars())) + "_" + node.ID + ".jt";
                     var partFileDirectory = Path.Combine(Path.GetDirectoryName(savePath), Path.GetFileNameWithoutExtension(savePath));
                     var partFilePath = Path.Combine(partFileDirectory, partFileName);
 
@@ -558,7 +559,7 @@ namespace JTfy
 
             attributes["JT_PROP_MEASUREMENT_UNITS"] = node.MeasurementUnitAsString;
 
-            if (node.Name != null) attributes["JT_PROP_NAME"] = node.Name + "." + (node.Children.Count > 0 ? "asm" : "part") + ";0;0:";
+            if (node.Number != null || node.Name != null) attributes["JT_PROP_NAME"] = string.Join(" - ", new[] { node.Number, node.Name }.Where(v => v != null).ToArray()) + "." + (node.Children.Count > 0 ? "asm" : "part") + ";0;0:";
 
             //if (node == this && node.Children.Count > 0) attributes["PartitionType"] = "Assembly";
 

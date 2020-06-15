@@ -119,13 +119,13 @@ namespace JTfy
 
                 var nodeInstance = new JTNode(nodes[instanceOf])
                 {
-                    Name = tempNode.Name,
+                    //Number = tempNode.Number,
                     TransformationMatrix = transformationMatrix
                 };
 
                 foreach (var attribute in tempNode.Attributes)
                 {
-                    nodeInstance.Attributes[attribute.Key] = attribute.Value;
+                    nodeInstance.Attributes[$"I: {attribute.Key}"] = attribute.Value;
                 }
 
                 nodes[aggregatedBy].Children.Add(nodeInstance);
@@ -144,9 +144,12 @@ namespace JTfy
             var node = new JTNode()
             {
                 ID = int.Parse(referenceElementAttributes["id"].Value),
-                Name = referenceElementAttributes["name"].Value,
+                Number = referenceElementAttributes["name"].Value,
                 Attributes = ExtractAttributes(referenceElement.ChildNodes)
             };
+
+            if (node.Attributes.ContainsKey("V_Name"))
+                node.Name = node.Attributes["V_Name"].ToString();
 
             if (referenceElement.Name == "ReferenceRep")
             {
