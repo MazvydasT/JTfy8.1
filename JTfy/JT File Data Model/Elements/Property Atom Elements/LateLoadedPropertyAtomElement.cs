@@ -23,7 +23,7 @@
                 bytesArray.AddRange(SegmentId.Bytes);
                 bytesArray.AddRange(StreamUtils.ToBytes(SegmentType));
 
-                return bytesArray.ToArray();
+                return [.. bytesArray];
             }
         }
 

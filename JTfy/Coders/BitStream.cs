@@ -24,7 +24,7 @@ namespace JTfy
         {
             if (!initialised)
             {
-                new BitArray(new Byte[] { StreamUtils.ReadByte(stream) }).CopyTo(buffer, 0);
+                new BitArray([StreamUtils.ReadByte(stream)]).CopyTo(buffer, 0);
                 Array.Reverse(buffer);
 
                 bufferPosition = 0;
@@ -39,7 +39,7 @@ namespace JTfy
 
             if (bufferPosition == buffer.Length)
             {
-                new BitArray(new Byte[] { StreamUtils.ReadByte(stream) }).CopyTo(buffer, 0);
+                new BitArray([StreamUtils.ReadByte(stream)]).CopyTo(buffer, 0);
                 Array.Reverse(buffer);
 
                 bufferPosition = 0;
@@ -59,7 +59,7 @@ namespace JTfy
                 bitStack.Push(ReadBit());
             }
 
-            return bitStack.ToArray();
+            return [.. bitStack];
         }
 
         public Int32 ReadAsUnsignedInt(int numberOfBitsToRead)

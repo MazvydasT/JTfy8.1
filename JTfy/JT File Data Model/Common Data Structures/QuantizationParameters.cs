@@ -27,7 +27,7 @@
                     BitsPerColor
                 };
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

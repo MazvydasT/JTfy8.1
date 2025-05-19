@@ -116,7 +116,7 @@
 
                 bytesList.AddRange(new MbString("").Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

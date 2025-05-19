@@ -19,7 +19,7 @@
                     bytesList.AddRange(StreamUtils.ToBytes(data[i]));
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
@@ -43,21 +43,21 @@
     {
         public VecI32(Stream stream) : base(stream) { }
         public VecI32(int[] data) : base(data) { }
-        public VecI32() : this(new int[0]) { }
+        public VecI32() : this([]) { }
     }
 
     public class VecU32 : Vec<UInt32>
     {
         public VecU32(Stream stream) : base(stream) { }
         public VecU32(uint[] data) : base(data) { }
-        public VecU32() : this(new uint[0]) { }
+        public VecU32() : this([]) { }
     }
 
     public class VecF32 : Vec<Single>
     {
         public VecF32(Stream stream) : base(stream) { }
         public VecF32(float[] data) : base(data) { }
-        public VecF32() : this(new float[0]) { }
+        public VecF32() : this([]) { }
     }
 
     public class MbString : Vec<UInt16>
@@ -80,9 +80,9 @@
 
         public MbString(Stream stream) : base(stream) { }
         public MbString(UInt16[] data) : base(data) { }
-        public MbString() : base(new ushort[0]) { }
+        public MbString() : base([]) { }
         public MbString(string value)
-            : base(new UInt16[0])
+            : base([])
         {
             var chars = value.ToCharArray();
 

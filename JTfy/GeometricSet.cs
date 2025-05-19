@@ -4,13 +4,13 @@ namespace JTfy
 {
     public class GeometricSet
     {
-        private float[][] positions = new float[0][];
-        public float[][] Positions { get { return positions; } private set { positions = value ?? (new float[0][]); } }
+        private float[][] positions = [];
+        public float[][] Positions { get { return positions; } private set { positions = value ?? ([]); } }
 
         public float[][] Normals { get; set; }
 
-        private int[][] triStrips = new int[0][];
-        public int[][] TriStrips { get { return triStrips; } private set { triStrips = value ?? (new int[0][]); } }
+        private int[][] triStrips = [];
+        public int[][] TriStrips { get { return triStrips; } private set { triStrips = value ?? ([]); } }
 
         private Color colour = RandomGenUtils.NextColour();
         public Color Colour { get { return colour; } set { colour = value; } }

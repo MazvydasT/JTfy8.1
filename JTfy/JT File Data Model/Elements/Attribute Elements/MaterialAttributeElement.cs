@@ -46,7 +46,7 @@ namespace JTfy
 
                 bytesList.AddRange(StreamUtils.ToBytes(Shininess));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

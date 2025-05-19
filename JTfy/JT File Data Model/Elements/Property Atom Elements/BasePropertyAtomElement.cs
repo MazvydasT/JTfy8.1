@@ -22,7 +22,7 @@
                 bytesList.AddRange(StreamUtils.ToBytes(ObjectID));
                 bytesList.AddRange(StreamUtils.ToBytes(StateFlags));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

@@ -51,7 +51,7 @@ namespace JTfy
                 }
             }
 
-            return decodedSymbols.ToArray();
+            return [.. decodedSymbols];
         }
 
         /*private static Int32 GetBitFieldWidth(Int32 symbol)

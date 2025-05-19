@@ -21,7 +21,7 @@
                 bytesList.AddRange(base.Bytes);
                 bytesList.AddRange(Value.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

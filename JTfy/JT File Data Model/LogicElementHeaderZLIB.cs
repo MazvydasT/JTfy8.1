@@ -21,7 +21,7 @@
                 bytesArray.AddRange(StreamUtils.ToBytes(CompressedDataLength));
                 bytesArray.Add(CompressionAlgorithm);
 
-                return bytesArray.ToArray();
+                return [.. bytesArray];
             }
         }
 

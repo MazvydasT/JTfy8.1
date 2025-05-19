@@ -15,7 +15,7 @@
                 bytesList.AddRange(base.Bytes);
                 bytesList.AddRange(StreamUtils.ToBytes(versionNumber));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

@@ -22,7 +22,7 @@ namespace JTfy
                 bytesList.AddRange(new ElementHeader(ShapeLODElement.ByteCount + GUID.Size + 1, new GUID(objectTypeIdBaseTypePair.Item1), objectTypeIdBaseTypePair.Item2).Bytes);
                 bytesList.AddRange(ShapeLODElement.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
@@ -38,7 +38,7 @@ namespace JTfy
             var objectTypeIdAsString = elementHeader.ObjectTypeID.ToString();
 
             if (ConstUtils.ObjectTypeIdToType.ContainsKey(objectTypeIdAsString))
-                ShapeLODElement = (BaseDataStructure)Activator.CreateInstance(ConstUtils.ObjectTypeIdToType[objectTypeIdAsString].Item1, new object[] { stream });
+                ShapeLODElement = (BaseDataStructure)Activator.CreateInstance(ConstUtils.ObjectTypeIdToType[objectTypeIdAsString].Item1, [stream]);
             else
                 throw new NotImplementedException(String.Format("Case not defined for Shape LOD Element Object Type {0}", objectTypeIdAsString));
 

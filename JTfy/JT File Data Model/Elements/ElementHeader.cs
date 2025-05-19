@@ -20,7 +20,7 @@
                 bytesList.AddRange(ObjectTypeID.Bytes);
                 bytesList.Add(ObjectBaseType);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

@@ -98,7 +98,7 @@ namespace JTfy
                 {
                     transformationMatrix = ConstUtils.IndentityMatrix;
 
-                    var relativeMatrixValues = relativeMatrix.Trim().Split(new char[] { ' ' });
+                    var relativeMatrixValues = relativeMatrix.Trim().Split([' ']);
 
                     var offset = 0;
 
@@ -186,10 +186,10 @@ namespace JTfy
             {
                 var repElement = repElements[repElementIndex];
 
-                var positionStrings = repElement.SelectSingleNode("./ns:VertexBuffer/ns:Positions/text()", xmlNamespaceManager).Value.Trim().Split(new char[] { ',' });
+                var positionStrings = repElement.SelectSingleNode("./ns:VertexBuffer/ns:Positions/text()", xmlNamespaceManager).Value.Trim().Split([',']);
 
                 var normalsElement = repElement.SelectSingleNode("./ns:VertexBuffer/ns:Normals/text()", xmlNamespaceManager);
-                var normalStrings = normalsElement?.Value.Trim().Split(new char[] { ',' });
+                var normalStrings = normalsElement?.Value.Trim().Split([',']);
 
                 var positionsCount = positionStrings.Length;
 
@@ -198,25 +198,25 @@ namespace JTfy
 
                 for (int positionIndex = 0; positionIndex < positionsCount; ++positionIndex)
                 {
-                    var positionComponents = positionStrings[positionIndex].Trim().Split(new char[] { ' ' });
+                    var positionComponents = positionStrings[positionIndex].Trim().Split([' ']);
 
-                    positions[positionIndex] = new float[]
-                    {
+                    positions[positionIndex] =
+                    [
                         float.Parse(positionComponents[0]),
                         float.Parse(positionComponents[1]),
                         float.Parse(positionComponents[2])
-                    };
+                    ];
 
                     if (normals != null)
                     {
-                        var normalComponents = normalStrings[positionIndex].Trim().Split(new char[] { ' ' });
+                        var normalComponents = normalStrings[positionIndex].Trim().Split([' ']);
 
-                        normals[positionIndex] = new float[]
-                        {
+                        normals[positionIndex] =
+                        [
                             float.Parse(normalComponents[0]),
                             float.Parse(normalComponents[1]),
                             float.Parse(normalComponents[2])
-                        };
+                        ];
                     }
                 }
 
@@ -239,11 +239,11 @@ namespace JTfy
                                 {
 
                                     var stripsAttribute = attribute;
-                                    var stripStrings = stripsAttribute != null ? stripsAttribute.Value.Trim().Split(new char[] { ',' }) : new string[0];
+                                    var stripStrings = stripsAttribute != null ? stripsAttribute.Value.Trim().Split([',']) : [];
 
                                     for (int stripIndex = 0, stripCount = stripStrings.Length; stripIndex < stripCount; ++stripIndex)
                                     {
-                                        var stripIndexStrings = stripStrings[stripIndex].Trim().Split(new char[] { ' ' });
+                                        var stripIndexStrings = stripStrings[stripIndex].Trim().Split([' ']);
 
                                         var stripIndexCount = stripIndexStrings.Length;
 
@@ -266,11 +266,11 @@ namespace JTfy
                                 {
 
                                     var fansAttribute = attribute;
-                                    var fanStrings = fansAttribute != null ? fansAttribute.Value.Trim().Split(new char[] { ',' }) : new string[0];
+                                    var fanStrings = fansAttribute != null ? fansAttribute.Value.Trim().Split([',']) : [];
 
                                     for (int fanIndex = 0, fanCount = fanStrings.Length; fanIndex < fanCount; ++fanIndex)
                                     {
-                                        var fanIndexStrings = new List<string>(fanStrings[fanIndex].Trim().Split(new char[] { ' ' }));
+                                        var fanIndexStrings = new List<string>(fanStrings[fanIndex].Trim().Split([' ']));
 
                                         var fanIndexCount = fanIndexStrings.Count;
 
@@ -289,7 +289,7 @@ namespace JTfy
                                                 if (triStripIndices.Count > 0)
                                                 {
                                                     triStripIndices.Add(int.Parse(fanIndexStrings[fanIndexIndex]));
-                                                    triStrips.Add(triStripIndices.ToArray());
+                                                    triStrips.Add([.. triStripIndices]);
                                                 }
 
                                                 triStripIndices.Clear();
@@ -306,7 +306,7 @@ namespace JTfy
                                             else triStripIndices.Add(int.Parse(fanIndexStrings[fanIndexIndex]));
                                         }
 
-                                        if (triStripIndices.Count > 0) triStrips.Add(triStripIndices.ToArray());
+                                        if (triStripIndices.Count > 0) triStrips.Add([.. triStripIndices]);
                                     }
 
                                     break;
@@ -317,16 +317,16 @@ namespace JTfy
                                 {
 
                                     var trianglesAttribute = attribute;
-                                    var trianglesIndexStrings = trianglesAttribute != null ? trianglesAttribute.Value.Trim().Split(new char[] { ' ' }) : new string[0];
+                                    var trianglesIndexStrings = trianglesAttribute != null ? trianglesAttribute.Value.Trim().Split([' ']) : [];
 
                                     for (int triangleIndexIndex = 2, triangleIndexCount = trianglesIndexStrings.Length; triangleIndexIndex < triangleIndexCount; triangleIndexIndex += 3)
                                     {
-                                        triStrips.Add(new int[]
-                                        {
+                                        triStrips.Add(
+                                        [
                                             int.Parse(trianglesIndexStrings[triangleIndexIndex - 2]),
                                             int.Parse(trianglesIndexStrings[triangleIndexIndex - 1]),
                                             int.Parse(trianglesIndexStrings[triangleIndexIndex])
-                                        });
+                                        ]);
                                     }
 
                                     break;
@@ -336,7 +336,7 @@ namespace JTfy
 
                     if (triStrips.Count == 0 || positions.Length == 0) continue;
 
-                    var geometricSet = new GeometricSet(triStrips.ToArray(), positions)
+                    var geometricSet = new GeometricSet([.. triStrips], positions)
                     {
                         Normals = normals
                     };
@@ -365,7 +365,7 @@ namespace JTfy
                 return alphaA > alphaB ? -1 : (alphaA == alphaB ? 0 : 1);
             });*/
 
-            return geometricSets.Count == 0 ? null : geometricSets.ToArray();
+            return geometricSets.Count == 0 ? null : [.. geometricSets];
         }
 
         private static Dictionary<string, object> ExtractAttributes(XmlNodeList attributeNodes)

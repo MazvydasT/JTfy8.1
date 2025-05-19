@@ -25,7 +25,7 @@ namespace JTfy
                     bytesList.AddRange(StreamUtils.ToBytes(data[i]));
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
     }

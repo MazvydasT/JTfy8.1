@@ -4,7 +4,7 @@
     {
         public int ChildCount { get { return ChildNodeObjectIds.Count; } }
 
-        private List<int> childNodeObjectIds = new List<int>();
+        private List<int> childNodeObjectIds = new();
         public List<int> ChildNodeObjectIds { get { return childNodeObjectIds; } set { childNodeObjectIds = value ?? new List<int>(); } }
 
         public override int ByteCount { get { return base.ByteCount + 4 + ChildCount * 4; } }
@@ -23,7 +23,7 @@
                     bytesList.AddRange(StreamUtils.ToBytes(ChildNodeObjectIds[i]));
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

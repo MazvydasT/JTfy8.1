@@ -18,7 +18,7 @@
                 bytesList.AddRange(Y.Bytes);
                 bytesList.AddRange(Z.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

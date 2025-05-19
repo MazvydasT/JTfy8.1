@@ -22,7 +22,7 @@
                 bytesList.AddRange(StreamUtils.ToBytes(SegmentLength));
                 bytesList.AddRange(StreamUtils.ToBytes(SegmentAttributes));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

@@ -22,7 +22,7 @@
 
                 bytesList.AddRange(Date.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

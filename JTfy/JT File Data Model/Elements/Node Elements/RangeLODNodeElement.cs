@@ -2,10 +2,10 @@
 {
     public class RangeLODNodeElement : LODNodeElement
     {
-        private VecF32 rangeLimits = new VecF32();
+        private VecF32 rangeLimits = new();
         public VecF32 RangeLimits { get { return rangeLimits; } set { rangeLimits = value ?? new VecF32(); } }
 
-        private CoordF32 center = new CoordF32();
+        private CoordF32 center = new();
         public CoordF32 Center { get { return center; } set { center = value ?? new CoordF32(); } }
 
         public override int ByteCount { get { return base.ByteCount + RangeLimits.ByteCount + Center.ByteCount; } }
@@ -20,7 +20,7 @@
                 bytesList.AddRange(RangeLimits.Bytes);
                 bytesList.AddRange(Center.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

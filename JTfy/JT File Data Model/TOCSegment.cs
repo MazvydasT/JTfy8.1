@@ -20,7 +20,7 @@
                     bytesList.AddRange(TOCEntries[i].Bytes);
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

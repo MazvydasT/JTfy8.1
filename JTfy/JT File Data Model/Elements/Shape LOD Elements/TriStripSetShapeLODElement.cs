@@ -20,7 +20,7 @@
                 bytesList.AddRange(StreamUtils.ToBytes(versionNumber));
                 bytesList.AddRange(VertexBasedShapeCompressedRepData.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

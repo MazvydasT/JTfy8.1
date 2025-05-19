@@ -22,7 +22,7 @@
                 bytesList.AddRange(MinCorner.Bytes);
                 bytesList.AddRange(MaxCorner.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

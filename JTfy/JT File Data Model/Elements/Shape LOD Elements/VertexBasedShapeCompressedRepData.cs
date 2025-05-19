@@ -42,7 +42,7 @@
             {
                 if (primitiveListIndicesInt32CompressedDataPacketBytes == null)
                 {
-                    primitiveListIndicesInt32CompressedDataPacketBytes = Int32CompressedDataPacket.Encode(PrimitiveListIndices.ToArray(), Int32CompressedDataPacket.PredictorType.Stride1);
+                    primitiveListIndicesInt32CompressedDataPacketBytes = Int32CompressedDataPacket.Encode([.. PrimitiveListIndices], Int32CompressedDataPacket.PredictorType.Stride1);
                 }
 
                 return primitiveListIndicesInt32CompressedDataPacketBytes;
@@ -71,7 +71,7 @@
                 bytesList.AddRange(PrimitiveListIndicesInt32CompressedDataPacketBytes);
                 bytesList.AddRange(LosslessCompressedRawVertexData.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
@@ -117,8 +117,8 @@
             TriStrips = newTriStrips;
 
             TriStrips = newTriStrips;
-            Positions = newVertexPositions.ToArray();
-            Normals = vertexNormals != null ? newVertexNormals.ToArray() : null;
+            Positions = [.. newVertexPositions];
+            Normals = vertexNormals != null ? [.. newVertexNormals] : null;
 
             //Next build vertex data from positons and normals eg x y z, xn yn zn -> repeat
             //Next convert vertex data to byte array
@@ -143,7 +143,7 @@
                 vertexData.AddRange(StreamUtils.ToBytes(vertexPosition[2]));
             }
 
-            LosslessCompressedRawVertexData = new LosslessCompressedRawVertexData(vertexData.ToArray());
+            LosslessCompressedRawVertexData = new LosslessCompressedRawVertexData([.. vertexData]);
         }
 
         public VertexBasedShapeCompressedRepData(Stream stream)
@@ -184,15 +184,15 @@
             for (int i = 0; i < vertexEntryCount; ++i)
             {
                 if (readTextureCoords)
-                    vertexTextureCoordinates[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
+                    vertexTextureCoordinates[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
 
                 if (readColours)
-                    vertexColours[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
+                    vertexColours[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
 
                 if (readNormals)
-                    vertexNormals[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
+                    vertexNormals[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
 
-                vertexPositions[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
+                vertexPositions[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
             }
 
             Positions = vertexPositions;

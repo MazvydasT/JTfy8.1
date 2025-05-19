@@ -16,14 +16,14 @@
             Mils,
             Miles
         }
-        private static readonly Dictionary<MeasurementUnits, string> measurementUnitStrings = new Dictionary<MeasurementUnits, string>();
+        private static readonly Dictionary<MeasurementUnits, string> measurementUnitStrings = new();
 
         public int ID { get; set; } = IdGenUtils.NextId;
 
-        private Dictionary<string, object> attributes = new Dictionary<string, object>();
+        private Dictionary<string, object> attributes = new();
         public Dictionary<string, object> Attributes { get { return attributes; } set { attributes = value ?? new Dictionary<string, object>(); } }
 
-        private List<JTNode> children = new List<JTNode>();
+        private List<JTNode> children = new();
         public List<JTNode> Children { get { return children; } set { children = value ?? new List<JTNode>(); } }
 
         public MeasurementUnits MeasurementUnit { get; set; } = MeasurementUnits.Millimeters;
@@ -45,28 +45,28 @@
 
         public string Name { get; set; } = null;
 
-        private GeometricSet[] geometricSets = new GeometricSet[0];
-        public GeometricSet[] GeometricSets { get { return geometricSets; } set { geometricSets = value ?? (new GeometricSet[0]); } }
+        private GeometricSet[] geometricSets = [];
+        public GeometricSet[] GeometricSets { get { return geometricSets; } set { geometricSets = value ?? ([]); } }
 
         public float[] TransformationMatrix { get; set; }
 
-        private readonly Dictionary<string, int> uniquePropertyIds = new Dictionary<string, int>();
-        private readonly Dictionary<string, int> uniqueAttributeIds = new Dictionary<string, int>();
-        private readonly Dictionary<JTNode, SegmentHeader> uniqueMetaDataSegmentHeaders = new Dictionary<JTNode, SegmentHeader>();
+        private readonly Dictionary<string, int> uniquePropertyIds = new();
+        private readonly Dictionary<string, int> uniqueAttributeIds = new();
+        private readonly Dictionary<JTNode, SegmentHeader> uniqueMetaDataSegmentHeaders = new();
 
-        private readonly Dictionary<Int32, NodePropertyTable> propertyTableContents = new Dictionary<Int32, NodePropertyTable>();
+        private readonly Dictionary<Int32, NodePropertyTable> propertyTableContents = new();
 
-        private readonly List<BaseDataStructure> elements = new List<BaseDataStructure>();
-        private readonly List<BasePropertyAtomElement> propertyAtomElements = new List<BasePropertyAtomElement>();
+        private readonly List<BaseDataStructure> elements = new();
+        private readonly List<BasePropertyAtomElement> propertyAtomElements = new();
 
-        private readonly Dictionary<int, PartitionNodeElement> savedFileIds = new Dictionary<int, PartitionNodeElement>();
+        private readonly Dictionary<int, PartitionNodeElement> savedFileIds = new();
 
-        private readonly List<ShapeLODSegment> shapeLODSegments = new List<ShapeLODSegment>();
-        private readonly List<SegmentHeader> shapeLODSegmentHeaders = new List<SegmentHeader>();
+        private readonly List<ShapeLODSegment> shapeLODSegments = new();
+        private readonly List<SegmentHeader> shapeLODSegmentHeaders = new();
 
-        private readonly List<Byte[]> compressedMetaDataSegments = new List<Byte[]>();
-        private readonly List<LogicElementHeaderZLIB> metaDataSegmentHeadersZLIB = new List<LogicElementHeaderZLIB>();
-        private readonly List<SegmentHeader> metaDataSegmentHeaders = new List<SegmentHeader>();
+        private readonly List<Byte[]> compressedMetaDataSegments = new();
+        private readonly List<LogicElementHeaderZLIB> metaDataSegmentHeadersZLIB = new();
+        private readonly List<SegmentHeader> metaDataSegmentHeaders = new();
 
         private bool monolithic;
         private bool separateAttributeSegments;
@@ -194,7 +194,7 @@
 
             if (tocEntries.Count == 1) tocEntries.Add(lsgTOCEntry);
 
-            var tocSegment = new TOCSegment(tocEntries.ToArray());
+            var tocSegment = new TOCSegment([.. tocEntries]);
 
             var segmentTotalSizeTracker = 0;
 
@@ -381,7 +381,7 @@
 
                     ProcessAttributes(new JTNode()
                     {
-                        GeometricSets = new GeometricSet[] { geometricSet }
+                        GeometricSets = [geometricSet]
                     }, triStripSetShapeNodeElement.ObjectId);
                 }
 

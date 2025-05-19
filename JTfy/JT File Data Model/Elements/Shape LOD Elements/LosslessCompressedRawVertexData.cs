@@ -22,7 +22,7 @@
 
             set
             {
-                compressedVertexData = value ?? (new byte[0]);
+                compressedVertexData = value ?? ([]);
             }
         }
 
@@ -40,7 +40,7 @@
 
             set
             {
-                vertexData = value ?? (new byte[0]);
+                vertexData = value ?? ([]);
             }
         }
 
@@ -59,7 +59,7 @@
                 bytesList.AddRange(StreamUtils.ToBytes(CompressedVertexData.Length));
                 bytesList.AddRange(CompressedVertexData);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
@@ -78,7 +78,7 @@
             else if (compressedDataSize < 0)
                 VertexData = StreamUtils.ReadBytes(stream, Math.Abs(compressedDataSize), false);
             else
-                VertexData = CompressedVertexData = new byte[0];
+                VertexData = CompressedVertexData = [];
         }
     }
 }

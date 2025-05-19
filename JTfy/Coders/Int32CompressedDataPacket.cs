@@ -140,7 +140,7 @@
                 return decodedSymbols;
             }
 
-            return new int[0];
+            return [];
         }
 
         private static byte[] EncodeValues(int[] values)
@@ -159,7 +159,7 @@
                 bytesList.AddRange(StreamUtils.ToBytes(values[i]));
             }
 
-            return bytesList.ToArray();
+            return [.. bytesList];
         }
 
         public static Int32[] PackUnpack(Int32[] residuals, PredictorType predictorType, bool unpack = true)

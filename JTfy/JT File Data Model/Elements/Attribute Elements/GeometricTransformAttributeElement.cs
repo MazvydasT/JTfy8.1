@@ -29,7 +29,7 @@
                     bytesList.AddRange(StreamUtils.ToBytes(ElementValues[i]));
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
@@ -64,7 +64,7 @@
                 mask >>= 1;
             }
 
-            ElementValues = elementValueList.ToArray();
+            ElementValues = [.. elementValueList];
 
             TransformationMatrix = transformationMatrix;
         }
@@ -92,7 +92,7 @@
                 storedValuesMask = (UInt16)(storedValuesMask << 1);
             }
 
-            ElementValues = elementValueList.ToArray();
+            ElementValues = [.. elementValueList];
         }
     }
 }

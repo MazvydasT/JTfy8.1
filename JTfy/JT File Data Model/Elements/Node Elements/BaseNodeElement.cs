@@ -7,7 +7,7 @@
 
         public int AttributeCount { get { return AttributeObjectIds.Count; } }
 
-        private List<int> attributeObjectIds = new List<int>();
+        private List<int> attributeObjectIds = new();
         public List<int> AttributeObjectIds { get { return attributeObjectIds; } set { attributeObjectIds = value ?? new List<int>(); } }
 
         public override int ByteCount { get { return 4 + 4 + 4 + AttributeCount * 4; } }
@@ -27,7 +27,7 @@
                     bytesList.AddRange(StreamUtils.ToBytes(AttributeObjectIds[i]));
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

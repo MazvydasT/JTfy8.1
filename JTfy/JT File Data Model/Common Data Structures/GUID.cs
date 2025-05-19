@@ -22,7 +22,7 @@
 
                     bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 8, false));
 
-                    return bytesList.ToArray();
+                    return [.. bytesList];
                 }
             }
         }

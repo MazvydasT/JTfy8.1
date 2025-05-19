@@ -21,7 +21,7 @@
                 bytesList.AddRange(StreamUtils.ToBytes(BindingAttributes));
                 bytesList.AddRange(QuantizationParameters.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

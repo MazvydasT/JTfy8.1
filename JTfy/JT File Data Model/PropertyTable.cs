@@ -38,7 +38,7 @@
                     bytesList.AddRange(NodePropertyTables[i].Bytes);
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

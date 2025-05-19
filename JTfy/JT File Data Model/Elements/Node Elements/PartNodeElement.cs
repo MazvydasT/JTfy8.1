@@ -18,7 +18,7 @@
                 bytesList.AddRange(StreamUtils.ToBytes(versionNumber));
                 bytesList.AddRange(StreamUtils.ToBytes(reservedField));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

@@ -7,8 +7,8 @@ namespace JTfy
     public class LSGSegment : BaseDataStructure
     {
 #if DEBUG
-        private readonly List<ElementHeader> graphElementHeaders = new List<ElementHeader>();
-        private readonly List<ElementHeader> propertyAtomElementHeaders = new List<ElementHeader>();
+        private readonly List<ElementHeader> graphElementHeaders = new();
+        private readonly List<ElementHeader> propertyAtomElementHeaders = new();
 #endif
 
         public List<BaseDataStructure> GraphElements { get; private set; }
@@ -75,7 +75,7 @@ namespace JTfy
 
                 bytesList.AddRange(PropertyTable.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
@@ -103,7 +103,7 @@ namespace JTfy
 #endif
 
                 if (ConstUtils.ObjectTypeIdToType.ContainsKey(objectTypeIdAsString))
-                    GraphElements.Add((BaseDataStructure)Activator.CreateInstance(ConstUtils.ObjectTypeIdToType[objectTypeIdAsString].Item1, new object[] { stream }));
+                    GraphElements.Add((BaseDataStructure)Activator.CreateInstance(ConstUtils.ObjectTypeIdToType[objectTypeIdAsString].Item1, [stream]));
                 else
                     throw new NotImplementedException(String.Format("Case not defined for Graph Element Object Type {0}", objectTypeIdAsString));
             }
@@ -124,7 +124,7 @@ namespace JTfy
 #endif
 
                 if (ConstUtils.ObjectTypeIdToType.ContainsKey(objectTypeIdAsString))
-                    PropertyAtomElements.Add((BasePropertyAtomElement)Activator.CreateInstance(ConstUtils.ObjectTypeIdToType[objectTypeIdAsString].Item1, new object[] { stream }));
+                    PropertyAtomElements.Add((BasePropertyAtomElement)Activator.CreateInstance(ConstUtils.ObjectTypeIdToType[objectTypeIdAsString].Item1, [stream]));
                 else
                     throw new NotImplementedException(String.Format("Case not defined for Atom Property Object Type {0}", objectTypeIdAsString));
             }

@@ -21,7 +21,7 @@
                 bytesList.Add(StateFlags);
                 bytesList.AddRange(StreamUtils.ToBytes(FieldInhibitFlags));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

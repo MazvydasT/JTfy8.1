@@ -40,7 +40,7 @@ namespace JTfy
                 bytesList.AddRange(StreamUtils.ToBytes(TOCOffset));
                 bytesList.AddRange(LSGSegmentID.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

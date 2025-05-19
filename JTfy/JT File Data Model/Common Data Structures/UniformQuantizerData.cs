@@ -24,7 +24,7 @@
                 bytesList.AddRange(StreamUtils.ToBytes(Max));
                 bytesList.Add(NumberOfBits);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

@@ -15,12 +15,12 @@
         public Coord(T x, T y, T z)
             : base()
         {
-            data = new T[]
-            {
+            data =
+            [
                 x,
                 y,
                 z
-            };
+            ];
         }
     }
 

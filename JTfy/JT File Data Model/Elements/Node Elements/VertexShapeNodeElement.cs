@@ -24,7 +24,7 @@
                 bytesList.AddRange(StreamUtils.ToBytes(ColourBinding));
                 bytesList.AddRange(QuantizationParameters.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

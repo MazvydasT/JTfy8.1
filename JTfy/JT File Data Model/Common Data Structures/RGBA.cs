@@ -16,22 +16,22 @@ namespace JTfy
         public RGB(Stream stream)
             : base()
         {
-            data = new Single[]
-            {
+            data =
+            [
                 StreamUtils.ReadFloat(stream),
                 StreamUtils.ReadFloat(stream),
                 StreamUtils.ReadFloat(stream)
-            };
+            ];
         }
 
         public RGB(Single red, Single green, Single blue)
         {
-            data = new Single[]
-            {
+            data =
+            [
                 red,
                 green,
                 blue
-            };
+            ];
         }
     }
 
@@ -47,25 +47,25 @@ namespace JTfy
         public RGBA(Stream stream)
             : base(stream)
         {
-            data = new Single[]
-            {
+            data =
+            [
                 base.Red,
                 base.Green,
                 base.Blue,
                 StreamUtils.ReadFloat(stream)
-            };
+            ];
         }
 
         public RGBA(Single red, Single green, Single blue, Single alpha)
             : base(red, green, blue)
         {
-            data = new Single[]
-            {
+            data =
+            [
                 base.Red,
                 base.Green,
                 base.Blue,
                 alpha
-            };
+            ];
         }
 
         public RGBA() : this(0, 0, 0, 1) { }

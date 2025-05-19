@@ -27,7 +27,7 @@
 
                 bytesList.AddRange(StreamUtils.ToBytes((int)0));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
