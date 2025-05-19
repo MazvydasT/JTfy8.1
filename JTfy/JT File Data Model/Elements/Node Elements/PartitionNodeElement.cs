@@ -21,8 +21,8 @@
         private CountRange polygonCountRange = new();
         public CountRange PolygonCountRange { get { return polygonCountRange; } set { polygonCountRange = value; } }
 
-        private BBoxF32 untransformedBBox = null;
-        public BBoxF32 UntransformedBBox { get { return untransformedBBox; } set { untransformedBBox = value; PartitionFlags = value == null ? 0 : 1; } }
+        private BBoxF32? untransformedBBox = null;
+        public BBoxF32? UntransformedBBox { get { return untransformedBBox; } set { untransformedBBox = value; PartitionFlags = value == null ? 0 : 1; } }
 
         override public Int32 ByteCount
         {

@@ -436,7 +436,7 @@
                     if ((monolithic && elementType != triStripSetShapeNodeElementType) || (!monolithic && elementType != partitionNodeElementType)) continue;
 
                     CountRange vertexCountRange, nodeCountRange, polygonCountRange;
-                    BBoxF32 untransformedBBox;
+                    BBoxF32? untransformedBBox;
 
                     if (monolithic)
                     {
@@ -473,8 +473,8 @@
                     polygonCountMin += polygonCountRange.Min;
                     polygonCountMax += polygonCountRange.Max;
 
-                    var minCorner = untransformedBBox.MinCorner;
-                    var maxCorner = untransformedBBox.MaxCorner;
+                    var minCorner = untransformedBBox?.MinCorner ?? new();
+                    var maxCorner = untransformedBBox?.MaxCorner ?? new();
 
                     if (!firstTriStripSetShapeNodeElementVisited)
                     {
