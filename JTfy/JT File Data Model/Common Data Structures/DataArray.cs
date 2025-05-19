@@ -4,7 +4,7 @@ namespace JTfy
 {
     public class DataArray<T> : BaseDataStructure
     {
-        protected T[] data;
+        protected T[] data = [];
 
         public override int ByteCount => data.Length * Marshal.SizeOf<T>();
 
