@@ -41,14 +41,14 @@
             }
         }
 
-        public string Number { get; set; } = null;
+        public string? Number { get; set; } = null;
 
-        public string Name { get; set; } = null;
+        public string? Name { get; set; } = null;
 
         private GeometricSet[] geometricSets = [];
         public GeometricSet[] GeometricSets { get { return geometricSets; } set { geometricSets = value ?? ([]); } }
 
-        public float[] TransformationMatrix { get; set; }
+        public float[]? TransformationMatrix { get; set; }
 
         private readonly Dictionary<string, int> uniquePropertyIds = [];
         private readonly Dictionary<string, int> uniqueAttributeIds = [];
@@ -70,7 +70,7 @@
 
         private bool monolithic;
         private bool separateAttributeSegments;
-        private string savePath;
+        private string savePath = "";
 
         public JTNode() { }
 
@@ -111,7 +111,7 @@
             this.monolithic = monolithic;
             this.separateAttributeSegments = separateAttributeSegments;
 
-            this.savePath = Path.Combine(String.Join("_", Path.GetDirectoryName(path).Split(Path.GetInvalidPathChars())), String.Join("_", Path.GetFileName(path).Split(Path.GetInvalidFileNameChars())));
+            this.savePath = Path.Combine(String.Join("_", Path.GetDirectoryName(path)?.Split(Path.GetInvalidPathChars()) ?? []), String.Join("_", Path.GetFileName(path).Split(Path.GetInvalidFileNameChars())));
 
             // File Header
 
@@ -249,7 +249,10 @@
 
             // END Write to file
 
-            return elements.Count > 0 ? (PartitionNodeElement)elements[0] : null;
+            if (elements.Count == 0)
+                throw new Exception("Writing JT file failed");
+
+            return (PartitionNodeElement)elements[0];
         }
 
         private BaseNodeElement CreateElement(JTNode node)
@@ -262,8 +265,8 @@
 
                 else
                 {
-                    var partFileName = String.Join("_", node.Number.Split(Path.GetInvalidFileNameChars())) + "_" + node.ID + ".jt";
-                    var partFileDirectory = Path.Combine(Path.GetDirectoryName(savePath), Path.GetFileNameWithoutExtension(savePath));
+                    var partFileName = String.Join("_", node.Number?.Split(Path.GetInvalidFileNameChars()) ?? []) + "_" + node.ID + ".jt";
+                    var partFileDirectory = Path.Combine(Path.GetDirectoryName(savePath) ?? "", Path.GetFileNameWithoutExtension(savePath));
                     var partFilePath = Path.Combine(partFileDirectory, partFileName);
 
                     if (!Directory.Exists(partFileDirectory)) Directory.CreateDirectory(partFileDirectory);
@@ -282,7 +285,7 @@
 
                 elements.Add(instanceElement);
 
-                ProcessAttributes(new JTNode(node) { GeometricSets = null }, instanceElement.ObjectId);
+                ProcessAttributes(new JTNode(node) { GeometricSets = [] }, instanceElement.ObjectId);
 
                 return instanceElement;
             }
@@ -638,7 +641,7 @@
             propertyTableContents.Add(nodeElementId, new NodePropertyTable(keys, values));
         }
 
-        private SegmentHeader GetMetaDataSegmentHeader(JTNode node)
+        private SegmentHeader? GetMetaDataSegmentHeader(JTNode node)
         {
             if (uniqueMetaDataSegmentHeaders.TryGetValue(node, out var existingMetaDataSegmentHeader)) return existingMetaDataSegmentHeader;
 
