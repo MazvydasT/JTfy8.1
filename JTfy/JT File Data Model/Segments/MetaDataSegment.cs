@@ -34,8 +34,8 @@ namespace JTfy
 
             var objectTypeIdAsString = elementHeader.ObjectTypeID.ToString();
 
-            if (ConstUtils.ObjectTypeIdToType.ContainsKey(objectTypeIdAsString))
-                MetaDataElement = (BaseDataStructure)Activator.CreateInstance(ConstUtils.ObjectTypeIdToType[objectTypeIdAsString].Item1, [stream]);
+            if (ConstUtils.ObjectTypeIdToType.TryGetValue(objectTypeIdAsString, out var value))
+                MetaDataElement = (BaseDataStructure)Activator.CreateInstance(value.Item1, [stream])!;
             else
                 throw new NotImplementedException(String.Format("Case not defined for Graph Element Object Type {0}", objectTypeIdAsString));
 

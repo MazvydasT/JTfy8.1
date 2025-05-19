@@ -38,7 +38,7 @@ namespace JTfy
             var objectTypeIdAsString = elementHeader.ObjectTypeID.ToString();
 
             if (ConstUtils.ObjectTypeIdToType.TryGetValue(objectTypeIdAsString, out var objectType))
-                ShapeLODElement = (BaseDataStructure)Activator.CreateInstance(objectType.Item1, [stream]);
+                ShapeLODElement = (BaseDataStructure)Activator.CreateInstance(objectType.Item1, [stream])!;
             else
                 throw new NotImplementedException(String.Format("Case not defined for Shape LOD Element Object Type {0}", objectTypeIdAsString));
 
