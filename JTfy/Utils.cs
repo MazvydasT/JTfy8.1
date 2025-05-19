@@ -15,7 +15,7 @@ namespace JTfy
         {
             var buffer = new Byte[numberOfBytesToRead];
 
-            stream.Read(buffer, 0, numberOfBytesToRead);
+            stream.ReadExactly(buffer, 0, numberOfBytesToRead);
 
             if (checkEndianness && BitConverter.IsLittleEndian != DataIsLittleEndian)
             {
