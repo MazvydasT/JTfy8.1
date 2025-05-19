@@ -7,8 +7,8 @@
 
         public int AttributeCount { get { return AttributeObjectIds.Count; } }
 
-        private List<int> attributeObjectIds = new();
-        public List<int> AttributeObjectIds { get { return attributeObjectIds; } set { attributeObjectIds = value ?? new List<int>(); } }
+        private List<int> attributeObjectIds = [];
+        public List<int> AttributeObjectIds { get { return attributeObjectIds; } set { attributeObjectIds = value ?? []; } }
 
         public override int ByteCount { get { return 4 + 4 + 4 + AttributeCount * 4; } }
 

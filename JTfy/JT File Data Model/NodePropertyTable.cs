@@ -39,8 +39,8 @@
 
         public NodePropertyTable(Stream stream)
         {
-            KeyPropertyAtomObjectIDs = new List<Int32>();
-            ValuePropertyAtomObjectIDs = new List<Int32>();
+            KeyPropertyAtomObjectIDs = [];
+            ValuePropertyAtomObjectIDs = [];
 
             var keyPropertyAtomObjectID = StreamUtils.ReadInt32(stream);
 

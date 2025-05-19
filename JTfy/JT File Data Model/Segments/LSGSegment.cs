@@ -7,8 +7,8 @@ namespace JTfy
     public class LSGSegment : BaseDataStructure
     {
 #if DEBUG
-        private readonly List<ElementHeader> graphElementHeaders = new();
-        private readonly List<ElementHeader> propertyAtomElementHeaders = new();
+        private readonly List<ElementHeader> graphElementHeaders = [];
+        private readonly List<ElementHeader> propertyAtomElementHeaders = [];
 #endif
 
         public List<BaseDataStructure> GraphElements { get; private set; }
@@ -88,7 +88,7 @@ namespace JTfy
 
         public LSGSegment(Stream stream)
         {
-            GraphElements = new List<BaseDataStructure>();
+            GraphElements = [];
 
             while (true)
             {
@@ -109,7 +109,7 @@ namespace JTfy
             }
 
         StartOfPropertyAtoms:
-            PropertyAtomElements = new List<BasePropertyAtomElement>();
+            PropertyAtomElements = [];
 
             while (true)
             {

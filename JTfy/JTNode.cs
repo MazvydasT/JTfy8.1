@@ -16,22 +16,22 @@
             Mils,
             Miles
         }
-        private static readonly Dictionary<MeasurementUnits, string> measurementUnitStrings = new();
+        private static readonly Dictionary<MeasurementUnits, string> measurementUnitStrings = [];
 
         public int ID { get; set; } = IdGenUtils.NextId;
 
-        private Dictionary<string, object> attributes = new();
-        public Dictionary<string, object> Attributes { get { return attributes; } set { attributes = value ?? new Dictionary<string, object>(); } }
+        private Dictionary<string, object> attributes = [];
+        public Dictionary<string, object> Attributes { get { return attributes; } set { attributes = value ?? []; } }
 
-        private List<JTNode> children = new();
-        public List<JTNode> Children { get { return children; } set { children = value ?? new List<JTNode>(); } }
+        private List<JTNode> children = [];
+        public List<JTNode> Children { get { return children; } set { children = value ?? []; } }
 
         public MeasurementUnits MeasurementUnit { get; set; } = MeasurementUnits.Millimeters;
         public string MeasurementUnitAsString
         {
             get
             {
-                if (measurementUnitStrings.ContainsKey(MeasurementUnit)) return measurementUnitStrings[MeasurementUnit];
+                if (measurementUnitStrings.TryGetValue(MeasurementUnit, out var value)) return value;
 
                 var measurementUnitString = MeasurementUnit.ToString();
 
@@ -50,23 +50,23 @@
 
         public float[] TransformationMatrix { get; set; }
 
-        private readonly Dictionary<string, int> uniquePropertyIds = new();
-        private readonly Dictionary<string, int> uniqueAttributeIds = new();
-        private readonly Dictionary<JTNode, SegmentHeader> uniqueMetaDataSegmentHeaders = new();
+        private readonly Dictionary<string, int> uniquePropertyIds = [];
+        private readonly Dictionary<string, int> uniqueAttributeIds = [];
+        private readonly Dictionary<JTNode, SegmentHeader> uniqueMetaDataSegmentHeaders = [];
 
-        private readonly Dictionary<Int32, NodePropertyTable> propertyTableContents = new();
+        private readonly Dictionary<Int32, NodePropertyTable> propertyTableContents = [];
 
-        private readonly List<BaseDataStructure> elements = new();
-        private readonly List<BasePropertyAtomElement> propertyAtomElements = new();
+        private readonly List<BaseDataStructure> elements = [];
+        private readonly List<BasePropertyAtomElement> propertyAtomElements = [];
 
-        private readonly Dictionary<int, PartitionNodeElement> savedFileIds = new();
+        private readonly Dictionary<int, PartitionNodeElement> savedFileIds = [];
 
-        private readonly List<ShapeLODSegment> shapeLODSegments = new();
-        private readonly List<SegmentHeader> shapeLODSegmentHeaders = new();
+        private readonly List<ShapeLODSegment> shapeLODSegments = [];
+        private readonly List<SegmentHeader> shapeLODSegmentHeaders = [];
 
-        private readonly List<Byte[]> compressedMetaDataSegments = new();
-        private readonly List<LogicElementHeaderZLIB> metaDataSegmentHeadersZLIB = new();
-        private readonly List<SegmentHeader> metaDataSegmentHeaders = new();
+        private readonly List<Byte[]> compressedMetaDataSegments = [];
+        private readonly List<LogicElementHeaderZLIB> metaDataSegmentHeadersZLIB = [];
+        private readonly List<SegmentHeader> metaDataSegmentHeaders = [];
 
         private bool monolithic;
         private bool separateAttributeSegments;
@@ -139,7 +139,7 @@
             var values = new NodePropertyTable[propertyTableContents.Values.Count];
             propertyTableContents.Values.CopyTo(values, 0);
 
-            var lsgSegment = new LSGSegment(new List<BaseDataStructure>(elements), propertyAtomElements, new PropertyTable(keys, values));
+            var lsgSegment = new LSGSegment([.. elements], propertyAtomElements, new PropertyTable(keys, values));
 
             // END LSG Segment
 
@@ -258,7 +258,7 @@
             {
                 PartitionNodeElement partitionElement;
 
-                if (savedFileIds.ContainsKey(node.ID)) partitionElement = savedFileIds[node.ID];
+                if (savedFileIds.TryGetValue(node.ID, out var value)) partitionElement = value;
 
                 else
                 {
@@ -320,8 +320,8 @@
 
                 int geometricTransformAttributeElementId;
 
-                if (uniqueAttributeIds.ContainsKey(transformationMatrixAsString))
-                    geometricTransformAttributeElementId = uniqueAttributeIds[transformationMatrixAsString];
+                if (uniqueAttributeIds.TryGetValue(transformationMatrixAsString, out var value))
+                    geometricTransformAttributeElementId = value;
                 else
                 {
                     geometricTransformAttributeElementId = IdGenUtils.NextId;
@@ -356,8 +356,8 @@
 
                     int materialAttributeElementId;
 
-                    if (uniqueAttributeIds.ContainsKey(colourAsString))
-                        materialAttributeElementId = uniqueAttributeIds[colourAsString];
+                    if (uniqueAttributeIds.TryGetValue(colourAsString, out var value))
+                        materialAttributeElementId = value;
                     else
                     {
                         materialAttributeElementId = IdGenUtils.NextId;
@@ -367,7 +367,7 @@
 
                     var triStripSetShapeNodeElement = new TriStripSetShapeNodeElement(geometricSet, IdGenUtils.NextId)
                     {
-                        AttributeObjectIds = new List<int>() { materialAttributeElementId }
+                        AttributeObjectIds = [materialAttributeElementId]
                     };
 
                     elements.Add(triStripSetShapeNodeElement);
@@ -387,7 +387,7 @@
 
                 var rangeLODNodeElement = new RangeLODNodeElement(IdGenUtils.NextId)
                 {
-                    ChildNodeObjectIds = new List<int>() { groupNodeElement.ObjectId },
+                    ChildNodeObjectIds = [groupNodeElement.ObjectId],
 
                     Center = new CoordF32(x / count, y / count, z / count)
                 };
@@ -500,7 +500,7 @@
 
                 var partitionNodeElement = new PartitionNodeElement(IdGenUtils.NextId)
                 {
-                    ChildNodeObjectIds = new List<int>() { nodeElement.ObjectId },
+                    ChildNodeObjectIds = [nodeElement.ObjectId],
 
                     Area = area,
                     VertexCountRange = new CountRange(vertexCountMin, vertexCountMax),
@@ -532,7 +532,7 @@
                 var key = attribute.Key.Trim();
                 var value = attribute.Value;
 
-                while (key.EndsWith(":")) key = key.Substring(0, key.Length - 1);
+                while (key.EndsWith(':')) key = key[..^1];
                 while (key.Contains("::")) key = key.Replace("::", ":");
 
                 if (key.Length == 0) continue;
@@ -581,8 +581,8 @@
 
                 int keyId;
 
-                if (uniquePropertyIds.ContainsKey(keyLookupKey))
-                    keyId = uniquePropertyIds[keyLookupKey];
+                if (uniquePropertyIds.TryGetValue(keyLookupKey, out var newKeyId))
+                    keyId = newKeyId;
                 else
                 {
                     keyId = IdGenUtils.NextId;
@@ -597,8 +597,8 @@
 
                 int valueId;
 
-                if (uniquePropertyIds.ContainsKey(valueLookupKey))
-                    valueId = uniquePropertyIds[valueLookupKey];
+                if (uniquePropertyIds.TryGetValue(valueLookupKey, out var newValueId))
+                    valueId = newValueId;
                 else
                 {
                     valueId = IdGenUtils.NextId;
@@ -640,7 +640,7 @@
 
         private SegmentHeader GetMetaDataSegmentHeader(JTNode node)
         {
-            if (uniqueMetaDataSegmentHeaders.ContainsKey(node)) return uniqueMetaDataSegmentHeaders[node];
+            if (uniqueMetaDataSegmentHeaders.TryGetValue(node, out var existingMetaDataSegmentHeader)) return existingMetaDataSegmentHeader;
 
             var attributes = node.Attributes;
 

@@ -187,9 +187,9 @@
 
         public PropertyProxyMetaDataElement(Stream stream)
         {
-            PropertyKeys = new List<MbString>();
-            PropertyValueTypes = new List<byte>();
-            PropertyValues = new List<object>();
+            PropertyKeys = [];
+            PropertyValueTypes = [];
+            PropertyValues = [];
 
             var propertyKey = new MbString(stream);
 
