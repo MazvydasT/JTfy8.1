@@ -60,7 +60,7 @@
         {
             var codecType = (CODECType)StreamUtils.ReadByte(stream);
 
-            Int32ProbabilityContexts int32ProbabilityContexts = null;
+            Int32ProbabilityContexts? int32ProbabilityContexts = null;
             //int outOfBandValueCount;
             //int[] outOfBandValues;
 
