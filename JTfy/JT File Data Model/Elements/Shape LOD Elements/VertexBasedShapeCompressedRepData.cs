@@ -22,7 +22,7 @@
                     primitiveListIndices.Add(triStrip[0]);
 
                     if (i + 1 == triStripsCount)
-                        primitiveListIndices.Add(triStrip[triStrip.Length - 1] + 1);
+                        primitiveListIndices.Add(triStrip[^1] + 1);
                 }
 
                 return primitiveListIndices;
@@ -40,10 +40,7 @@
         {
             get
             {
-                if (primitiveListIndicesInt32CompressedDataPacketBytes == null)
-                {
-                    primitiveListIndicesInt32CompressedDataPacketBytes = Int32CompressedDataPacket.Encode([.. PrimitiveListIndices], Int32CompressedDataPacket.PredictorType.Stride1);
-                }
+                primitiveListIndicesInt32CompressedDataPacketBytes ??= Int32CompressedDataPacket.Encode([.. PrimitiveListIndices], Int32CompressedDataPacket.PredictorType.Stride1);
 
                 return primitiveListIndicesInt32CompressedDataPacketBytes;
             }
