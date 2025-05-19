@@ -5,17 +5,14 @@
         public int UncompressedDataSize { get { return VertexData.Length; } }
         public int CompressedDataSize { get { return CompressedVertexData.Length; } }
 
-        private byte[] compressedVertexData;
-        private byte[] vertexData;
+        private byte[]? compressedVertexData;
+        private byte[]? vertexData;
 
         public byte[] CompressedVertexData
         {
             get
             {
-                if (compressedVertexData == null)
-                {
-                    compressedVertexData = CompressionUtils.Compress(vertexData);
-                }
+                compressedVertexData ??= CompressionUtils.Compress(vertexData ?? []);
 
                 return compressedVertexData;
             }
@@ -30,10 +27,7 @@
         {
             get
             {
-                if (vertexData == null)
-                {
-                    vertexData = CompressionUtils.Decompress(compressedVertexData);
-                }
+                vertexData ??= CompressionUtils.Decompress(compressedVertexData ?? []);
 
                 return vertexData;
             }
