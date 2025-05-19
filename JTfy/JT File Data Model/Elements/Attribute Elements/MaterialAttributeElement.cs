@@ -7,15 +7,15 @@ namespace JTfy
         public UInt16 DataFlags { get; set; }
 
         public float AmbientCommonRGBValue { get; protected set; }
-        public RGBA AmbientColour { get; set; }
+        public RGBA? AmbientColour { get; set; }
 
         public RGBA DiffuseColour { get; set; }
 
         public float SpecularCommonRGBValue { get; protected set; }
-        public RGBA SpecularColour { get; set; }
+        public RGBA? SpecularColour { get; set; }
 
         public float EmissionCommonRGBValue { get; protected set; }
-        public RGBA EmissionColour { get; set; }
+        public RGBA? EmissionColour { get; set; }
 
         private float shininess = 30;
         public float Shininess { get { return shininess; } set { shininess = value < 0 ? 0 : (value > 128 ? 128 : value); } }
@@ -74,7 +74,7 @@ namespace JTfy
             DataFlags |= (6 << 6); // Source Blend Factor - GL_SRC_ALPHA
             DataFlags |= (7 << 11); // Destination Blend Factor - GL_ONE_MINUS_SRC_ALPHA
 
-            if (ambientColour == null) ambientColour = new RGBA();
+            ambientColour ??= new RGBA();
             if (ambientColour.Red == ambientColour.Green && ambientColour.Red == ambientColour.Blue && ambientColour.Alpha == 1)
             {
                 DataFlags |= 0x0001;
@@ -88,10 +88,10 @@ namespace JTfy
                 AmbientColour = ambientColour;
             }
 
-            if (diffuseColour == null) diffuseColour = new RGBA();
+            diffuseColour ??= new RGBA();
             DiffuseColour = diffuseColour;
 
-            if (specularColour == null) specularColour = new RGBA();
+            specularColour ??= new RGBA();
             if (specularColour.Red == specularColour.Green && specularColour.Red == specularColour.Blue && specularColour.Alpha == 1)
             {
                 DataFlags |= 0x0001;
@@ -105,7 +105,7 @@ namespace JTfy
                 SpecularColour = specularColour;
             }
 
-            if (emissionColour == null) emissionColour = new RGBA();
+            emissionColour ??= new RGBA();
             if (emissionColour.Red == emissionColour.Green && emissionColour.Red == emissionColour.Blue && emissionColour.Alpha == 1)
             {
                 DataFlags |= 0x0001;
