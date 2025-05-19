@@ -7,7 +7,7 @@ namespace JTfy
         private float[][] positions = [];
         public float[][] Positions { get { return positions; } private set { positions = value ?? ([]); } }
 
-        public float[][] Normals { get; set; }
+        public float[][]? Normals { get; set; }
 
         private int[][] triStrips = [];
         public int[][] TriStrips { get { return triStrips; } private set { triStrips = value ?? ([]); } }

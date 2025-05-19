@@ -32,7 +32,7 @@
         public LosslessCompressedRawVertexData LosslessCompressedRawVertexData { get; private set; }
 
         public float[][] Positions { get; private set; }
-        public float[][] Normals { get; private set; }
+        public float[][]? Normals { get; private set; }
         public int[][] TriStrips { get; private set; }
 
         private byte[] primitiveListIndicesInt32CompressedDataPacketBytes = null;
@@ -72,7 +72,7 @@
             }
         }
 
-        public VertexBasedShapeCompressedRepData(int[][] triStrips, float[][] vertexPositions, float[][] vertexNormals = null)
+        public VertexBasedShapeCompressedRepData(int[][] triStrips, float[][] vertexPositions, float[][]? vertexNormals = null)
         {
             VersionNumber = 1;
             NormalBinding = (byte)(vertexNormals == null ? 0 : 1);

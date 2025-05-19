@@ -24,7 +24,7 @@
             }
         }
 
-        public TriStripSetShapeLODElement(int[][] triStrips, float[][] vertexPositions, float[][] vertexNormals = null) : this(new VertexBasedShapeCompressedRepData(triStrips, vertexPositions, vertexNormals)) { }
+        public TriStripSetShapeLODElement(int[][] triStrips, float[][] vertexPositions, float[][]? vertexNormals = null) : this(new VertexBasedShapeCompressedRepData(triStrips, vertexPositions, vertexNormals)) { }
 
         public TriStripSetShapeLODElement(VertexBasedShapeCompressedRepData vertexBasedShapeCompressedRepData)
             : base(vertexBasedShapeCompressedRepData.NormalBinding, vertexBasedShapeCompressedRepData.QuantizationParameters)
