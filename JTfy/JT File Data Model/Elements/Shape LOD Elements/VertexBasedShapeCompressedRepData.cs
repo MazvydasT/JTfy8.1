@@ -35,7 +35,7 @@
         public float[][]? Normals { get; private set; }
         public int[][] TriStrips { get; private set; }
 
-        private byte[] primitiveListIndicesInt32CompressedDataPacketBytes = null;
+        private byte[]? primitiveListIndicesInt32CompressedDataPacketBytes = null;
         private byte[] PrimitiveListIndicesInt32CompressedDataPacketBytes
         {
             get
@@ -105,7 +105,7 @@
                     var vertexIndex = triStrip[i];
 
                     newVertexPositions.Add(vertexPositions[vertexIndex]);
-                    if (vertexNormals != null) newVertexNormals.Add(vertexNormals[vertexIndex]);
+                    if (vertexNormals != null) newVertexNormals?.Add(vertexNormals[vertexIndex]);
                 }
 
                 newTriStrips[triStripIndex] = newTriStrip;
@@ -115,7 +115,7 @@
 
             TriStrips = newTriStrips;
             Positions = [.. newVertexPositions];
-            Normals = vertexNormals != null ? [.. newVertexNormals] : null;
+            Normals = vertexNormals != null ? [.. newVertexNormals ?? []] : null;
 
             //Next build vertex data from positons and normals eg x y z, xn yn zn -> repeat
             //Next convert vertex data to byte array
@@ -126,11 +126,14 @@
             {
                 if (vertexNormals != null)
                 {
-                    var vertexNormal = Normals[i];
+                    var vertexNormal = Normals?[i];
 
-                    vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[0]));
-                    vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[1]));
-                    vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[2]));
+                    if (vertexNormal != null)
+                    {
+                        vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[0]));
+                        vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[1]));
+                        vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[2]));
+                    }
                 }
 
                 var vertexPosition = Positions[i];
@@ -180,13 +183,13 @@
 
             for (int i = 0; i < vertexEntryCount; ++i)
             {
-                if (readTextureCoords)
+                if (readTextureCoords && vertexTextureCoordinates != null)
                     vertexTextureCoordinates[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
 
-                if (readColours)
+                if (readColours && vertexColours != null)
                     vertexColours[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
 
-                if (readNormals)
+                if (readNormals && vertexNormals != null)
                     vertexNormals[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
 
                 vertexPositions[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
