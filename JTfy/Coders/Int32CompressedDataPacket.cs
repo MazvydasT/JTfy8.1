@@ -192,29 +192,15 @@
             var v2 = unpackedValues[index - 2];
             var v4 = unpackedValues[index - 4];
 
-            switch (predictorType)
+            return predictorType switch
             {
-                default:
-                case PredictorType.Lag1:
-                case PredictorType.Xor1:
-                    return v1;
-
-                case PredictorType.Lag2:
-                case PredictorType.Xor2:
-                    return v2;
-
-                case PredictorType.Stride1:
-                    return v1 + (v1 - v2);
-
-                case PredictorType.Stride2:
-                    return v2 + (v2 - v4);
-
-                case PredictorType.StripIndex:
-                    return v2 - v4 < 8 && v2 - v4 > -8 ? v2 + (v2 - v4) : v2 + 2;
-
-                case PredictorType.Ramp:
-                    return index;
-            }
+                PredictorType.Lag2 or PredictorType.Xor2 => v2,
+                PredictorType.Stride1 => v1 + (v1 - v2),
+                PredictorType.Stride2 => v2 + (v2 - v4),
+                PredictorType.StripIndex => v2 - v4 < 8 && v2 - v4 > -8 ? v2 + (v2 - v4) : v2 + 2,
+                PredictorType.Ramp => index,
+                _ => v1,
+            };
         }
     }
 }
