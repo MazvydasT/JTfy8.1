@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class Int32ProbabilityContextTableEntry : BaseDataStructure
     {

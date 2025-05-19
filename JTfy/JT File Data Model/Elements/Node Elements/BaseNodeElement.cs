@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class BaseNodeElement : BaseDataStructure
     {

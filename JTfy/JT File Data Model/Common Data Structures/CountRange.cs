@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class CountRange : DataArray<int>
     {
