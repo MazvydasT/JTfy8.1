@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ComponentAce.Compression.Libs.zlib;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Security.Cryptography;
-using System.Windows.Media.Media3D;
 
 namespace JTfy
 {
@@ -182,7 +182,7 @@ namespace JTfy
         public static Byte[] Compress(Byte[] data)
         {
             using (var compressedDataStream = new MemoryStream())
-            using (var zOutputStream = new zlib.ZOutputStream(compressedDataStream, zlib.zlibConst.Z_BEST_COMPRESSION))
+            using (var zOutputStream = new ZOutputStream(compressedDataStream, zlibConst.Z_BEST_COMPRESSION))
             //using (var zOutputStream = new zlib.ZOutputStream(compressedDataStream, 9))
             {
                 zOutputStream.Write(data, 0, data.Length);
@@ -196,7 +196,7 @@ namespace JTfy
         public static Byte[] Decompress(Byte[] data)
         {
             using (var decompressedDataStream = new MemoryStream())
-            using (var zOutputStream = new zlib.ZOutputStream(decompressedDataStream))
+            using (var zOutputStream = new ZOutputStream(decompressedDataStream))
             {
                 zOutputStream.Write(data, 0, data.Length);
                 zOutputStream.Flush();
@@ -353,6 +353,11 @@ namespace JTfy
 
     public static class CalcUtils
     {
+        public readonly struct Point3D(float x, float y, float z)
+        {
+            public float X { get; } = x; public float Y { get; } = y; public float Z { get; } = z;
+        }
+
         public static double GetTriangleArea(float[] point1, float[] point2, float[] point3)
         {
             return GetTriangleArea(
