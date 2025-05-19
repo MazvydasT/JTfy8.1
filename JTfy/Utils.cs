@@ -1,8 +1,5 @@
 ﻿using ComponentAce.Compression.Libs.zlib;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Security.Cryptography;
 
 namespace JTfy
@@ -218,13 +215,9 @@ namespace JTfy
 
     public static class RandomGenUtils
     {
-        private static readonly RNGCryptoServiceProvider random = new RNGCryptoServiceProvider();
-
         public static double NextDouble(double min, double max)
         {
-            var bytes = new byte[8];
-
-            random.GetBytes(bytes);
+            var bytes = RandomNumberGenerator.GetBytes(8);
 
             var uLongArray = new ulong[1];
             Buffer.BlockCopy(bytes, 0, uLongArray, 0, bytes.Length);
