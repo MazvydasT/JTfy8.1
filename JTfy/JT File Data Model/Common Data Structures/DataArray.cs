@@ -6,13 +6,7 @@ namespace JTfy
     {
         protected T[] data;
 
-        public override int ByteCount
-        {
-            get
-            {
-                return data.Length * Marshal.SizeOf(typeof(T));
-            }
-        }
+        public override int ByteCount => data.Length * Marshal.SizeOf<T>();
 
         public override byte[] Bytes
         {
