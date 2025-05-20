@@ -1,11 +1,11 @@
 ﻿namespace JTfy
 {
-    public class TOCEntry : BaseDataStructure
+    public class TOCEntry(GUID segmentID, int segmentOffset, int segmentLength, uint segmentAttributes) : BaseDataStructure
     {
-        public GUID SegmentID { get; private set; }
-        public int SegmentOffset { get; set; }
-        public int SegmentLength { get; private set; }
-        public uint SegmentAttributes { get; private set; }
+        public GUID SegmentID { get; private set; } = segmentID;
+        public int SegmentOffset { get; set; } = segmentOffset;
+        public int SegmentLength { get; private set; } = segmentLength;
+        public uint SegmentAttributes { get; private set; } = segmentAttributes;
 
         public static int Size { get { return GUID.Size + 4 + 4 + 4; } }
 
@@ -24,14 +24,6 @@
 
                 return [.. bytesList];
             }
-        }
-
-        public TOCEntry(GUID segmentID, int segmentOffset, int segmentLength, uint segmentAttributes)
-        {
-            SegmentID = segmentID;
-            SegmentOffset = segmentOffset;
-            SegmentLength = segmentLength;
-            SegmentAttributes = segmentAttributes;
         }
 
         public TOCEntry(Stream stream) : this(new GUID(stream), StreamUtils.ReadInt32(stream), StreamUtils.ReadInt32(stream), StreamUtils.ReadUInt32(stream)) { }

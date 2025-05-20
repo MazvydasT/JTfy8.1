@@ -1,10 +1,10 @@
 ﻿namespace JTfy
 {
-    public class UniformQuantizerData : BaseDataStructure
+    public class UniformQuantizerData(Stream stream) : BaseDataStructure
     {
-        public Single Min { get; protected set; }
-        public Single Max { get; protected set; }
-        public Byte NumberOfBits { get; protected set; }
+        public Single Min { get; protected set; } = StreamUtils.ReadFloat(stream);
+        public Single Max { get; protected set; } = StreamUtils.ReadFloat(stream);
+        public Byte NumberOfBits { get; protected set; } = StreamUtils.ReadByte(stream);
 
         public override int ByteCount
         {
@@ -26,13 +26,6 @@
 
                 return [.. bytesList];
             }
-        }
-
-        public UniformQuantizerData(Stream stream)
-        {
-            Min = StreamUtils.ReadFloat(stream);
-            Max = StreamUtils.ReadFloat(stream);
-            NumberOfBits = StreamUtils.ReadByte(stream);
         }
     }
 }

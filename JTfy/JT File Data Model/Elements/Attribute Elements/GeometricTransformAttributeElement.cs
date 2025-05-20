@@ -36,7 +36,7 @@
         public GeometricTransformAttributeElement(float[] transformationMatrix, int objectId)
             : base(objectId)
         {
-            if (transformationMatrix == null) transformationMatrix = ConstUtils.IndentityMatrix;
+            transformationMatrix ??= ConstUtils.IndentityMatrix;
 
             var transformationMatrixLength = transformationMatrix.Length;
 

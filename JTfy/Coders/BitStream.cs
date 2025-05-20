@@ -2,23 +2,16 @@
 
 namespace JTfy
 {
-    public class BitStream
+    public class BitStream(Stream stream)
     {
-        private readonly Stream stream;
-        public long Length { get; private set; }
-        public long Position { get; private set; }
+        private readonly Stream stream = stream;
+        public long Length { get; private set; } = stream.Length << 3; // same as stream.Length * 8 but faster
+        public long Position { get; private set; } = stream.Position << 3; // same as stream.Position * 8 but faster
 
         private readonly bool[] buffer = new bool[8];
         private byte bufferPosition;
 
         private bool initialised = false;
-
-        public BitStream(Stream stream)
-        {
-            this.stream = stream;
-            this.Length = stream.Length << 3; // same as stream.Length * 8 but faster
-            this.Position = stream.Position << 3; // same as stream.Position * 8 but faster
-        }
 
         private bool ReadBit()
         {

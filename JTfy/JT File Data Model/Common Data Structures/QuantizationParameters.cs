@@ -1,11 +1,11 @@
 ﻿namespace JTfy
 {
-    public class QuantizationParameters : BaseDataStructure
+    public class QuantizationParameters(Byte bitsPerVertex, Byte normalBitsFactor, Byte bitsPerTextureCoord, Byte bitsPerColor) : BaseDataStructure
     {
-        public byte BitsPerVertex { get; protected set; }
-        public byte NormalBitsFactor { get; protected set; }
-        public byte BitsPerTextureCoord { get; protected set; }
-        public byte BitsPerColor { get; protected set; }
+        public byte BitsPerVertex { get; protected set; } = bitsPerVertex;
+        public byte NormalBitsFactor { get; protected set; } = normalBitsFactor;
+        public byte BitsPerTextureCoord { get; protected set; } = bitsPerTextureCoord;
+        public byte BitsPerColor { get; protected set; } = bitsPerColor;
 
         public override int ByteCount
         {
@@ -29,14 +29,6 @@
 
                 return [.. bytesList];
             }
-        }
-
-        public QuantizationParameters(Byte bitsPerVertex, Byte normalBitsFactor, Byte bitsPerTextureCoord, Byte bitsPerColor)
-        {
-            BitsPerVertex = bitsPerVertex;
-            NormalBitsFactor = normalBitsFactor;
-            BitsPerTextureCoord = bitsPerTextureCoord;
-            BitsPerColor = bitsPerColor;
         }
 
         public QuantizationParameters(Stream stream) : this(StreamUtils.ReadByte(stream), StreamUtils.ReadByte(stream), StreamUtils.ReadByte(stream), StreamUtils.ReadByte(stream)) { }

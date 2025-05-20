@@ -2,7 +2,7 @@
 {
     public class GUID : BaseDataStructure
     {
-        private Guid guid;
+        private readonly Guid guid;
 
         public static int Size { get { return 16; } }
 
@@ -12,18 +12,17 @@
         {
             get
             {
-                using (var guidStream = new MemoryStream(guid.ToByteArray()))
-                {
-                    var bytesList = new List<byte>(ByteCount);
+                using var guidStream = new MemoryStream(guid.ToByteArray());
 
-                    bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 4, true));
-                    bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 2, true));
-                    bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 2, true));
+                var bytesList = new List<byte>(ByteCount);
 
-                    bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 8, false));
+                bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 4, true));
+                bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 2, true));
+                bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 2, true));
 
-                    return [.. bytesList];
-                }
+                bytesList.AddRange(StreamUtils.ReadBytes(guidStream, 8, false));
+
+                return [.. bytesList];
             }
         }
 
