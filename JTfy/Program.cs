@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
+Console.Clear();
 
 var startTime = DateTime.Now;
 
