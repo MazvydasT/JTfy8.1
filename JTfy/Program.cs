@@ -1,44 +1,70 @@
-﻿using JTfy;
+﻿using CommandLine;
+using JTfy;
 using System.Security.Cryptography;
+
+var startTime = DateTime.Now;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-args = [@"C:\Users\mtadara1\Downloads\PD&D_MLA_NITRA_ZONE6.4_XC minus fence.3dxml"];
+if (args.Length == 1 && File.Exists(args[0]))
+    args = ["-i", args[0]];
 
-if (args.Length == 0)
-    throw new ArgumentException("Input file argument no found");
+var result = Parser.Default.ParseArguments<CommanLineOptions>(args);
+var options = result.Value;
 
-var sourcePath = args[0];
+if (options == null) return;
 
-var monolithic = true;
+var sourcePath = options.Input;
 
-var destinationPath = Path.Combine(Path.GetDirectoryName(sourcePath) ?? "", Path.GetFileNameWithoutExtension(sourcePath) + ".jt");
+var monolithic = options.Monolithic;
+
+var destinationPath = options.Output ?? Path.Combine(Path.GetDirectoryName(sourcePath) ?? "", Path.GetFileNameWithoutExtension(sourcePath) + ".jt");
 
 var messages = new Dictionary<string, HashSet<string>>();
 var progressConsoleRow = 0;
 
+var lastWidth = 1;
+var lastHeight = -1;
+
 var printProgress = (float progress, string message, string messageExt) =>
 {
-    if (!messages.TryGetValue(message, out var messageExts))
+    var width = Console.WindowWidth;
+    var height = Console.WindowHeight;
+
+    if(lastWidth != width || lastHeight != height)
     {
-        messages.Add(message, messageExts = []);
+        Console.Clear();
+
+        lastWidth = width;
+        lastHeight = height;
     }
+
+    if (!messages.TryGetValue(message, out var messageExts))
+        messages.Add(message, messageExts = []);
 
     messageExts.Add(messageExt);
 
     Console.SetCursorPosition(0, 0);
 
-    Console.WriteLine($" In: {sourcePath}");
-    Console.WriteLine($"Out: {destinationPath}");
-    Console.WriteLine();
+    string[] rows =
+    [
+        $" In: {sourcePath}",
+        $"Out: {destinationPath}",
+        "",
+        .. messages.Select(messageAndExts => $"{messageAndExts.Key} {messageAndExts.Value.Last()}".Trim()),
+        "",
+        $"{(progress * 100):#.00}%",
+        "",
+        $"{(DateTime.Now - startTime):c}",
+        ""
+    ];
 
-    foreach (var (storedMessage, storedMessageExts) in messages)
-    {
-        Console.WriteLine($"{storedMessage} {storedMessageExts.LastOrDefault("")}".Trim().PadRight(Console.WindowWidth));
-    }
+    var textToPrint = String.Join(
+        '\n',
+        rows.Select(row => row.PadRight(width, ' '))
+    );
 
-    Console.WriteLine($"{(progress * 100):#.00}%".PadLeft("100.00%".Length));
-    Console.WriteLine();
+    Console.Write(textToPrint);
 };
 
 progressConsoleRow = Console.CursorTop;
@@ -64,7 +90,7 @@ rootJTNode.Save(destinationPath, monolithic, false, (progress, message, messageE
 {
     if (progress == null)
     {
-        var nodeSaveProgress = MathF.Min(nodesSaved++ / (float)nodeCount, 1f);
+        var nodeSaveProgress = MathF.Min((nodesSaved++ * .5f) / (float)nodeCount, 1f);
 
         messageExt ??= "";
 
