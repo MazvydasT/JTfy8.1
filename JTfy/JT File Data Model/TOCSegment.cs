@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class TOCSegment : BaseDataStructure
     {
@@ -24,7 +20,7 @@ namespace JTfy
                     bytesList.AddRange(TOCEntries[i].Bytes);
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

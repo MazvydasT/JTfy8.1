@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class BaseShapeNodeElement : BaseNodeElement
     {
-        private BBoxF32 transformedBBox = new BBoxF32();
+        private BBoxF32 transformedBBox = new();
         public BBoxF32 TransformedBBox { get { return transformedBBox; } set { transformedBBox = value ?? new BBoxF32(); } }
 
         public BBoxF32 UntransformedBBox { get; private set; }
@@ -14,10 +11,10 @@ namespace JTfy
 
         public CountRange VertexCountRange { get; private set; }
 
-        private CountRange nodeCountRange = new CountRange();
+        private CountRange nodeCountRange = new();
         public CountRange NodeCountRange { get { return nodeCountRange; } set { nodeCountRange = value; } }
 
-        private CountRange polygonCountRange = new CountRange();
+        private CountRange polygonCountRange = new();
         public CountRange PolygonCountRange { get { return polygonCountRange; } set { polygonCountRange = value; } }
 
         public int Size { get; set; }
@@ -50,7 +47,7 @@ namespace JTfy
                 bytesList.AddRange(StreamUtils.ToBytes(Size));
                 bytesList.AddRange(StreamUtils.ToBytes(CompressionLevel));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ComponentAce.Compression.Libs.zlib;
 using System.Drawing;
-using System.IO;
 using System.Security.Cryptography;
-using System.Windows.Media.Media3D;
 
 namespace JTfy
 {
@@ -15,7 +12,7 @@ namespace JTfy
         {
             var buffer = new Byte[numberOfBytesToRead];
 
-            stream.Read(buffer, 0, numberOfBytesToRead);
+            stream.ReadExactly(buffer, 0, numberOfBytesToRead);
 
             if (checkEndianness && BitConverter.IsLittleEndian != DataIsLittleEndian)
             {
@@ -25,7 +22,7 @@ namespace JTfy
             return buffer;
         }
 
-        private static readonly Dictionary<Type, byte> typeSizesInBytes = new Dictionary<Type, byte>()
+        private static readonly Dictionary<Type, byte> typeSizesInBytes = new()
         {
             {typeof(Byte),1},
 
@@ -58,18 +55,18 @@ namespace JTfy
             return resultArray[0];
         }
 
-        public static Byte ReadByte(Stream stream) { return Read<Byte>(stream); }
+        public static Byte ReadByte(Stream stream) => Read<Byte>(stream);
 
-        public static UInt16 ReadUInt16(Stream stream) { return Read<UInt16>(stream); }
-        public static UInt32 ReadUInt32(Stream stream) { return Read<UInt32>(stream); }
-        public static UInt64 ReadUInt64(Stream stream) { return Read<UInt64>(stream); }
+        public static UInt16 ReadUInt16(Stream stream) => Read<UInt16>(stream);
+        public static UInt32 ReadUInt32(Stream stream) => Read<UInt32>(stream);
+        public static UInt64 ReadUInt64(Stream stream) => Read<UInt64>(stream);
 
-        public static Int16 ReadInt16(Stream stream) { return Read<Int16>(stream); }
-        public static Int32 ReadInt32(Stream stream) { return Read<Int32>(stream); }
-        public static Int64 ReadInt64(Stream stream) { return Read<Int64>(stream); }
+        public static Int16 ReadInt16(Stream stream) => Read<Int16>(stream);
+        public static Int32 ReadInt32(Stream stream) => Read<Int32>(stream);
+        public static Int64 ReadInt64(Stream stream) => Read<Int64>(stream);
 
-        public static Single ReadFloat(Stream stream) { return Read<Single>(stream); }
-        public static Double ReadDouble(Stream stream) { return Read<Double>(stream); }
+        public static Single ReadFloat(Stream stream) => Read<Single>(stream);
+        public static Double ReadDouble(Stream stream) => Read<Double>(stream);
 
         public static Byte[] ToBytes<T>(T value)
         {
@@ -89,18 +86,19 @@ namespace JTfy
             if (DataIsLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(bytes);
             return bytes;
         }
-        public static byte[] ToBytes(byte value) { return new byte[] { value }; }
 
-        public static byte[] ToBytes(ushort value) { return CheckEndianness(BitConverter.GetBytes(value)); }
-        public static byte[] ToBytes(short value) { return CheckEndianness(BitConverter.GetBytes(value)); }
+        public static byte[] ToBytes(byte value) => [value];
 
-        public static byte[] ToBytes(uint value) { return CheckEndianness(BitConverter.GetBytes(value)); }
-        public static byte[] ToBytes(int value) { return CheckEndianness(BitConverter.GetBytes(value)); }
-        public static byte[] ToBytes(float value) { return CheckEndianness(BitConverter.GetBytes(value)); }
+        public static byte[] ToBytes(ushort value) => CheckEndianness(BitConverter.GetBytes(value));
+        public static byte[] ToBytes(short value) => CheckEndianness(BitConverter.GetBytes(value));
 
-        public static byte[] ToBytes(ulong value) { return CheckEndianness(BitConverter.GetBytes(value)); }
-        public static byte[] ToBytes(long value) { return CheckEndianness(BitConverter.GetBytes(value)); }
-        public static byte[] ToBytes(double value) { return CheckEndianness(BitConverter.GetBytes(value)); }
+        public static byte[] ToBytes(uint value) => CheckEndianness(BitConverter.GetBytes(value));
+        public static byte[] ToBytes(int value) => CheckEndianness(BitConverter.GetBytes(value));
+        public static byte[] ToBytes(float value) => CheckEndianness(BitConverter.GetBytes(value));
+
+        public static byte[] ToBytes(ulong value) => CheckEndianness(BitConverter.GetBytes(value));
+        public static byte[] ToBytes(long value) => CheckEndianness(BitConverter.GetBytes(value));
+        public static byte[] ToBytes(double value) => CheckEndianness(BitConverter.GetBytes(value));
     }
 
     public static class ConvUtils<U>
@@ -121,23 +119,17 @@ namespace JTfy
         public const int VariantStringRequiredLength = 80;
 
         public const string EndOfElementAsString = "{0xffffffff,0xffff,0xffff,{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff}}";
-        public static readonly GUID EndOfElement = new GUID(EndOfElementAsString);
+        public static readonly GUID EndOfElement = new(EndOfElementAsString);
 
-        public static float[] IndentityMatrix
-        {
-            get
-            {
-                return new Single[]
-                {
-                    1, 0, 0, 0,
-                    0, 1, 0, 0,
-                    0, 0, 1, 0,
-                    0, 0, 0, 1
-                };
-            }
-        }
+        public static float[] IndentityMatrix =>
+        [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ];
 
-        public static readonly Dictionary<string, Tuple<Type, byte>> ObjectTypeIdToType = new Dictionary<string, Tuple<Type, byte>>()
+        public static readonly Dictionary<string, Tuple<Type, byte>> ObjectTypeIdToType = new()
         {
             // LSG Segment Graph elements
             {"{0x10dd102a,0x2ac8,0x11d1,{0x9b,0x6b,0x00,0x80,0xc7,0xbb,0x59,0x97}}", new Tuple<Type, byte>(typeof(InstanceNodeElement), 0)},
@@ -181,29 +173,26 @@ namespace JTfy
     {
         public static Byte[] Compress(Byte[] data)
         {
-            using (var compressedDataStream = new MemoryStream())
-            using (var zOutputStream = new zlib.ZOutputStream(compressedDataStream, zlib.zlibConst.Z_BEST_COMPRESSION))
-            //using (var zOutputStream = new zlib.ZOutputStream(compressedDataStream, 9))
-            {
-                zOutputStream.Write(data, 0, data.Length);
-                zOutputStream.Flush();
-                zOutputStream.finish();
+            using var compressedDataStream = new MemoryStream();
+            using var zOutputStream = new ZOutputStream(compressedDataStream, zlibConst.Z_BEST_COMPRESSION);
 
-                return compressedDataStream.ToArray();
-            }
+            zOutputStream.Write(data, 0, data.Length);
+            zOutputStream.Flush();
+            zOutputStream.finish();
+
+            return compressedDataStream.ToArray();
         }
 
         public static Byte[] Decompress(Byte[] data)
         {
-            using (var decompressedDataStream = new MemoryStream())
-            using (var zOutputStream = new zlib.ZOutputStream(decompressedDataStream))
-            {
-                zOutputStream.Write(data, 0, data.Length);
-                zOutputStream.Flush();
-                zOutputStream.finish();
+            using var decompressedDataStream = new MemoryStream();
+            using var zOutputStream = new ZOutputStream(decompressedDataStream);
 
-                return decompressedDataStream.ToArray();
-            }
+            zOutputStream.Write(data, 0, data.Length);
+            zOutputStream.Flush();
+            zOutputStream.finish();
+
+            return decompressedDataStream.ToArray();
         }
     }
 
@@ -218,13 +207,9 @@ namespace JTfy
 
     public static class RandomGenUtils
     {
-        private static readonly RNGCryptoServiceProvider random = new RNGCryptoServiceProvider();
-
         public static double NextDouble(double min, double max)
         {
-            var bytes = new byte[8];
-
-            random.GetBytes(bytes);
+            var bytes = RandomNumberGenerator.GetBytes(8);
 
             var uLongArray = new ulong[1];
             Buffer.BlockCopy(bytes, 0, uLongArray, 0, bytes.Length);
@@ -253,8 +238,10 @@ namespace JTfy
         public static Color HSV2RGB(double h, double S, double V)
         {
             double H = h;
-            while (H < 0) { H += 360; };
-            while (H >= 360) { H -= 360; };
+            while (H < 0) { H += 360; }
+            ;
+            while (H >= 360) { H -= 360; }
+            ;
             double R, G, B;
             if (V <= 0)
             { R = G = B = 0; }
@@ -353,6 +340,11 @@ namespace JTfy
 
     public static class CalcUtils
     {
+        public readonly struct Point3D(float x, float y, float z)
+        {
+            public float X { get; } = x; public float Y { get; } = y; public float Z { get; } = z;
+        }
+
         public static double GetTriangleArea(float[] point1, float[] point2, float[] point3)
         {
             return GetTriangleArea(

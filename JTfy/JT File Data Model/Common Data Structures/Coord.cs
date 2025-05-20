@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class Coord<T> : DataArray<T>
     {
@@ -18,12 +15,12 @@ namespace JTfy
         public Coord(T x, T y, T z)
             : base()
         {
-            data = new T[]
-            {
+            data =
+            [
                 x,
                 y,
                 z
-            };
+            ];
         }
     }
 

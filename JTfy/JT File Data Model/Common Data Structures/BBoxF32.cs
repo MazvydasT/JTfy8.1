@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class BBoxF32 : BaseDataStructure
     {
@@ -26,7 +22,7 @@ namespace JTfy
                 bytesList.AddRange(MinCorner.Bytes);
                 bytesList.AddRange(MaxCorner.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

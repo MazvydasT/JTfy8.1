@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class VertexShapeLODElement : BaseDataStructure
     {
@@ -25,7 +21,7 @@ namespace JTfy
                 bytesList.AddRange(StreamUtils.ToBytes(BindingAttributes));
                 bytesList.AddRange(QuantizationParameters.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

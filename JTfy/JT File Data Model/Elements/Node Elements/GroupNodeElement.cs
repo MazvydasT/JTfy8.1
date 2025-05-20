@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class GroupNodeElement : BaseNodeElement
     {
         public int ChildCount { get { return ChildNodeObjectIds.Count; } }
 
-        private List<int> childNodeObjectIds = new List<int>();
-        public List<int> ChildNodeObjectIds { get { return childNodeObjectIds; } set { childNodeObjectIds = value ?? new List<int>(); } }
+        private List<int> childNodeObjectIds = [];
+        public List<int> ChildNodeObjectIds { get { return childNodeObjectIds; } set { childNodeObjectIds = value ?? []; } }
 
         public override int ByteCount { get { return base.ByteCount + 4 + ChildCount * 4; } }
 
@@ -26,7 +23,7 @@ namespace JTfy
                     bytesList.AddRange(StreamUtils.ToBytes(ChildNodeObjectIds[i]));
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

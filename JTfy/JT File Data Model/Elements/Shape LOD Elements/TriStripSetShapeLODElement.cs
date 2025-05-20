@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class TriStripSetShapeLODElement : VertexShapeLODElement
     {
@@ -24,11 +20,11 @@ namespace JTfy
                 bytesList.AddRange(StreamUtils.ToBytes(versionNumber));
                 bytesList.AddRange(VertexBasedShapeCompressedRepData.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
-        public TriStripSetShapeLODElement(int[][] triStrips, float[][] vertexPositions, float[][] vertexNormals = null) : this(new VertexBasedShapeCompressedRepData(triStrips, vertexPositions, vertexNormals)) { }
+        public TriStripSetShapeLODElement(int[][] triStrips, float[][] vertexPositions, float[][]? vertexNormals = null) : this(new VertexBasedShapeCompressedRepData(triStrips, vertexPositions, vertexNormals)) { }
 
         public TriStripSetShapeLODElement(VertexBasedShapeCompressedRepData vertexBasedShapeCompressedRepData)
             : base(vertexBasedShapeCompressedRepData.NormalBinding, vertexBasedShapeCompressedRepData.QuantizationParameters)

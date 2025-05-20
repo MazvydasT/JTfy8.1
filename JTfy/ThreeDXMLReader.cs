@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+﻿using System.Drawing;
 using System.IO.Compression;
 using System.Web;
 using System.Xml;
@@ -10,15 +7,15 @@ namespace JTfy
 {
     public static class ThreeDXMLReader
     {
-        public static JTNode Read(string path)
+        public static JTNode Read(string path, out int nodeCount, Action<float>? onProgress = null)
         {
-            JTNode rootNode = null;
+            JTNode rootNode;
 
             using (var archive = ZipFile.OpenRead(path))
             {
                 var archiveEntriesCount = archive.Entries.Count;
 
-                ZipArchiveEntry threeDXMLEntry = null;
+                ZipArchiveEntry? threeDXMLEntry = null;
                 var partEntries = new Dictionary<string, ZipArchiveEntry>(archiveEntriesCount);
 
                 for (int i = 0; i < archiveEntriesCount; ++i)
@@ -27,14 +24,14 @@ namespace JTfy
                     var entryName = entry.FullName;
                     var entryNameExt = Path.GetExtension(entryName).ToLower();
 
-                    if (entryName.ToLower() == "manifest.xml")
+                    if (entryName.Equals("manifest.xml", StringComparison.CurrentCultureIgnoreCase))
                     {
                         var xmlDoc = new XmlDocument();
                         xmlDoc.Load(entry.Open());
 
                         var rootElementText = xmlDoc.SelectSingleNode("//*[local-name()='Root']/text()");
 
-                        if (rootElementText != null) threeDXMLEntry = archive.GetEntry(rootElementText.Value);
+                        if (rootElementText != null) threeDXMLEntry = archive.GetEntry(rootElementText.Value ?? "");
                     }
 
                     else if (entryNameExt == ".xml" || entryNameExt == ".3drep") partEntries[entryName] = entry;
@@ -42,13 +39,13 @@ namespace JTfy
 
                 if (threeDXMLEntry == null) throw new Exception(String.Format("{0} does not contain PRODUCT.3dxml file.", path));
 
-                rootNode = BuildStructure(threeDXMLEntry.Open(), partEntries);
+                rootNode = BuildStructure(threeDXMLEntry.Open(), partEntries, out nodeCount, onProgress);
             }
 
             return rootNode;
         }
 
-        private static JTNode BuildStructure(Stream threeDXMLFileStream, Dictionary<string, ZipArchiveEntry> partEntries)
+        private static JTNode BuildStructure(Stream threeDXMLFileStream, Dictionary<string, ZipArchiveEntry> partEntries, out int nodeCount, Action<float>? onProgress = null)
         {
             var threeDXMLDocument = new XmlDocument();
             threeDXMLDocument.Load(threeDXMLFileStream);
@@ -58,34 +55,51 @@ namespace JTfy
 
             var referenceElements = threeDXMLDocument.SelectNodes("//*[local-name()='Reference3D' or local-name()='ReferenceRep']", xmlNamespaceManager);
 
-            var referenceElementCount = referenceElements.Count;
+            var referenceElementCount = referenceElements?.Count ?? 0;
+
+            var instanceElements = threeDXMLDocument.SelectNodes("//*[local-name()='Instance3D' or local-name()='InstanceRep']", xmlNamespaceManager);
+
+            var instanceElementsCount = instanceElements?.Count ?? 0;
+
+            var totalCount = referenceElementCount + instanceElementsCount;
+            var progressCounter = 0;
 
             var nodes = new Dictionary<string, JTNode>(referenceElementCount);
 
             for (int i = 0; i < referenceElementCount; ++i)
             {
-                var reference3DElement = referenceElements[i];
+                onProgress?.Invoke(++progressCounter / (float)totalCount);
 
-                nodes[reference3DElement.Attributes["id"].Value] = XMLElement2Node(reference3DElement, partEntries);
+                var reference3DElement = referenceElements?[i];
+
+                if (reference3DElement == null) continue;
+
+                var idAttributeValue = reference3DElement.Attributes?["id"]?.Value;
+
+                if (idAttributeValue == null) continue;
+
+                nodes[idAttributeValue] = XMLElement2Node(reference3DElement, partEntries);
             }
 
-            var instanceElements = threeDXMLDocument.SelectNodes("//*[local-name()='Instance3D' or local-name()='InstanceRep']", xmlNamespaceManager);
-
-            for (int i = 0, c = instanceElements.Count; i < c; ++i)
+            for (int i = 0, c = instanceElementsCount; i < c; ++i)
             {
-                var instanceElement = instanceElements[i];
+                onProgress?.Invoke(++progressCounter / (float)totalCount);
+
+                var instanceElement = instanceElements?[i];
+
+                if (instanceElement == null) continue;
 
                 var childNodes = instanceElement.ChildNodes;
 
-                string aggregatedBy = null;
-                string instanceOf = null;
-                string relativeMatrix = null;
+                string? aggregatedBy = null;
+                string? instanceOf = null;
+                string? relativeMatrix = null;
 
                 for (int childNodeIndex = 0, childNodeCount = childNodes.Count; childNodeIndex < childNodeCount; ++childNodeIndex)
                 {
                     var childNode = childNodes[childNodeIndex];
 
-                    switch (childNode.Name)
+                    switch (childNode?.Name)
                     {
                         case "IsAggregatedBy": aggregatedBy = childNode.InnerText; break;
                         case "IsInstanceOf": instanceOf = childNode.InnerText; break;
@@ -95,13 +109,13 @@ namespace JTfy
 
                 if (aggregatedBy == null || instanceOf == null || !nodes.ContainsKey(aggregatedBy) || !nodes.ContainsKey(instanceOf)) continue;
 
-                float[] transformationMatrix = null;
+                float[]? transformationMatrix = null;
 
                 if (relativeMatrix != null && relativeMatrix != "1 0 0 0 1 0 0 0 1 0 0 0")
                 {
                     transformationMatrix = ConstUtils.IndentityMatrix;
 
-                    var relativeMatrixValues = relativeMatrix.Trim().Split(new char[] { ' ' });
+                    var relativeMatrixValues = relativeMatrix.Trim().Split([' ']);
 
                     var offset = 0;
 
@@ -132,7 +146,9 @@ namespace JTfy
             }
 
             var productStructureElement = threeDXMLDocument.SelectSingleNode("//ns:ProductStructure", xmlNamespaceManager);
-            var rootId = productStructureElement.Attributes["root"].Value;
+            var rootId = productStructureElement?.Attributes?["root"]?.Value ?? "";
+
+            nodeCount = nodes.Count;
 
             return nodes[rootId];
         }
@@ -143,24 +159,23 @@ namespace JTfy
 
             var node = new JTNode()
             {
-                ID = int.Parse(referenceElementAttributes["id"].Value),
-                Number = referenceElementAttributes["name"].Value,
+                ID = int.Parse(referenceElementAttributes?["id"]?.Value ?? ""),
+                Number = referenceElementAttributes?["name"]?.Value,
                 Attributes = ExtractAttributes(referenceElement.ChildNodes)
             };
 
-            if (node.Attributes.ContainsKey("V_Name"))
-                node.Name = node.Attributes["V_Name"].ToString();
+            if (node.Attributes.TryGetValue("V_Name", out var value))
+                node.Name = value.ToString();
 
             if (referenceElement.Name == "ReferenceRep")
             {
-                var partFileName = referenceElement.Attributes["associatedFile"].Value.Replace("urn:3DXML:", "");
+                var partFileName = referenceElement?.Attributes?["associatedFile"]?.Value.Replace("urn:3DXML:", "") ?? "";
 
-                if (partEntries.ContainsKey(partFileName))
+                if (partEntries.TryGetValue(partFileName, out var partEntry))
                 {
-                    using (var partFileStream = partEntries[partFileName].Open())
-                    {
-                        node.GeometricSets = GetGeometricSets(partFileStream);
-                    }
+                    using var partFileStream = partEntry.Open();
+
+                    node.GeometricSets = GetGeometricSets(partFileStream);
                 }
             }
 
@@ -176,7 +191,7 @@ namespace JTfy
                 xmlDocument.Load(stream);
             }
 
-            catch (Exception) { return null; }
+            catch (Exception) { return []; }
 
             var xmlNamespaceManager = new XmlNamespaceManager(xmlDocument.NameTable);
             xmlNamespaceManager.AddNamespace("ns", "http://www.3ds.com/xsd/3DXML");
@@ -185,68 +200,74 @@ namespace JTfy
 
             var repElements = xmlDocument.SelectNodes("//ns:Rep[ns:Faces/ns:Face[@fans or @strips or @triangles]][ns:VertexBuffer/ns:Positions]", xmlNamespaceManager);
 
-            for (int repElementIndex = 0, repElementCount = repElements.Count; repElementIndex < repElementCount; ++repElementIndex)
+            for (int repElementIndex = 0, repElementCount = repElements?.Count ?? 0; repElementIndex < repElementCount; ++repElementIndex)
             {
-                var repElement = repElements[repElementIndex];
+                var repElement = repElements?[repElementIndex];
 
-                var positionStrings = repElement.SelectSingleNode("./ns:VertexBuffer/ns:Positions/text()", xmlNamespaceManager).Value.Trim().Split(new char[] { ',' });
+                var positionStrings = repElement?.SelectSingleNode("./ns:VertexBuffer/ns:Positions/text()", xmlNamespaceManager)?.Value?.Trim().Split([',']);
 
-                var normalsElement = repElement.SelectSingleNode("./ns:VertexBuffer/ns:Normals/text()", xmlNamespaceManager);
-                var normalStrings = normalsElement?.Value.Trim().Split(new char[] { ',' });
+                var normalsElement = repElement?.SelectSingleNode("./ns:VertexBuffer/ns:Normals/text()", xmlNamespaceManager);
+                var normalStrings = normalsElement?.Value?.Trim().Split([',']);
 
-                var positionsCount = positionStrings.Length;
+                var positionsCount = positionStrings?.Length ?? 0;
 
                 var positions = new float[positionsCount][];
                 var normals = normalStrings == null ? null : new float[positionsCount][];
 
                 for (int positionIndex = 0; positionIndex < positionsCount; ++positionIndex)
                 {
-                    var positionComponents = positionStrings[positionIndex].Trim().Split(new char[] { ' ' });
+                    var positionComponents = positionStrings?[positionIndex].Trim().Split([' ']);
 
-                    positions[positionIndex] = new float[]
+                    if (positionComponents != null)
                     {
-                        float.Parse(positionComponents[0]),
-                        float.Parse(positionComponents[1]),
-                        float.Parse(positionComponents[2])
-                    };
+                        positions[positionIndex] =
+                        [
+                            float.Parse(positionComponents[0]),
+                            float.Parse(positionComponents[1]),
+                            float.Parse(positionComponents[2])
+                        ];
+                    }
 
                     if (normals != null)
                     {
-                        var normalComponents = normalStrings[positionIndex].Trim().Split(new char[] { ' ' });
+                        var normalComponents = normalStrings?[positionIndex].Trim().Split([' ']);
 
-                        normals[positionIndex] = new float[]
+                        if (normalComponents != null)
                         {
-                            float.Parse(normalComponents[0]),
-                            float.Parse(normalComponents[1]),
-                            float.Parse(normalComponents[2])
-                        };
+                            normals[positionIndex] =
+                            [
+                                float.Parse(normalComponents[0]),
+                                float.Parse(normalComponents[1]),
+                                float.Parse(normalComponents[2])
+                            ];
+                        }
                     }
                 }
 
-                var faceElements = repElement.SelectNodes("./ns:Faces/ns:Face", xmlNamespaceManager);
+                var faceElements = repElement?.SelectNodes("./ns:Faces/ns:Face", xmlNamespaceManager);
 
-                for (int faceIndex = 0, faceCount = faceElements.Count; faceIndex < faceCount; ++faceIndex)
+                for (int faceIndex = 0, faceCount = faceElements?.Count ?? 0; faceIndex < faceCount; ++faceIndex)
                 {
-                    var faceElement = faceElements[faceIndex];
-                    var faceElementAttributes = faceElement.Attributes;
+                    var faceElement = faceElements?[faceIndex];
+                    var faceElementAttributes = faceElement?.Attributes;
 
                     var triStrips = new List<int[]>();
 
-                    for (int attributeIndex = 0, attributeCount = faceElementAttributes.Count; attributeIndex < attributeCount; ++attributeIndex)
+                    for (int attributeIndex = 0, attributeCount = faceElementAttributes?.Count ?? 0; attributeIndex < attributeCount; ++attributeIndex)
                     {
-                        var attribute = faceElementAttributes[attributeIndex];
+                        var attribute = faceElementAttributes?[attributeIndex];
 
-                        switch (attribute.Name)
+                        switch (attribute?.Name)
                         {
                             case "strips":
                                 {
 
                                     var stripsAttribute = attribute;
-                                    var stripStrings = stripsAttribute != null ? stripsAttribute.Value.Trim().Split(new char[] { ',' }) : new string[0];
+                                    var stripStrings = stripsAttribute != null ? stripsAttribute.Value.Trim().Split([',']) : [];
 
                                     for (int stripIndex = 0, stripCount = stripStrings.Length; stripIndex < stripCount; ++stripIndex)
                                     {
-                                        var stripIndexStrings = stripStrings[stripIndex].Trim().Split(new char[] { ' ' });
+                                        var stripIndexStrings = stripStrings[stripIndex].Trim().Split([' ']);
 
                                         var stripIndexCount = stripIndexStrings.Length;
 
@@ -269,11 +290,11 @@ namespace JTfy
                                 {
 
                                     var fansAttribute = attribute;
-                                    var fanStrings = fansAttribute != null ? fansAttribute.Value.Trim().Split(new char[] { ',' }) : new string[0];
+                                    var fanStrings = fansAttribute != null ? fansAttribute.Value.Trim().Split([',']) : [];
 
                                     for (int fanIndex = 0, fanCount = fanStrings.Length; fanIndex < fanCount; ++fanIndex)
                                     {
-                                        var fanIndexStrings = new List<string>(fanStrings[fanIndex].Trim().Split(new char[] { ' ' }));
+                                        var fanIndexStrings = new List<string>(fanStrings[fanIndex].Trim().Split([' ']));
 
                                         var fanIndexCount = fanIndexStrings.Count;
 
@@ -292,7 +313,7 @@ namespace JTfy
                                                 if (triStripIndices.Count > 0)
                                                 {
                                                     triStripIndices.Add(int.Parse(fanIndexStrings[fanIndexIndex]));
-                                                    triStrips.Add(triStripIndices.ToArray());
+                                                    triStrips.Add([.. triStripIndices]);
                                                 }
 
                                                 triStripIndices.Clear();
@@ -309,7 +330,7 @@ namespace JTfy
                                             else triStripIndices.Add(int.Parse(fanIndexStrings[fanIndexIndex]));
                                         }
 
-                                        if (triStripIndices.Count > 0) triStrips.Add(triStripIndices.ToArray());
+                                        if (triStripIndices.Count > 0) triStrips.Add([.. triStripIndices]);
                                     }
 
                                     break;
@@ -320,16 +341,16 @@ namespace JTfy
                                 {
 
                                     var trianglesAttribute = attribute;
-                                    var trianglesIndexStrings = trianglesAttribute != null ? trianglesAttribute.Value.Trim().Split(new char[] { ' ' }) : new string[0];
+                                    var trianglesIndexStrings = trianglesAttribute != null ? trianglesAttribute.Value.Trim().Split([' ']) : [];
 
                                     for (int triangleIndexIndex = 2, triangleIndexCount = trianglesIndexStrings.Length; triangleIndexIndex < triangleIndexCount; triangleIndexIndex += 3)
                                     {
-                                        triStrips.Add(new int[]
-                                        {
+                                        triStrips.Add(
+                                        [
                                             int.Parse(trianglesIndexStrings[triangleIndexIndex - 2]),
                                             int.Parse(trianglesIndexStrings[triangleIndexIndex - 1]),
                                             int.Parse(trianglesIndexStrings[triangleIndexIndex])
-                                        });
+                                        ]);
                                     }
 
                                     break;
@@ -339,19 +360,19 @@ namespace JTfy
 
                     if (triStrips.Count == 0 || positions.Length == 0) continue;
 
-                    var geometricSet = new GeometricSet(triStrips.ToArray(), positions)
+                    var geometricSet = new GeometricSet([.. triStrips], positions)
                     {
                         Normals = normals
                     };
 
-                    var colorElement = faceElement.SelectSingleNode("./ns:SurfaceAttributes/ns:Color[@alpha and @red and @green and @blue]", xmlNamespaceManager);
+                    var colorElement = faceElement?.SelectSingleNode("./ns:SurfaceAttributes/ns:Color[@alpha and @red and @green and @blue]", xmlNamespaceManager);
                     if (colorElement != null)
                     {
                         var attributes = colorElement.Attributes;
-                        var a = (int)(float.Parse(attributes["alpha"].Value) * 255);
-                        var r = (int)(float.Parse(attributes["red"].Value) * 255);
-                        var g = (int)(float.Parse(attributes["green"].Value) * 255);
-                        var b = (int)(float.Parse(attributes["blue"].Value) * 255);
+                        var a = (int)(float.Parse(attributes?["alpha"]?.Value ?? "1") * 255);
+                        var r = (int)(float.Parse(attributes?["red"]?.Value ?? "0.5") * 255);
+                        var g = (int)(float.Parse(attributes?["green"]?.Value ?? "0.5") * 255);
+                        var b = (int)(float.Parse(attributes?["blue"]?.Value ?? "0.5") * 255);
 
                         geometricSet.Colour = Color.FromArgb(a, r, g, b);
                     }
@@ -368,7 +389,7 @@ namespace JTfy
                 return alphaA > alphaB ? -1 : (alphaA == alphaB ? 0 : 1);
             });*/
 
-            return geometricSets.Count == 0 ? null : geometricSets.ToArray();
+            return geometricSets.Count == 0 ? [] : [.. geometricSets];
         }
 
         private static Dictionary<string, object> ExtractAttributes(XmlNodeList attributeNodes)
@@ -379,15 +400,20 @@ namespace JTfy
             for (int i = 0; i < attributeCount; ++i)
             {
                 var attributeNode = attributeNodes[i];
+
+                if (attributeNode == null) continue;
+
                 var attributeNodeName = attributeNode.Name;
 
                 if (attributeNodeName == "IsAggregatedBy" || attributeNodeName == "IsInstanceOf") continue;
 
                 var childNodes = attributeNode.ChildNodes;
 
+                if (childNodes == null) continue;
+
                 if (childNodes.Count == 0) continue;
 
-                if (childNodes[0].NodeType == XmlNodeType.Text)
+                if (childNodes[0]?.NodeType == XmlNodeType.Text)
                 {
                     var value = HttpUtility.HtmlDecode(attributeNode.InnerText);
 

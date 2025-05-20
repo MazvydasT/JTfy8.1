@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class Date : DataArray<Int16>
     {
@@ -29,15 +26,15 @@ namespace JTfy
 
         public Date(Int16 year, Int16 month, Int16 day, Int16 hour, Int16 minute, Int16 second)
         {
-            data = new Int16[]
-            {
+            data =
+            [
                 year,
                 month,
                 day,
                 hour,
                 minute,
                 second
-            };
+            ];
         }
 
         public Date(DateTime date) : this((Int16)date.Year, (Int16)(date.Month - 1), (Int16)date.Day, (Int16)date.Hour, (Int16)date.Minute, (Int16)date.Second) { }

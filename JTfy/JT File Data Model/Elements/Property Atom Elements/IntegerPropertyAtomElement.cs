@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class IntegerPropertyAtomElement : BasePropertyAtomElement
     {
@@ -25,7 +21,7 @@ namespace JTfy
                 bytesList.AddRange(base.Bytes);
                 bytesList.AddRange(StreamUtils.ToBytes(Value));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

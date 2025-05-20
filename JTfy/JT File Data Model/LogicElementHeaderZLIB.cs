@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class LogicElementHeaderZLIB : BaseDataStructure
     {
@@ -25,7 +21,7 @@ namespace JTfy
                 bytesArray.AddRange(StreamUtils.ToBytes(CompressedDataLength));
                 bytesArray.Add(CompressionAlgorithm);
 
-                return bytesArray.ToArray();
+                return [.. bytesArray];
             }
         }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class BaseAttributeElement : BaseDataStructure
     {
@@ -25,7 +21,7 @@ namespace JTfy
                 bytesList.Add(StateFlags);
                 bytesList.AddRange(StreamUtils.ToBytes(FieldInhibitFlags));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

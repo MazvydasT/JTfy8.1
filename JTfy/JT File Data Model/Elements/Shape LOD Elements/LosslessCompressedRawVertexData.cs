@@ -1,32 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class LosslessCompressedRawVertexData : BaseDataStructure
     {
         public int UncompressedDataSize { get { return VertexData.Length; } }
         public int CompressedDataSize { get { return CompressedVertexData.Length; } }
 
-        private byte[] compressedVertexData;
-        private byte[] vertexData;
+        private byte[]? compressedVertexData;
+        private byte[]? vertexData;
 
         public byte[] CompressedVertexData
         {
             get
             {
-                if (compressedVertexData == null)
-                {
-                    compressedVertexData = CompressionUtils.Compress(vertexData);
-                }
+                compressedVertexData ??= CompressionUtils.Compress(vertexData ?? []);
 
                 return compressedVertexData;
             }
 
             set
             {
-                compressedVertexData = value ?? (new byte[0]);
+                compressedVertexData = value ?? ([]);
             }
         }
 
@@ -34,17 +27,14 @@ namespace JTfy
         {
             get
             {
-                if (vertexData == null)
-                {
-                    vertexData = CompressionUtils.Decompress(compressedVertexData);
-                }
+                vertexData ??= CompressionUtils.Decompress(compressedVertexData ?? []);
 
                 return vertexData;
             }
 
             set
             {
-                vertexData = value ?? (new byte[0]);
+                vertexData = value ?? ([]);
             }
         }
 
@@ -63,7 +53,7 @@ namespace JTfy
                 bytesList.AddRange(StreamUtils.ToBytes(CompressedVertexData.Length));
                 bytesList.AddRange(CompressedVertexData);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
@@ -82,7 +72,7 @@ namespace JTfy
             else if (compressedDataSize < 0)
                 VertexData = StreamUtils.ReadBytes(stream, Math.Abs(compressedDataSize), false);
             else
-                VertexData = CompressedVertexData = new byte[0];
+                VertexData = CompressedVertexData = [];
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class JTNode
     {
@@ -21,22 +16,22 @@ namespace JTfy
             Mils,
             Miles
         }
-        private static readonly Dictionary<MeasurementUnits, string> measurementUnitStrings = new Dictionary<MeasurementUnits, string>();
+        private static readonly Dictionary<MeasurementUnits, string> measurementUnitStrings = [];
 
         public int ID { get; set; } = IdGenUtils.NextId;
 
-        private Dictionary<string, object> attributes = new Dictionary<string, object>();
-        public Dictionary<string, object> Attributes { get { return attributes; } set { attributes = value ?? new Dictionary<string, object>(); } }
+        private Dictionary<string, object> attributes = [];
+        public Dictionary<string, object> Attributes { get { return attributes; } set { attributes = value ?? []; } }
 
-        private List<JTNode> children = new List<JTNode>();
-        public List<JTNode> Children { get { return children; } set { children = value ?? new List<JTNode>(); } }
+        private List<JTNode> children = [];
+        public List<JTNode> Children { get { return children; } set { children = value ?? []; } }
 
         public MeasurementUnits MeasurementUnit { get; set; } = MeasurementUnits.Millimeters;
         public string MeasurementUnitAsString
         {
             get
             {
-                if (measurementUnitStrings.ContainsKey(MeasurementUnit)) return measurementUnitStrings[MeasurementUnit];
+                if (measurementUnitStrings.TryGetValue(MeasurementUnit, out var value)) return value;
 
                 var measurementUnitString = MeasurementUnit.ToString();
 
@@ -46,36 +41,36 @@ namespace JTfy
             }
         }
 
-        public string Number { get; set; } = null;
+        public string? Number { get; set; } = null;
 
-        public string Name { get; set; } = null;
+        public string? Name { get; set; } = null;
 
-        private GeometricSet[] geometricSets = new GeometricSet[0];
-        public GeometricSet[] GeometricSets { get { return geometricSets; } set { geometricSets = value ?? (new GeometricSet[0]); } }
+        private GeometricSet[] geometricSets = [];
+        public GeometricSet[] GeometricSets { get { return geometricSets; } set { geometricSets = value ?? ([]); } }
 
-        public float[] TransformationMatrix { get; set; }
+        public float[]? TransformationMatrix { get; set; }
 
-        private readonly Dictionary<string, int> uniquePropertyIds = new Dictionary<string, int>();
-        private readonly Dictionary<string, int> uniqueAttributeIds = new Dictionary<string, int>();
-        private readonly Dictionary<JTNode, SegmentHeader> uniqueMetaDataSegmentHeaders = new Dictionary<JTNode, SegmentHeader>();
+        private readonly Dictionary<string, int> uniquePropertyIds = [];
+        private readonly Dictionary<string, int> uniqueAttributeIds = [];
+        private readonly Dictionary<JTNode, SegmentHeader> uniqueMetaDataSegmentHeaders = [];
 
-        private readonly Dictionary<Int32, NodePropertyTable> propertyTableContents = new Dictionary<Int32, NodePropertyTable>();
+        private readonly Dictionary<Int32, NodePropertyTable> propertyTableContents = [];
 
-        private readonly List<BaseDataStructure> elements = new List<BaseDataStructure>();
-        private readonly List<BasePropertyAtomElement> propertyAtomElements = new List<BasePropertyAtomElement>();
+        private readonly List<BaseDataStructure> elements = [];
+        private readonly List<BasePropertyAtomElement> propertyAtomElements = [];
 
-        private readonly Dictionary<int, PartitionNodeElement> savedFileIds = new Dictionary<int, PartitionNodeElement>();
+        private readonly Dictionary<int, PartitionNodeElement> savedFileIds = [];
 
-        private readonly List<ShapeLODSegment> shapeLODSegments = new List<ShapeLODSegment>();
-        private readonly List<SegmentHeader> shapeLODSegmentHeaders = new List<SegmentHeader>();
+        private readonly List<ShapeLODSegment> shapeLODSegments = [];
+        private readonly List<SegmentHeader> shapeLODSegmentHeaders = [];
 
-        private readonly List<Byte[]> compressedMetaDataSegments = new List<Byte[]>();
-        private readonly List<LogicElementHeaderZLIB> metaDataSegmentHeadersZLIB = new List<LogicElementHeaderZLIB>();
-        private readonly List<SegmentHeader> metaDataSegmentHeaders = new List<SegmentHeader>();
+        private readonly List<Byte[]> compressedMetaDataSegments = [];
+        private readonly List<LogicElementHeaderZLIB> metaDataSegmentHeadersZLIB = [];
+        private readonly List<SegmentHeader> metaDataSegmentHeaders = [];
 
         private bool monolithic;
         private bool separateAttributeSegments;
-        private string savePath;
+        private string savePath = "";
 
         public JTNode() { }
 
@@ -93,7 +88,7 @@ namespace JTfy
 
         public JTNode Clone() { return new JTNode(this); }
 
-        public PartitionNodeElement Save(string path, bool monolithic = true, bool separateAttributeSegments = false)
+        public PartitionNodeElement Save(string path, bool monolithic = true, bool separateAttributeSegments = false, Action<float?, string, string>? onProgress = null)
         {
             uniquePropertyIds.Clear();
             uniqueAttributeIds.Clear();
@@ -116,7 +111,7 @@ namespace JTfy
             this.monolithic = monolithic;
             this.separateAttributeSegments = separateAttributeSegments;
 
-            this.savePath = Path.Combine(String.Join("_", Path.GetDirectoryName(path).Split(Path.GetInvalidPathChars())), String.Join("_", Path.GetFileName(path).Split(Path.GetInvalidFileNameChars())));
+            this.savePath = Path.Combine(String.Join("_", Path.GetDirectoryName(path)?.Split(Path.GetInvalidPathChars()) ?? []), String.Join("_", Path.GetFileName(path).Split(Path.GetInvalidFileNameChars())));
 
             // File Header
 
@@ -130,7 +125,7 @@ namespace JTfy
 
             //FindInstancedNodes(this);
 
-            CreateElement(this);
+            CreateElement(this, onProgress);
 
             // END Create all elements
 
@@ -144,7 +139,7 @@ namespace JTfy
             var values = new NodePropertyTable[propertyTableContents.Values.Count];
             propertyTableContents.Values.CopyTo(values, 0);
 
-            var lsgSegment = new LSGSegment(new List<BaseDataStructure>(elements), propertyAtomElements, new PropertyTable(keys, values));
+            var lsgSegment = new LSGSegment([.. elements], propertyAtomElements, new PropertyTable(keys, values));
 
             // END LSG Segment
 
@@ -152,11 +147,16 @@ namespace JTfy
 
             // Compress LSG Segment
 
+            onProgress?.Invoke(.33f, "Compressing stuff", "");
+
             var compressedLSGSegmentData = CompressionUtils.Compress(lsgSegment.Bytes);
+
+            onProgress?.Invoke(.44f, "Compressing stuff", "- done!");
 
             // END Compress LSG Segment
 
 
+            onProgress?.Invoke(.66f, "Performing binary transmutations", "");
 
             // LSG Segment Logic Element Header ZLIB
 
@@ -199,7 +199,7 @@ namespace JTfy
 
             if (tocEntries.Count == 1) tocEntries.Add(lsgTOCEntry);
 
-            var tocSegment = new TOCSegment(tocEntries.ToArray());
+            var tocSegment = new TOCSegment([.. tocEntries]);
 
             var segmentTotalSizeTracker = 0;
 
@@ -252,23 +252,28 @@ namespace JTfy
                 }
             }
 
+            onProgress?.Invoke(.77f, "Performing binary transmutations", "- done!");
+
             // END Write to file
 
-            return elements.Count > 0 ? (PartitionNodeElement)elements[0] : null;
+            if (elements.Count == 0)
+                throw new Exception("Writing JT file failed");
+
+            return (PartitionNodeElement)elements[0];
         }
 
-        private BaseNodeElement CreateElement(JTNode node)
+        private BaseNodeElement CreateElement(JTNode node, Action<float?, string, string>? onProgress = null)
         {
             if (!monolithic && node.GeometricSets.Length > 0)
             {
                 PartitionNodeElement partitionElement;
 
-                if (savedFileIds.ContainsKey(node.ID)) partitionElement = savedFileIds[node.ID];
+                if (savedFileIds.TryGetValue(node.ID, out var value)) partitionElement = value;
 
                 else
                 {
-                    var partFileName = String.Join("_", node.Number.Split(Path.GetInvalidFileNameChars())) + "_" + node.ID + ".jt";
-                    var partFileDirectory = Path.Combine(Path.GetDirectoryName(savePath), Path.GetFileNameWithoutExtension(savePath));
+                    var partFileName = String.Join("_", node.Number?.Split(Path.GetInvalidFileNameChars()) ?? []) + "_" + node.ID + ".jt";
+                    var partFileDirectory = Path.Combine(Path.GetDirectoryName(savePath) ?? "", Path.GetFileNameWithoutExtension(savePath));
                     var partFilePath = Path.Combine(partFileDirectory, partFileName);
 
                     if (!Directory.Exists(partFileDirectory)) Directory.CreateDirectory(partFileDirectory);
@@ -287,7 +292,7 @@ namespace JTfy
 
                 elements.Add(instanceElement);
 
-                ProcessAttributes(new JTNode(node) { GeometricSets = null }, instanceElement.ObjectId);
+                ProcessAttributes(new JTNode(node) { GeometricSets = [] }, instanceElement.ObjectId);
 
                 return instanceElement;
             }
@@ -300,7 +305,7 @@ namespace JTfy
 
             for (int i = 0; i < childNodesCount; ++i)
             {
-                childNodeObjectIds.Add(CreateElement(childNodes[i]).ObjectId);
+                childNodeObjectIds.Add(CreateElement(childNodes[i], onProgress).ObjectId);
             }
 
             // END Process children and store their IDs
@@ -325,8 +330,8 @@ namespace JTfy
 
                 int geometricTransformAttributeElementId;
 
-                if (uniqueAttributeIds.ContainsKey(transformationMatrixAsString))
-                    geometricTransformAttributeElementId = uniqueAttributeIds[transformationMatrixAsString];
+                if (uniqueAttributeIds.TryGetValue(transformationMatrixAsString, out var value))
+                    geometricTransformAttributeElementId = value;
                 else
                 {
                     geometricTransformAttributeElementId = IdGenUtils.NextId;
@@ -361,8 +366,8 @@ namespace JTfy
 
                     int materialAttributeElementId;
 
-                    if (uniqueAttributeIds.ContainsKey(colourAsString))
-                        materialAttributeElementId = uniqueAttributeIds[colourAsString];
+                    if (uniqueAttributeIds.TryGetValue(colourAsString, out var value))
+                        materialAttributeElementId = value;
                     else
                     {
                         materialAttributeElementId = IdGenUtils.NextId;
@@ -372,7 +377,7 @@ namespace JTfy
 
                     var triStripSetShapeNodeElement = new TriStripSetShapeNodeElement(geometricSet, IdGenUtils.NextId)
                     {
-                        AttributeObjectIds = new List<int>() { materialAttributeElementId }
+                        AttributeObjectIds = [materialAttributeElementId]
                     };
 
                     elements.Add(triStripSetShapeNodeElement);
@@ -386,13 +391,13 @@ namespace JTfy
 
                     ProcessAttributes(new JTNode()
                     {
-                        GeometricSets = new GeometricSet[] { geometricSet }
+                        GeometricSets = [geometricSet]
                     }, triStripSetShapeNodeElement.ObjectId);
                 }
 
                 var rangeLODNodeElement = new RangeLODNodeElement(IdGenUtils.NextId)
                 {
-                    ChildNodeObjectIds = new List<int>() { groupNodeElement.ObjectId },
+                    ChildNodeObjectIds = [groupNodeElement.ObjectId],
 
                     Center = new CoordF32(x / count, y / count, z / count)
                 };
@@ -438,7 +443,7 @@ namespace JTfy
                     if ((monolithic && elementType != triStripSetShapeNodeElementType) || (!monolithic && elementType != partitionNodeElementType)) continue;
 
                     CountRange vertexCountRange, nodeCountRange, polygonCountRange;
-                    BBoxF32 untransformedBBox;
+                    BBoxF32? untransformedBBox;
 
                     if (monolithic)
                     {
@@ -475,8 +480,8 @@ namespace JTfy
                     polygonCountMin += polygonCountRange.Min;
                     polygonCountMax += polygonCountRange.Max;
 
-                    var minCorner = untransformedBBox.MinCorner;
-                    var maxCorner = untransformedBBox.MaxCorner;
+                    var minCorner = untransformedBBox?.MinCorner ?? new();
+                    var maxCorner = untransformedBBox?.MaxCorner ?? new();
 
                     if (!firstTriStripSetShapeNodeElementVisited)
                     {
@@ -505,7 +510,7 @@ namespace JTfy
 
                 var partitionNodeElement = new PartitionNodeElement(IdGenUtils.NextId)
                 {
-                    ChildNodeObjectIds = new List<int>() { nodeElement.ObjectId },
+                    ChildNodeObjectIds = [nodeElement.ObjectId],
 
                     Area = area,
                     VertexCountRange = new CountRange(vertexCountMin, vertexCountMax),
@@ -525,6 +530,8 @@ namespace JTfy
 
             ProcessAttributes(node, nodeElement.ObjectId);
 
+            onProgress?.Invoke(null, "Building JT structures", "");
+
             return nodeElement;
         }
 
@@ -537,7 +544,7 @@ namespace JTfy
                 var key = attribute.Key.Trim();
                 var value = attribute.Value;
 
-                while (key.EndsWith(":")) key = key.Substring(0, key.Length - 1);
+                while (key.EndsWith(':')) key = key[..^1];
                 while (key.Contains("::")) key = key.Replace("::", ":");
 
                 if (key.Length == 0) continue;
@@ -586,8 +593,8 @@ namespace JTfy
 
                 int keyId;
 
-                if (uniquePropertyIds.ContainsKey(keyLookupKey))
-                    keyId = uniquePropertyIds[keyLookupKey];
+                if (uniquePropertyIds.TryGetValue(keyLookupKey, out var newKeyId))
+                    keyId = newKeyId;
                 else
                 {
                     keyId = IdGenUtils.NextId;
@@ -602,8 +609,8 @@ namespace JTfy
 
                 int valueId;
 
-                if (uniquePropertyIds.ContainsKey(valueLookupKey))
-                    valueId = uniquePropertyIds[valueLookupKey];
+                if (uniquePropertyIds.TryGetValue(valueLookupKey, out var newValueId))
+                    valueId = newValueId;
                 else
                 {
                     valueId = IdGenUtils.NextId;
@@ -643,9 +650,9 @@ namespace JTfy
             propertyTableContents.Add(nodeElementId, new NodePropertyTable(keys, values));
         }
 
-        private SegmentHeader GetMetaDataSegmentHeader(JTNode node)
+        private SegmentHeader? GetMetaDataSegmentHeader(JTNode node)
         {
-            if (uniqueMetaDataSegmentHeaders.ContainsKey(node)) return uniqueMetaDataSegmentHeaders[node];
+            if (uniqueMetaDataSegmentHeaders.TryGetValue(node, out var existingMetaDataSegmentHeader)) return existingMetaDataSegmentHeader;
 
             var attributes = node.Attributes;
 

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class BasePropertyAtomElement : BaseDataStructure
     {
@@ -25,7 +22,7 @@ namespace JTfy
                 bytesList.AddRange(StreamUtils.ToBytes(ObjectID));
                 bytesList.AddRange(StreamUtils.ToBytes(StateFlags));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

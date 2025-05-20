@@ -1,19 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace JTfy
 {
     public class DataArray<T> : BaseDataStructure
     {
-        protected T[] data;
+        protected T[] data = [];
 
-        public override int ByteCount
-        {
-            get
-            {
-                return data.Length * Marshal.SizeOf(typeof(T));
-            }
-        }
+        public override int ByteCount => data.Length * Marshal.SizeOf<T>();
 
         public override byte[] Bytes
         {
@@ -26,7 +19,7 @@ namespace JTfy
                     bytesList.AddRange(StreamUtils.ToBytes(data[i]));
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
     }

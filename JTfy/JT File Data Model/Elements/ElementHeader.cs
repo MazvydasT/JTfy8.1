@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class ElementHeader : BaseDataStructure
     {
@@ -24,7 +20,7 @@ namespace JTfy
                 bytesList.AddRange(ObjectTypeID.Bytes);
                 bytesList.Add(ObjectBaseType);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public static class ArithmeticDecoder
     {
@@ -104,7 +99,7 @@ namespace JTfy
                 }
             }
 
-            return decodedSymbols.ToArray();
+            return [.. decodedSymbols];
         }
 
         private static void GetNextCodeText(BitStream bitStream, out Int32 bitBuffer, out Int32 bits)

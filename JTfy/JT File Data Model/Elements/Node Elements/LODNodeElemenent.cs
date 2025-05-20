@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class LODNodeElement : GroupNodeElement
     {
-        private readonly VecF32 reservedField1 = new VecF32();
+        private readonly VecF32 reservedField1 = new();
         private readonly int reservedField2 = 0;
 
         public override int ByteCount { get { return base.ByteCount + reservedField1.ByteCount + 4; } }
@@ -20,7 +17,7 @@ namespace JTfy
                 bytesList.AddRange(reservedField1.Bytes);
                 bytesList.AddRange(StreamUtils.ToBytes(reservedField2));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

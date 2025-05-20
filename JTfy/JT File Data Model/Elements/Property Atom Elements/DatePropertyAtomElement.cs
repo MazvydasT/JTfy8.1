@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class DatePropertyAtomElement : BasePropertyAtomElement
     {
@@ -26,7 +22,7 @@ namespace JTfy
 
                 bytesList.AddRange(Date.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

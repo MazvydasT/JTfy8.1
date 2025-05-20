@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
-    public class SegmentHeader : BaseDataStructure
+    public class SegmentHeader(GUID segmentID, int segmentType, int segmentLength) : BaseDataStructure
     {
-        public GUID SegmentID { get; private set; }
-        public int SegmentType { get; private set; }
-        public int SegmentLength { get; private set; }
+        public GUID SegmentID { get; private set; } = segmentID;
+        public int SegmentType { get; private set; } = segmentType;
+        public int SegmentLength { get; private set; } = segmentLength;
 
         public static int Size { get { return GUID.Size + 4 + 4; } }
 
@@ -24,20 +20,13 @@ namespace JTfy
                 bytesList.AddRange(StreamUtils.ToBytes(SegmentType));
                 bytesList.AddRange(StreamUtils.ToBytes(SegmentLength));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
         public override string ToString()
         {
             return String.Format("{0}|{1}|{2}", SegmentID, SegmentType, SegmentLength);
-        }
-
-        public SegmentHeader(GUID segmentID, int segmentType, int segmentLength)
-        {
-            SegmentID = segmentID;
-            SegmentType = segmentType;
-            SegmentLength = segmentLength;
         }
 
         public SegmentHeader(Stream stream) : this(new GUID(stream), StreamUtils.ReadInt32(stream), StreamUtils.ReadInt32(stream)) { }

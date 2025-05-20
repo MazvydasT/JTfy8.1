@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class VertexShapeNodeElement : BaseShapeNodeElement
     {
@@ -27,7 +24,7 @@ namespace JTfy
                 bytesList.AddRange(StreamUtils.ToBytes(ColourBinding));
                 bytesList.AddRange(QuantizationParameters.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

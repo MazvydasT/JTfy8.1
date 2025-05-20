@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-#if DEBUG
+﻿#if DEBUG
 using System.Diagnostics;
 #endif
 
@@ -11,8 +7,8 @@ namespace JTfy
     public class LSGSegment : BaseDataStructure
     {
 #if DEBUG
-        private readonly List<ElementHeader> graphElementHeaders = new List<ElementHeader>();
-        private readonly List<ElementHeader> propertyAtomElementHeaders = new List<ElementHeader>();
+        private readonly List<ElementHeader> graphElementHeaders = [];
+        private readonly List<ElementHeader> propertyAtomElementHeaders = [];
 #endif
 
         public List<BaseDataStructure> GraphElements { get; private set; }
@@ -79,7 +75,7 @@ namespace JTfy
 
                 bytesList.AddRange(PropertyTable.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
@@ -92,7 +88,7 @@ namespace JTfy
 
         public LSGSegment(Stream stream)
         {
-            GraphElements = new List<BaseDataStructure>();
+            GraphElements = [];
 
             while (true)
             {
@@ -106,14 +102,20 @@ namespace JTfy
                 graphElementHeaders.Add(elementHeader);
 #endif
 
-                if (ConstUtils.ObjectTypeIdToType.ContainsKey(objectTypeIdAsString))
-                    GraphElements.Add((BaseDataStructure)Activator.CreateInstance(ConstUtils.ObjectTypeIdToType[objectTypeIdAsString].Item1, new object[] { stream }));
+                if (ConstUtils.ObjectTypeIdToType.TryGetValue(objectTypeIdAsString, out var value))
+                {
+                    var instance = Activator.CreateInstance(value.Item1, [stream]);
+
+                    if (instance != null)
+                        GraphElements.Add((BaseDataStructure)instance);
+                }
+
                 else
                     throw new NotImplementedException(String.Format("Case not defined for Graph Element Object Type {0}", objectTypeIdAsString));
             }
 
         StartOfPropertyAtoms:
-            PropertyAtomElements = new List<BasePropertyAtomElement>();
+            PropertyAtomElements = [];
 
             while (true)
             {
@@ -127,8 +129,14 @@ namespace JTfy
                 propertyAtomElementHeaders.Add(elementHeader);
 #endif
 
-                if (ConstUtils.ObjectTypeIdToType.ContainsKey(objectTypeIdAsString))
-                    PropertyAtomElements.Add((BasePropertyAtomElement)Activator.CreateInstance(ConstUtils.ObjectTypeIdToType[objectTypeIdAsString].Item1, new object[] { stream }));
+                if (ConstUtils.ObjectTypeIdToType.TryGetValue(objectTypeIdAsString, out Tuple<Type, byte>? value))
+                {
+                    var instance = Activator.CreateInstance(value.Item1, [stream]);
+
+                    if (instance != null)
+                        PropertyAtomElements.Add((BasePropertyAtomElement)instance);
+                }
+
                 else
                     throw new NotImplementedException(String.Format("Case not defined for Atom Property Object Type {0}", objectTypeIdAsString));
             }

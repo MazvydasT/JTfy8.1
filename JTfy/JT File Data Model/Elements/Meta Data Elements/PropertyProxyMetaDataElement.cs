@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class PropertyProxyMetaDataElement : BaseDataStructure
     {
@@ -120,7 +116,7 @@ namespace JTfy
 
                 bytesList.AddRange(new MbString("").Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
@@ -191,9 +187,9 @@ namespace JTfy
 
         public PropertyProxyMetaDataElement(Stream stream)
         {
-            PropertyKeys = new List<MbString>();
-            PropertyValueTypes = new List<byte>();
-            PropertyValues = new List<object>();
+            PropertyKeys = [];
+            PropertyValueTypes = [];
+            PropertyValues = [];
 
             var propertyKey = new MbString(stream);
 

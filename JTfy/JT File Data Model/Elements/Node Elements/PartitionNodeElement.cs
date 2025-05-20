@@ -1,32 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class PartitionNodeElement : GroupNodeElement
     {
         public int PartitionFlags { get; private set; }
 
-        private MbString fileName = new MbString();
+        private MbString fileName = new();
         public MbString FileName { get { return fileName; } set { fileName = value; } }
 
-        private BBoxF32 transformedBBox = new BBoxF32();
+        private BBoxF32 transformedBBox = new();
         public BBoxF32 TransformedBBox { get { return transformedBBox; } set { transformedBBox = value; } }
 
         public float Area { get; set; }
 
-        private CountRange vertexCountRange = new CountRange();
+        private CountRange vertexCountRange = new();
         public CountRange VertexCountRange { get { return vertexCountRange; } set { vertexCountRange = value; } }
 
-        private CountRange nodeCountRange = new CountRange();
+        private CountRange nodeCountRange = new();
         public CountRange NodeCountRange { get { return nodeCountRange; } set { nodeCountRange = value; } }
 
-        private CountRange polygonCountRange = new CountRange();
+        private CountRange polygonCountRange = new();
         public CountRange PolygonCountRange { get { return polygonCountRange; } set { polygonCountRange = value; } }
 
-        private BBoxF32 untransformedBBox = null;
-        public BBoxF32 UntransformedBBox { get { return untransformedBBox; } set { untransformedBBox = value; PartitionFlags = value == null ? 0 : 1; } }
+        private BBoxF32? untransformedBBox = null;
+        public BBoxF32? UntransformedBBox { get { return untransformedBBox; } set { untransformedBBox = value; PartitionFlags = value == null ? 0 : 1; } }
 
         override public Int32 ByteCount
         {
@@ -61,7 +57,7 @@ namespace JTfy
                     bytesList.AddRange(UntransformedBBox.Bytes);
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class GeometricTransformAttributeElement : BaseAttributeElement
     {
@@ -33,14 +29,14 @@ namespace JTfy
                     bytesList.AddRange(StreamUtils.ToBytes(ElementValues[i]));
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
         public GeometricTransformAttributeElement(float[] transformationMatrix, int objectId)
             : base(objectId)
         {
-            if (transformationMatrix == null) transformationMatrix = ConstUtils.IndentityMatrix;
+            transformationMatrix ??= ConstUtils.IndentityMatrix;
 
             var transformationMatrixLength = transformationMatrix.Length;
 
@@ -68,7 +64,7 @@ namespace JTfy
                 mask >>= 1;
             }
 
-            ElementValues = elementValueList.ToArray();
+            ElementValues = [.. elementValueList];
 
             TransformationMatrix = transformationMatrix;
         }
@@ -96,7 +92,7 @@ namespace JTfy
                 storedValuesMask = (UInt16)(storedValuesMask << 1);
             }
 
-            ElementValues = elementValueList.ToArray();
+            ElementValues = [.. elementValueList];
         }
     }
 }

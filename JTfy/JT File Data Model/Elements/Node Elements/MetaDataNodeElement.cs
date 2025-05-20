@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class MetaDataNodeElement : GroupNodeElement
     {
@@ -19,7 +15,7 @@ namespace JTfy
                 bytesList.AddRange(base.Bytes);
                 bytesList.AddRange(StreamUtils.ToBytes(versionNumber));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

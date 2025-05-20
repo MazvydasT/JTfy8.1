@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class BaseNodeElement : BaseDataStructure
     {
@@ -10,8 +7,8 @@ namespace JTfy
 
         public int AttributeCount { get { return AttributeObjectIds.Count; } }
 
-        private List<int> attributeObjectIds = new List<int>();
-        public List<int> AttributeObjectIds { get { return attributeObjectIds; } set { attributeObjectIds = value ?? new List<int>(); } }
+        private List<int> attributeObjectIds = [];
+        public List<int> AttributeObjectIds { get { return attributeObjectIds; } set { attributeObjectIds = value ?? []; } }
 
         public override int ByteCount { get { return 4 + 4 + 4 + AttributeCount * 4; } }
 
@@ -30,7 +27,7 @@ namespace JTfy
                     bytesList.AddRange(StreamUtils.ToBytes(AttributeObjectIds[i]));
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

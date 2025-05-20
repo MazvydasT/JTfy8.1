@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class NodePropertyTable : BaseDataStructure
     {
@@ -31,7 +27,7 @@ namespace JTfy
 
                 bytesList.AddRange(StreamUtils.ToBytes((int)0));
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
@@ -43,8 +39,8 @@ namespace JTfy
 
         public NodePropertyTable(Stream stream)
         {
-            KeyPropertyAtomObjectIDs = new List<Int32>();
-            ValuePropertyAtomObjectIDs = new List<Int32>();
+            KeyPropertyAtomObjectIDs = [];
+            ValuePropertyAtomObjectIDs = [];
 
             var keyPropertyAtomObjectID = StreamUtils.ReadInt32(stream);
 

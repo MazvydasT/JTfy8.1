@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
-    public class PointQuantizerData : BaseDataStructure
+    public class PointQuantizerData(UniformQuantizerData x, UniformQuantizerData y, UniformQuantizerData z) : BaseDataStructure
     {
-        public UniformQuantizerData X { get; private set; }
-        public UniformQuantizerData Y { get; private set; }
-        public UniformQuantizerData Z { get; private set; }
+        public UniformQuantizerData X { get; private set; } = x;
+        public UniformQuantizerData Y { get; private set; } = y;
+        public UniformQuantizerData Z { get; private set; } = z;
 
         public override int ByteCount { get { return X.ByteCount + Y.ByteCount + Z.ByteCount; } }
 
@@ -21,15 +18,8 @@ namespace JTfy
                 bytesList.AddRange(Y.Bytes);
                 bytesList.AddRange(Z.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
-        }
-
-        public PointQuantizerData(UniformQuantizerData x, UniformQuantizerData y, UniformQuantizerData z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
         }
 
         public PointQuantizerData(Stream stream) : this(new UniformQuantizerData(stream), new UniformQuantizerData(stream), new UniformQuantizerData(stream)) { }

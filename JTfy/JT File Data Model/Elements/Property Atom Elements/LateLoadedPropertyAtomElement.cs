@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class LateLoadedPropertyAtomElement : BasePropertyAtomElement
     {
@@ -27,7 +23,7 @@ namespace JTfy
                 bytesArray.AddRange(SegmentId.Bytes);
                 bytesArray.AddRange(StreamUtils.ToBytes(SegmentType));
 
-                return bytesArray.ToArray();
+                return [.. bytesArray];
             }
         }
 

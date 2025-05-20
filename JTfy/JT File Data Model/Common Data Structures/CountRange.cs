@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class CountRange : DataArray<int>
     {
@@ -9,20 +7,20 @@ namespace JTfy
 
         public CountRange(Stream stream)
         {
-            data = new int[]
-            {
+            data =
+            [
                 StreamUtils.ReadInt32(stream),
                 StreamUtils.ReadInt32(stream)
-            };
+            ];
         }
 
         public CountRange(int minCount, int maxCount)
         {
-            data = new int[]
-            {
+            data =
+            [
                 minCount,
                 maxCount
-            };
+            ];
         }
 
         public CountRange() : this(0, 0) { }

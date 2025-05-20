@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class VertexBasedShapeCompressedRepData : BaseDataStructure
     {
@@ -26,7 +22,7 @@ namespace JTfy
                     primitiveListIndices.Add(triStrip[0]);
 
                     if (i + 1 == triStripsCount)
-                        primitiveListIndices.Add(triStrip[triStrip.Length - 1] + 1);
+                        primitiveListIndices.Add(triStrip[^1] + 1);
                 }
 
                 return primitiveListIndices;
@@ -36,18 +32,15 @@ namespace JTfy
         public LosslessCompressedRawVertexData LosslessCompressedRawVertexData { get; private set; }
 
         public float[][] Positions { get; private set; }
-        public float[][] Normals { get; private set; }
+        public float[][]? Normals { get; private set; }
         public int[][] TriStrips { get; private set; }
 
-        private byte[] primitiveListIndicesInt32CompressedDataPacketBytes = null;
+        private byte[]? primitiveListIndicesInt32CompressedDataPacketBytes = null;
         private byte[] PrimitiveListIndicesInt32CompressedDataPacketBytes
         {
             get
             {
-                if (primitiveListIndicesInt32CompressedDataPacketBytes == null)
-                {
-                    primitiveListIndicesInt32CompressedDataPacketBytes = Int32CompressedDataPacket.Encode(PrimitiveListIndices.ToArray(), Int32CompressedDataPacket.PredictorType.Stride1);
-                }
+                primitiveListIndicesInt32CompressedDataPacketBytes ??= Int32CompressedDataPacket.Encode([.. PrimitiveListIndices], Int32CompressedDataPacket.PredictorType.Stride1);
 
                 return primitiveListIndicesInt32CompressedDataPacketBytes;
             }
@@ -75,11 +68,11 @@ namespace JTfy
                 bytesList.AddRange(PrimitiveListIndicesInt32CompressedDataPacketBytes);
                 bytesList.AddRange(LosslessCompressedRawVertexData.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
-        public VertexBasedShapeCompressedRepData(int[][] triStrips, float[][] vertexPositions, float[][] vertexNormals = null)
+        public VertexBasedShapeCompressedRepData(int[][] triStrips, float[][] vertexPositions, float[][]? vertexNormals = null)
         {
             VersionNumber = 1;
             NormalBinding = (byte)(vertexNormals == null ? 0 : 1);
@@ -112,7 +105,7 @@ namespace JTfy
                     var vertexIndex = triStrip[i];
 
                     newVertexPositions.Add(vertexPositions[vertexIndex]);
-                    if (vertexNormals != null) newVertexNormals.Add(vertexNormals[vertexIndex]);
+                    if (vertexNormals != null) newVertexNormals?.Add(vertexNormals[vertexIndex]);
                 }
 
                 newTriStrips[triStripIndex] = newTriStrip;
@@ -121,8 +114,8 @@ namespace JTfy
             TriStrips = newTriStrips;
 
             TriStrips = newTriStrips;
-            Positions = newVertexPositions.ToArray();
-            Normals = vertexNormals != null ? newVertexNormals.ToArray() : null;
+            Positions = [.. newVertexPositions];
+            Normals = vertexNormals != null ? [.. newVertexNormals ?? []] : null;
 
             //Next build vertex data from positons and normals eg x y z, xn yn zn -> repeat
             //Next convert vertex data to byte array
@@ -133,11 +126,14 @@ namespace JTfy
             {
                 if (vertexNormals != null)
                 {
-                    var vertexNormal = Normals[i];
+                    var vertexNormal = Normals?[i];
 
-                    vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[0]));
-                    vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[1]));
-                    vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[2]));
+                    if (vertexNormal != null)
+                    {
+                        vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[0]));
+                        vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[1]));
+                        vertexData.AddRange(StreamUtils.ToBytes(vertexNormal[2]));
+                    }
                 }
 
                 var vertexPosition = Positions[i];
@@ -147,7 +143,7 @@ namespace JTfy
                 vertexData.AddRange(StreamUtils.ToBytes(vertexPosition[2]));
             }
 
-            LosslessCompressedRawVertexData = new LosslessCompressedRawVertexData(vertexData.ToArray());
+            LosslessCompressedRawVertexData = new LosslessCompressedRawVertexData([.. vertexData]);
         }
 
         public VertexBasedShapeCompressedRepData(Stream stream)
@@ -187,16 +183,16 @@ namespace JTfy
 
             for (int i = 0; i < vertexEntryCount; ++i)
             {
-                if (readTextureCoords)
-                    vertexTextureCoordinates[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
+                if (readTextureCoords && vertexTextureCoordinates != null)
+                    vertexTextureCoordinates[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
 
-                if (readColours)
-                    vertexColours[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
+                if (readColours && vertexColours != null)
+                    vertexColours[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
 
-                if (readNormals)
-                    vertexNormals[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
+                if (readNormals && vertexNormals != null)
+                    vertexNormals[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
 
-                vertexPositions[i] = new float[] { StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream) };
+                vertexPositions[i] = [StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream), StreamUtils.ReadFloat(vertexDataStream)];
             }
 
             Positions = vertexPositions;

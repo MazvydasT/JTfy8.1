@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-//using System.Linq;
+﻿//using System.Linq;
 
 namespace JTfy
 {
@@ -54,7 +51,7 @@ namespace JTfy
                 }
             }
 
-            return decodedSymbols.ToArray();
+            return [.. decodedSymbols];
         }
 
         /*private static Int32 GetBitFieldWidth(Int32 symbol)

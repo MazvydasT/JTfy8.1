@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
-    public class UniformQuantizerData : BaseDataStructure
+    public class UniformQuantizerData(Stream stream) : BaseDataStructure
     {
-        public Single Min { get; protected set; }
-        public Single Max { get; protected set; }
-        public Byte NumberOfBits { get; protected set; }
+        public Single Min { get; protected set; } = StreamUtils.ReadFloat(stream);
+        public Single Max { get; protected set; } = StreamUtils.ReadFloat(stream);
+        public Byte NumberOfBits { get; protected set; } = StreamUtils.ReadByte(stream);
 
         public override int ByteCount
         {
@@ -28,15 +24,8 @@ namespace JTfy
                 bytesList.AddRange(StreamUtils.ToBytes(Max));
                 bytesList.Add(NumberOfBits);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
-        }
-
-        public UniformQuantizerData(Stream stream)
-        {
-            Min = StreamUtils.ReadFloat(stream);
-            Max = StreamUtils.ReadFloat(stream);
-            NumberOfBits = StreamUtils.ReadByte(stream);
         }
     }
 }

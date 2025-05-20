@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class StringPropertyAtomElement : BasePropertyAtomElement
     {
@@ -24,7 +21,7 @@ namespace JTfy
                 bytesList.AddRange(base.Bytes);
                 bytesList.AddRange(Value.Bytes);
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace JTfy
+﻿namespace JTfy
 {
     public class PropertyTable
     {
@@ -42,7 +38,7 @@ namespace JTfy
                     bytesList.AddRange(NodePropertyTables[i].Bytes);
                 }
 
-                return bytesList.ToArray();
+                return [.. bytesList];
             }
         }
 
