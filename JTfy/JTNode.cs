@@ -88,7 +88,7 @@
 
         public JTNode Clone() { return new JTNode(this); }
 
-        public PartitionNodeElement Save(string path, bool monolithic = true, bool separateAttributeSegments = false)
+        public PartitionNodeElement Save(string path, bool monolithic = true, bool separateAttributeSegments = false, Action<float?, string, string>? onProgress = null)
         {
             uniquePropertyIds.Clear();
             uniqueAttributeIds.Clear();
@@ -125,7 +125,7 @@
 
             //FindInstancedNodes(this);
 
-            CreateElement(this);
+            CreateElement(this, onProgress);
 
             // END Create all elements
 
@@ -147,11 +147,16 @@
 
             // Compress LSG Segment
 
+            onProgress?.Invoke(.33f, "Compressing stuff", "");
+
             var compressedLSGSegmentData = CompressionUtils.Compress(lsgSegment.Bytes);
+
+            onProgress?.Invoke(.44f, "Compressing stuff", "- done!");
 
             // END Compress LSG Segment
 
 
+            onProgress?.Invoke(.66f, "Performing binary transmutations", "");
 
             // LSG Segment Logic Element Header ZLIB
 
@@ -247,6 +252,8 @@
                 }
             }
 
+            onProgress?.Invoke(.77f, "Performing binary transmutations", "- done!");
+
             // END Write to file
 
             if (elements.Count == 0)
@@ -255,7 +262,7 @@
             return (PartitionNodeElement)elements[0];
         }
 
-        private BaseNodeElement CreateElement(JTNode node)
+        private BaseNodeElement CreateElement(JTNode node, Action<float?, string, string>? onProgress = null)
         {
             if (!monolithic && node.GeometricSets.Length > 0)
             {
@@ -298,7 +305,7 @@
 
             for (int i = 0; i < childNodesCount; ++i)
             {
-                childNodeObjectIds.Add(CreateElement(childNodes[i]).ObjectId);
+                childNodeObjectIds.Add(CreateElement(childNodes[i], onProgress).ObjectId);
             }
 
             // END Process children and store their IDs
@@ -522,6 +529,8 @@
             elements.Add(nodeElement);
 
             ProcessAttributes(node, nodeElement.ObjectId);
+
+            onProgress?.Invoke(null, "Building JT structures", "");
 
             return nodeElement;
         }

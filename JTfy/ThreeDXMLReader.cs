@@ -7,7 +7,7 @@ namespace JTfy
 {
     public static class ThreeDXMLReader
     {
-        public static JTNode Read(string path)
+        public static JTNode Read(string path, out int nodeCount, Action<float>? onProgress = null)
         {
             JTNode rootNode;
 
@@ -39,13 +39,13 @@ namespace JTfy
 
                 if (threeDXMLEntry == null) throw new Exception(String.Format("{0} does not contain PRODUCT.3dxml file.", path));
 
-                rootNode = BuildStructure(threeDXMLEntry.Open(), partEntries);
+                rootNode = BuildStructure(threeDXMLEntry.Open(), partEntries, out nodeCount, onProgress);
             }
 
             return rootNode;
         }
 
-        private static JTNode BuildStructure(Stream threeDXMLFileStream, Dictionary<string, ZipArchiveEntry> partEntries)
+        private static JTNode BuildStructure(Stream threeDXMLFileStream, Dictionary<string, ZipArchiveEntry> partEntries, out int nodeCount, Action<float>? onProgress = null)
         {
             var threeDXMLDocument = new XmlDocument();
             threeDXMLDocument.Load(threeDXMLFileStream);
@@ -57,10 +57,19 @@ namespace JTfy
 
             var referenceElementCount = referenceElements?.Count ?? 0;
 
+            var instanceElements = threeDXMLDocument.SelectNodes("//*[local-name()='Instance3D' or local-name()='InstanceRep']", xmlNamespaceManager);
+
+            var instanceElementsCount = instanceElements?.Count ?? 0;
+
+            var totalCount = referenceElementCount + instanceElementsCount;
+            var progressCounter = 0;
+
             var nodes = new Dictionary<string, JTNode>(referenceElementCount);
 
             for (int i = 0; i < referenceElementCount; ++i)
             {
+                onProgress?.Invoke(++progressCounter / (float)totalCount);
+
                 var reference3DElement = referenceElements?[i];
 
                 if (reference3DElement == null) continue;
@@ -72,12 +81,10 @@ namespace JTfy
                 nodes[idAttributeValue] = XMLElement2Node(reference3DElement, partEntries);
             }
 
-            var instanceElements = threeDXMLDocument.SelectNodes("//*[local-name()='Instance3D' or local-name()='InstanceRep']", xmlNamespaceManager);
-
-            var instanceElementsCount = instanceElements?.Count ?? 0;
-
             for (int i = 0, c = instanceElementsCount; i < c; ++i)
             {
+                onProgress?.Invoke(++progressCounter / (float)totalCount);
+
                 var instanceElement = instanceElements?[i];
 
                 if (instanceElement == null) continue;
@@ -140,6 +147,8 @@ namespace JTfy
 
             var productStructureElement = threeDXMLDocument.SelectSingleNode("//ns:ProductStructure", xmlNamespaceManager);
             var rootId = productStructureElement?.Attributes?["root"]?.Value ?? "";
+
+            nodeCount = nodes.Count;
 
             return nodes[rootId];
         }
