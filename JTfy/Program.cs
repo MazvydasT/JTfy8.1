@@ -1,16 +1,24 @@
 ﻿using CommandLine;
 using JTfy;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
-
-var startTime = DateTime.Now;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-if (args.Length == 1 && File.Exists(args[0]))
-    args = ["-i", args[0]];
+var startTime = DateTime.Now;
 
-var result = Parser.Default.ParseArguments<CommanLineOptions>(args);
-var options = result.Value;
+[DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(CommanLineOptions))]
+CommanLineOptions? getOptions(string[] args)
+{
+    if (args.Length == 1 && File.Exists(args[0]))
+        args = ["-i", args[0]];
+
+    var result = Parser.Default.ParseArguments<CommanLineOptions>(args);
+
+    return result.Value;
+}
+
+var options = getOptions(args);
 
 if (options == null) return;
 
@@ -60,8 +68,8 @@ var printProgress = (float progress, string message, string messageExt) =>
     ];
 
     var textToPrint = String.Join(
-        '\n',
-        rows.Select(row => row.PadRight(width, ' '))
+        "\n",
+        rows.Select(row => row.PadRight(width - 1, ' '))
     );
 
     Console.Write(textToPrint);
