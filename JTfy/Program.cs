@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using CommandLine.Text;
 using JTfy;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
@@ -14,7 +15,22 @@ static CommanLineOptions? getOptions(string[] args)
     if (args.Length == 1 && File.Exists(args[0]))
         args = ["-i", args[0]];
 
-    var result = Parser.Default.ParseArguments<CommanLineOptions>(args);
+    var parser = new Parser(settings => settings.HelpWriter = null);
+
+    var result = parser.ParseArguments<CommanLineOptions>(args);
+
+    result.WithNotParsed(_ =>
+    {
+        var helpText = HelpText.AutoBuild(result, helpText =>
+        {
+            helpText.AddNewLineBetweenHelpSections = true;
+            helpText.AdditionalNewLineAfterOption = false;
+
+            return helpText;
+        }, maxDisplayWidth: Console.WindowWidth);
+
+        Console.Error.WriteLine(helpText);
+    });
 
     return result.Value;
 }
@@ -40,7 +56,7 @@ var printProgress = (float progress, string message, string messageExt) =>
     var width = Console.WindowWidth;
     var height = Console.WindowHeight;
 
-    if(lastWidth != width || lastHeight != height)
+    if (lastWidth != width || lastHeight != height)
     {
         Console.Clear();
 
