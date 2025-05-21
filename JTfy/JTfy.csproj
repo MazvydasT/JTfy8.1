@@ -9,6 +9,7 @@
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(Version)</FileVersion>
 		<PublishAot>true</PublishAot>
+		<Copyright>MIT License</Copyright>
 	</PropertyGroup>
 
   <ItemGroup>

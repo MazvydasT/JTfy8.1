@@ -9,7 +9,7 @@ Console.Clear();
 var startTime = DateTime.Now;
 
 [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(CommanLineOptions))]
-CommanLineOptions? getOptions(string[] args)
+static CommanLineOptions? getOptions(string[] args)
 {
     if (args.Length == 1 && File.Exists(args[0]))
         args = ["-i", args[0]];
