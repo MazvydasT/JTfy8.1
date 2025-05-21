@@ -11,6 +11,6 @@ namespace JTfy
         public string? Output { get; set; }
 
         [Option('m', "monolithic", Default = true, Required = false, HelpText = "Produces single JT file")]
-        public bool Monolithic { get; set; }
+        public bool? Monolithic { get; set; }
     }
 }

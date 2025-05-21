@@ -25,7 +25,7 @@ if (options == null) return;
 
 var sourcePath = options.Input;
 
-var monolithic = options.Monolithic;
+var monolithic = options.Monolithic ?? false;
 
 var destinationPath = options.Output ?? Path.Combine(Path.GetDirectoryName(sourcePath) ?? "", Path.GetFileNameWithoutExtension(sourcePath) + ".jt");
 
