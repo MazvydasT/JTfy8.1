@@ -10,6 +10,7 @@ Console.Clear();
 var startTime = DateTime.Now;
 
 [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(CommanLineOptions))]
+[DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(PositionalForExampleOnly))]
 static CommanLineOptions? getOptions(string[] args)
 {
     if (args.Length == 1 && File.Exists(args[0]))
