@@ -52,9 +52,9 @@ namespace JTfy
                 for (int i = 0, c = GraphElements.Count; i < c; ++i)
                 {
                     var graphElement = GraphElements[i];
-                    var objectTypeIdBaseTypePair = ConstUtils.TypeToObjectTypeId[graphElement.GetType()];
+                    var (objectTypeId, objectBaseType, _) = ConstUtils.TypeToObjectTypeId[graphElement.GetType()];
 
-                    bytesList.AddRange(new ElementHeader(graphElement.ByteCount + GUID.Size + 1, new GUID(objectTypeIdBaseTypePair.Item1), objectTypeIdBaseTypePair.Item2).Bytes);
+                    bytesList.AddRange(new ElementHeader(graphElement.ByteCount + GUID.Size + 1, new GUID(objectTypeId), objectBaseType).Bytes);
                     bytesList.AddRange(graphElement.Bytes);
                 }
 
@@ -64,9 +64,9 @@ namespace JTfy
                 for (int i = 0, c = PropertyAtomElements.Count; i < c; ++i)
                 {
                     var propertyAtomElement = PropertyAtomElements[i];
-                    var objectTypeIdBaseTypePair = ConstUtils.TypeToObjectTypeId[propertyAtomElement.GetType()];
+                    var (objectTypeId, objectBaseType, _) = ConstUtils.TypeToObjectTypeId[propertyAtomElement.GetType()];
 
-                    bytesList.AddRange(new ElementHeader(propertyAtomElement.ByteCount + GUID.Size + 1, new GUID(objectTypeIdBaseTypePair.Item1), objectTypeIdBaseTypePair.Item2).Bytes);
+                    bytesList.AddRange(new ElementHeader(propertyAtomElement.ByteCount + GUID.Size + 1, new GUID(objectTypeId), objectBaseType).Bytes);
                     bytesList.AddRange(propertyAtomElement.Bytes);
                 }
 
@@ -103,12 +103,7 @@ namespace JTfy
 #endif
 
                 if (ConstUtils.ObjectTypeIdToType.TryGetValue(objectTypeIdAsString, out var value))
-                {
-                    var instance = Activator.CreateInstance(value.Item1, [stream]);
-
-                    if (instance != null)
-                        GraphElements.Add((BaseDataStructure)instance);
-                }
+                    GraphElements.Add((BaseDataStructure)value.factory(stream));
 
                 else
                     throw new NotImplementedException(String.Format("Case not defined for Graph Element Object Type {0}", objectTypeIdAsString));
@@ -129,13 +124,8 @@ namespace JTfy
                 propertyAtomElementHeaders.Add(elementHeader);
 #endif
 
-                if (ConstUtils.ObjectTypeIdToType.TryGetValue(objectTypeIdAsString, out Tuple<Type, byte>? value))
-                {
-                    var instance = Activator.CreateInstance(value.Item1, [stream]);
-
-                    if (instance != null)
-                        PropertyAtomElements.Add((BasePropertyAtomElement)instance);
-                }
+                if (ConstUtils.ObjectTypeIdToType.TryGetValue(objectTypeIdAsString, out var value))
+                    PropertyAtomElements.Add((BasePropertyAtomElement)value.factory(stream));
 
                 else
                     throw new NotImplementedException(String.Format("Case not defined for Atom Property Object Type {0}", objectTypeIdAsString));

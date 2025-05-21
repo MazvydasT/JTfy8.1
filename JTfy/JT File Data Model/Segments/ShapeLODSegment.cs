@@ -16,10 +16,9 @@ namespace JTfy
             get
             {
                 var bytesList = new List<byte>(ByteCount);
+                var (objectTypeId, objectBaseType, _) = ConstUtils.TypeToObjectTypeId[ShapeLODElement.GetType()];
 
-                var objectTypeIdBaseTypePair = ConstUtils.TypeToObjectTypeId[ShapeLODElement.GetType()];
-
-                bytesList.AddRange(new ElementHeader(ShapeLODElement.ByteCount + GUID.Size + 1, new GUID(objectTypeIdBaseTypePair.Item1), objectTypeIdBaseTypePair.Item2).Bytes);
+                bytesList.AddRange(new ElementHeader(ShapeLODElement.ByteCount + GUID.Size + 1, new GUID(objectTypeId), objectBaseType).Bytes);
                 bytesList.AddRange(ShapeLODElement.Bytes);
 
                 return [.. bytesList];
@@ -37,8 +36,9 @@ namespace JTfy
 
             var objectTypeIdAsString = elementHeader.ObjectTypeID.ToString();
 
-            if (ConstUtils.ObjectTypeIdToType.TryGetValue(objectTypeIdAsString, out var objectType))
-                ShapeLODElement = (BaseDataStructure)Activator.CreateInstance(objectType.Item1, [stream])!;
+            if (ConstUtils.ObjectTypeIdToType.TryGetValue(objectTypeIdAsString, out var value))
+                ShapeLODElement = (BaseDataStructure)value.factory(stream);
+
             else
                 throw new NotImplementedException(String.Format("Case not defined for Shape LOD Element Object Type {0}", objectTypeIdAsString));
 

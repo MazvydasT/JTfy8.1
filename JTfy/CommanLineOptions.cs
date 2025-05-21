@@ -2,7 +2,8 @@
 using CommandLine.Text;
 
 namespace JTfy
-{   public class PositionalForExampleOnly
+{
+    public class PositionalForExampleOnly
     {
         [Value(0, Required = true, HelpText = "Path to input, 3DXML, file")]
         public required string Input { get; set; }

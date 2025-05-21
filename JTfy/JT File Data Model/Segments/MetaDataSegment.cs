@@ -13,10 +13,9 @@ namespace JTfy
             get
             {
                 var bytesList = new List<byte>(ByteCount);
+                var (objectTypeId, objectBaseType, _) = ConstUtils.TypeToObjectTypeId[MetaDataElement.GetType()];
 
-                var objectTypeIdBaseTypePair = ConstUtils.TypeToObjectTypeId[MetaDataElement.GetType()];
-
-                bytesList.AddRange(new ElementHeader(MetaDataElement.ByteCount + GUID.Size + 1, new GUID(objectTypeIdBaseTypePair.Item1), objectTypeIdBaseTypePair.Item2).Bytes);
+                bytesList.AddRange(new ElementHeader(MetaDataElement.ByteCount + GUID.Size + 1, new GUID(objectTypeId), objectBaseType).Bytes);
                 bytesList.AddRange(MetaDataElement.Bytes);
 
                 return [.. bytesList];
@@ -35,7 +34,8 @@ namespace JTfy
             var objectTypeIdAsString = elementHeader.ObjectTypeID.ToString();
 
             if (ConstUtils.ObjectTypeIdToType.TryGetValue(objectTypeIdAsString, out var value))
-                MetaDataElement = (BaseDataStructure)Activator.CreateInstance(value.Item1, [stream])!;
+                MetaDataElement = (BaseDataStructure)value.factory(stream);
+
             else
                 throw new NotImplementedException(String.Format("Case not defined for Graph Element Object Type {0}", objectTypeIdAsString));
 
